@@ -13,28 +13,12 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "Welcome.md",
+                "file": "01-Folder-Structure.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "Welcome"
-            }
-          }
-        ]
-      },
-      {
-        "id": "7ea2638bd1dcb8c1",
-        "type": "tabs",
-        "children": [
-          {
-            "id": "774ac8e079de0c70",
-            "type": "leaf",
-            "state": {
-              "type": "graph",
-              "state": {},
-              "icon": "lucide-git-fork",
-              "title": "Graph view"
+              "title": "01-Folder-Structure"
             }
           }
         ]
@@ -110,7 +94,7 @@
             "state": {
               "type": "backlink",
               "state": {
-                "file": "Welcome.md",
+                "file": "01-Folder-Structure.md",
                 "collapseAll": false,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
@@ -120,7 +104,7 @@
                 "unlinkedCollapsed": true
               },
               "icon": "links-coming-in",
-              "title": "Backlinks for Welcome"
+              "title": "Backlinks for 01-Folder-Structure"
             }
           },
           {
@@ -129,12 +113,12 @@
             "state": {
               "type": "outgoing-link",
               "state": {
-                "file": "Welcome.md",
+                "file": "01-Folder-Structure.md",
                 "linksCollapsed": false,
                 "unlinkedCollapsed": true
               },
               "icon": "links-going-out",
-              "title": "Outgoing links from Welcome"
+              "title": "Outgoing links from 01-Folder-Structure"
             }
           },
           {
@@ -172,13 +156,13 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "Welcome.md",
+                "file": "01-Folder-Structure.md",
                 "followCursor": false,
                 "showSearch": false,
                 "searchQuery": ""
               },
               "icon": "lucide-list",
-              "title": "Outline of Welcome"
+              "title": "Outline of 01-Folder-Structure"
             }
           }
         ]
@@ -201,6 +185,16 @@
   },
   "active": "3e6ac79a0750841d",
   "lastOpenFiles": [
-    "Welcome.md"
+    "02-Design-System.md",
+    "03-Architecture-Decisions.md",
+    "04-Progress-Tracker.md",
+    "Welcome.md",
+    "01-Folder-Structure.md",
+    "00-Project-Overview.md",
+    "Welcome.md.tmp.20240.1778146662104",
+    "04-Progress-Tracker.md.tmp.20240.1778146647525",
+    "03-Architecture-Decisions.md.tmp.20240.1778146627618",
+    "02-Design-System.md.tmp.20240.1778146615042",
+    "01-Folder-Structure.md.tmp.20240.1778146594639"
   ]
 }
