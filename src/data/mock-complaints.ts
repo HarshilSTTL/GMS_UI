@@ -43,6 +43,7 @@ export const MOCK_COMPLAINTS: Complaint[] = [
     citizenName: 'Sunita Rao', citizenPhone: '+91 94567 89012',
     location: 'Navarangpura', ward: 'Ward 5', district: 'Ahmedabad',
     assignedTo: MOCK_OFFICERS[1],
+    groupId: 'g1',
     createdAt: '2025-05-03T08:45:00Z', updatedAt: '2025-05-06T16:00:00Z',
   },
   {
@@ -89,6 +90,7 @@ export const MOCK_COMPLAINTS: Complaint[] = [
     slaStatus: 'warn', slaDaysLeft: 1,
     citizenName: 'Priya Nair', citizenPhone: '+91 88765 43210',
     location: 'Vatva Industrial Area', ward: 'Ward 22', district: 'Ahmedabad',
+    groupId: 'g1',
     createdAt: '2025-05-06T14:00:00Z', updatedAt: '2025-05-07T09:00:00Z',
   },
   {

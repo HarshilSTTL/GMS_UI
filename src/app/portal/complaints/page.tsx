@@ -1,9 +1,10 @@
 'use client';
 import React, { useState, useMemo } from 'react';
 import Link from 'next/link';
-import { Search, Filter, Download, RotateCcw } from 'lucide-react';
+import { Search, Download, RotateCcw } from 'lucide-react';
+import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
-import { MOCK_COMPLAINTS } from '@/data';
+import { useComplaints } from '@/hooks/useComplaints';
 import { StatusBadge, PriorityBadge, ChannelBadge, SLABadge } from '@/components/gms/StatusBadge';
 import { ComplaintStatus, ComplaintPriority } from '@/types';
 
@@ -43,13 +44,14 @@ function FilterButton({
 }
 
 export default function ComplaintsPage() {
+  const { data: complaints = [], isLoading } = useComplaints();
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState<ComplaintStatus | 'all'>('all');
   const [priorityFilter, setPriorityFilter] = useState<ComplaintPriority | 'all'>('all');
   const [selected, setSelected] = useState<Set<string>>(new Set());
 
   const filtered = useMemo(() => {
-    return MOCK_COMPLAINTS.filter(c => {
+    return complaints.filter(c => {
       if (statusFilter !== 'all' && c.status !== statusFilter) return false;
       if (priorityFilter !== 'all' && c.priority !== priorityFilter) return false;
       if (search) {
@@ -61,7 +63,7 @@ export default function ComplaintsPage() {
       }
       return true;
     });
-  }, [search, statusFilter, priorityFilter]);
+  }, [complaints, search, statusFilter, priorityFilter]);
 
   function toggleSelect(id: string) {
     setSelected(s => {
@@ -87,6 +89,10 @@ export default function ComplaintsPage() {
   }
 
   const hasFilters = search || statusFilter !== 'all' || priorityFilter !== 'all';
+
+  if (isLoading) return (
+    <div className="flex items-center justify-center h-64 text-[13px] text-[#7A8FA6]">Loading complaints…</div>
+  );
 
   return (
     <div>
@@ -152,16 +158,25 @@ export default function ComplaintsPage() {
             <span className="text-[12px] font-semibold text-blue-600 bg-blue-50 px-3 py-1.5 rounded-lg border border-blue-200">
               {selected.size} selected
             </span>
-            <button className="text-[12px] font-semibold bg-[#EA580C] text-white px-3 py-1.5 rounded-lg hover:bg-[#C2430A] transition-colors">
+            <button
+              onClick={() => { toast.success(`🔄 ${selected.size} complaint(s) queued for reassignment.`); setSelected(new Set()); }}
+              className="text-[12px] font-semibold bg-[#EA580C] text-white px-3 py-1.5 rounded-lg hover:bg-[#C2430A] transition-colors"
+            >
               Bulk Reassign
             </button>
-            <button className="text-[12px] font-semibold bg-[#7C3AED] text-white px-3 py-1.5 rounded-lg hover:bg-[#6D28D9] transition-colors">
+            <button
+              onClick={() => { toast.success(`🔗 ${selected.size} complaint(s) grouped successfully.`); setSelected(new Set()); }}
+              className="text-[12px] font-semibold bg-[#7C3AED] text-white px-3 py-1.5 rounded-lg hover:bg-[#6D28D9] transition-colors"
+            >
               Group Selected
             </button>
           </div>
         )}
 
-        <button className="flex items-center gap-1.5 bg-white border border-[#DDE3EE] rounded-lg px-3 py-1.5 text-[12px] text-[#3D5068] font-semibold hover:border-[#C8D0DE] transition-colors">
+        <button
+          onClick={() => toast.success('📥 Exporting complaints to CSV…')}
+          className="flex items-center gap-1.5 bg-white border border-[#DDE3EE] rounded-lg px-3 py-1.5 text-[12px] text-[#3D5068] font-semibold hover:border-[#C8D0DE] transition-colors"
+        >
           <Download size={13} /> Export
         </button>
       </div>
@@ -282,7 +297,7 @@ export default function ComplaintsPage() {
       {/* Pagination placeholder */}
       {filtered.length > 0 && (
         <div className="flex items-center justify-between mt-4 text-[12px] text-[#7A8FA6]">
-          <span>Showing {filtered.length} of {MOCK_COMPLAINTS.length} complaints</span>
+          <span>Showing {filtered.length} of {complaints.length} complaints</span>
           <div className="flex items-center gap-1">
             <button className="px-3 py-1.5 border border-[#DDE3EE] rounded-lg bg-white hover:border-[#C8D0DE] transition-colors">← Prev</button>
             <button className="px-3 py-1.5 border border-blue-600 rounded-lg bg-blue-600 text-white font-semibold">1</button>

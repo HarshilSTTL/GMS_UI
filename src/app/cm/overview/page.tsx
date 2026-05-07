@@ -1,7 +1,6 @@
 'use client';
 import React from 'react';
 import { KPICard } from '@/components/gms/KPICard';
-import { MOCK_COMPLAINTS } from '@/data';
 import { KPIData } from '@/types';
 
 const CM_KPI: KPIData[] = [

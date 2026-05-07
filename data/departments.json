@@ -1,0 +1,10 @@
+[
+  { "id": "d1", "name": "AMC", "full": "Ahmedabad Municipal Corporation", "sla_days": 5, "officers": 12, "active": true, "categories": ["Sanitation", "Street Light", "Road", "Water"] },
+  { "id": "d2", "name": "GWSSB", "full": "Gujarat Water Supply & Sewerage Board", "sla_days": 5, "officers": 8, "active": true, "categories": ["Water Supply", "Pipe Leak", "Borewell"] },
+  { "id": "d3", "name": "Revenue", "full": "Revenue Department", "sla_days": 7, "officers": 15, "active": true, "categories": ["Land Record", "Property Tax", "Certificate"] },
+  { "id": "d4", "name": "DGVCL", "full": "Dakshin Gujarat Vij Company Ltd.", "sla_days": 2, "officers": 6, "active": true, "categories": ["Power Outage", "Meter Issue", "New Connection"] },
+  { "id": "d5", "name": "Roads & B", "full": "Roads & Buildings Department", "sla_days": 5, "officers": 10, "active": true, "categories": ["Road Damage", "Pothole", "Bridge", "Footpath"] },
+  { "id": "d6", "name": "Education", "full": "Education Department", "sla_days": 7, "officers": 5, "active": true, "categories": ["School Facility", "Teacher", "Scholarship"] },
+  { "id": "d7", "name": "Health (CDHO)", "full": "Community Development Health Office", "sla_days": 3, "officers": 7, "active": true, "categories": ["Hospital", "Medicine", "Sanitation"] },
+  { "id": "d8", "name": "Agriculture", "full": "Agriculture & Farmers Welfare", "sla_days": 7, "officers": 4, "active": false, "categories": ["Crop Damage", "Irrigation", "Subsidy"] }
+]

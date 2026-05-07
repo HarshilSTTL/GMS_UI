@@ -1,9 +1,17 @@
 'use client';
 import React from 'react';
 import { Users } from 'lucide-react';
-import { MOCK_OFFICERS, MOCK_COMPLAINTS } from '@/data';
+import { useOfficers } from '@/hooks/useOfficers';
+import { useComplaints } from '@/hooks/useComplaints';
 
 export default function TeamPage() {
+  const { data: officers = [], isLoading: loadingOfficers } = useOfficers();
+  const { data: complaints = [] } = useComplaints();
+
+  if (loadingOfficers) return (
+    <div className="flex items-center justify-center h-64 text-[13px] text-[#7A8FA6]">Loading team…</div>
+  );
+
   return (
     <div>
       <div className="mb-5 flex items-center gap-3">
@@ -12,14 +20,14 @@ export default function TeamPage() {
         </div>
         <div>
           <h1 className="text-[20px] font-bold text-[#0E1C2F]">My Team</h1>
-          <p className="text-[12px] text-[#7A8FA6]">{MOCK_OFFICERS.length} officers in your department</p>
+          <p className="text-[12px] text-[#7A8FA6]">{officers.length} officers in your department</p>
         </div>
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-        {MOCK_OFFICERS.map(o => {
-          const assigned = MOCK_COMPLAINTS.filter(c => c.assignedTo?.id === o.id).length;
-          const resolved = MOCK_COMPLAINTS.filter(c => c.assignedTo?.id === o.id && c.status === 'resolved').length;
+        {officers.map(o => {
+          const assigned = complaints.filter(c => c.assignedTo?.id === o.id).length;
+          const resolved = complaints.filter(c => c.assignedTo?.id === o.id && c.status === 'resolved').length;
           const loadColor = o.workload === 'ok' ? '#16A34A' : o.workload === 'high' ? '#D97706' : '#DC2626';
           const loadBg = o.workload === 'ok' ? '#F0FDF4' : o.workload === 'high' ? '#FFFBEB' : '#FEF2F2';
           const loadLabel = o.workload === 'ok' ? 'Normal' : o.workload === 'high' ? 'High Load' : 'Overloaded';
