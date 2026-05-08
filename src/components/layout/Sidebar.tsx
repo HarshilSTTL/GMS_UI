@@ -195,7 +195,9 @@ export function Sidebar() {
         <div className={cn(
           'border-t border-white/[0.06] px-2.5 py-2 flex-shrink-0',
         )}>
-          <button
+          <Link
+            href="/portal/settings"
+            onClick={() => setSidebarMobileOpen(false)}
             className={cn(
               'flex items-center gap-2.5 w-full px-2.5 py-2 rounded-lg text-[12px]',
               'text-white/40 hover:bg-white/7 hover:text-white/60 transition-all duration-150 mb-0.5',
@@ -204,7 +206,7 @@ export function Sidebar() {
           >
             <Settings size={15} />
             {!sidebarCollapsed && <span>Settings</span>}
-          </button>
+          </Link>
           <button
             onClick={logout}
             className={cn(

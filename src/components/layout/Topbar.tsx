@@ -1,6 +1,7 @@
 'use client';
 import React, { useState } from 'react';
 import { Bell, Search, Menu, User as UserIcon, ChevronDown } from 'lucide-react';
+import Link from 'next/link';
 import { cn } from '@/lib/utils';
 import { useAuthStore, useUIStore } from '@/stores';
 import { MOCK_NOTIFICATIONS } from '@/data';
@@ -143,8 +144,10 @@ export function Topbar({ title, subtitle }: TopbarProps) {
             </div>
           </DropdownMenuLabel>
           <DropdownMenuSeparator />
-          <DropdownMenuItem className="text-[12px]">
-            <UserIcon size={13} className="mr-2" /> My Profile
+          <DropdownMenuItem className="text-[12px]" asChild>
+            <Link href="/portal/settings">
+              <UserIcon size={13} className="mr-2" /> My Profile
+            </Link>
           </DropdownMenuItem>
           <DropdownMenuSeparator />
           <DropdownMenuItem

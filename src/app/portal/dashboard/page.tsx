@@ -1,7 +1,7 @@
 'use client';
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import Link from 'next/link';
-import { ArrowRight, X, ChevronDown } from 'lucide-react';
+import { ArrowRight, X } from 'lucide-react';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
 import { useAuthStore } from '@/stores';
@@ -10,9 +10,11 @@ import { StatusBadge, PriorityBadge, ChannelBadge, SLABadge } from '@/components
 import { OFFICER_KPI } from '@/data';
 import { useComplaints, useUpdateComplaint } from '@/hooks/useComplaints';
 import { useOfficers } from '@/hooks/useOfficers';
+import { useDepartments } from '@/hooks/useDepartments';
 import type { Complaint, Officer } from '@/types';
+import { ViewDetailDialog, ReassignDialog, GroupDialog, DialogType, DEPT_ICONS, computeSimilarity } from '@/components/gms/ComplaintModals';
 
-/* ─── tiny helper ─── */
+/* ─── tiny helpers ─── */
 function OfficerAvatar({ initials, color, name }: { initials: string; color: string; name: string }) {
   return (
     <div className="flex items-center gap-1.5">
@@ -20,187 +22,6 @@ function OfficerAvatar({ initials, color, name }: { initials: string; color: str
         {initials}
       </div>
       <span className="text-[11px] text-[#3D5068]">{name.split(' ')[0]}</span>
-    </div>
-  );
-}
-
-/* ─── DIALOGS ─── */
-type DialogType = 'acknowledge' | 'reassign' | 'escalate' | null;
-
-function AcknowledgeDialog({ complaint, onClose, onConfirm }: { complaint: Complaint; onClose: () => void; onConfirm: (id: string) => void }) {
-  const [note, setNote] = useState('');
-  function handleSubmit() {
-    onConfirm(complaint.id);
-    toast.success(`✋ ${complaint.token} acknowledged. Citizen notified via SMS.`);
-    onClose();
-  }
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-[2px]">
-      <div className="bg-white rounded-[16px] w-full max-w-md shadow-2xl">
-        <div className="flex items-center justify-between px-5 py-4 border-b border-[#DDE3EE]">
-          <div className="flex items-center gap-2">
-            <span className="text-lg">✋</span>
-            <h2 className="text-[15px] font-bold text-[#0E1C2F]">Acknowledge Complaint</h2>
-          </div>
-          <button onClick={onClose} className="w-7 h-7 rounded-full hover:bg-gray-100 flex items-center justify-center text-[#7A8FA6]"><X size={14} /></button>
-        </div>
-        <div className="p-5">
-          <div className="bg-[#F8FAFD] border border-[#DDE3EE] rounded-[10px] px-3 py-2.5 mb-4">
-            <p className="text-[11px] font-mono text-blue-600 font-bold">{complaint.token}</p>
-            <p className="text-[12px] font-semibold text-[#0E1C2F] mt-0.5">{complaint.title}</p>
-            <p className="text-[10px] text-[#7A8FA6] mt-0.5">{complaint.citizenName} · {complaint.ward}, {complaint.district}</p>
-          </div>
-          <label className="block text-[11px] font-semibold text-[#3D5068] mb-1.5">
-            Acknowledgement Note <span className="text-[#7A8FA6] font-normal">(optional)</span>
-          </label>
-          <textarea
-            value={note}
-            onChange={e => setNote(e.target.value)}
-            rows={3}
-            placeholder="e.g. We have received your complaint and will respond within 24 hours."
-            className="w-full px-3 py-2 text-[12px] border border-[#DDE3EE] rounded-[10px] focus:outline-none focus:border-blue-400 resize-none"
-          />
-          <p className="text-[10px] text-[#7A8FA6] mt-2">📱 Citizen will receive an SMS notification with your token number.</p>
-        </div>
-        <div className="px-5 pb-5 flex justify-end gap-2">
-          <button onClick={onClose} className="px-4 py-2 rounded-[8px] text-[12px] font-semibold border border-[#DDE3EE] text-[#3D5068] hover:bg-gray-50">Cancel</button>
-          <button onClick={handleSubmit} className="px-4 py-2 rounded-[8px] text-[12px] font-semibold bg-amber-500 text-white hover:bg-amber-600">
-            Acknowledge
-          </button>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-function ReassignDialog({ complaint, officers, onClose, onConfirm }: { complaint: Complaint; officers: Officer[]; onClose: () => void; onConfirm: (id: string, officer: Officer) => void }) {
-  const [officerId, setOfficerId] = useState('');
-  const [reason, setReason] = useState('');
-  function handleSubmit() {
-    if (!officerId) { toast.error('Please select an officer.'); return; }
-    const o = officers.find(o => o.id === officerId)!;
-    onConfirm(complaint.id, o);
-    toast.success(`🔄 ${complaint.token} reassigned to ${o.name}.`);
-    onClose();
-  }
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-[2px]">
-      <div className="bg-white rounded-[16px] w-full max-w-md shadow-2xl">
-        <div className="flex items-center justify-between px-5 py-4 border-b border-[#DDE3EE]">
-          <div className="flex items-center gap-2">
-            <span className="text-lg">🔄</span>
-            <h2 className="text-[15px] font-bold text-[#0E1C2F]">Reassign Complaint</h2>
-          </div>
-          <button onClick={onClose} className="w-7 h-7 rounded-full hover:bg-gray-100 flex items-center justify-center text-[#7A8FA6]"><X size={14} /></button>
-        </div>
-        <div className="p-5">
-          <div className="bg-[#F8FAFD] border border-[#DDE3EE] rounded-[10px] px-3 py-2.5 mb-4">
-            <p className="text-[11px] font-mono text-blue-600 font-bold">{complaint.token}</p>
-            <p className="text-[12px] font-semibold text-[#0E1C2F] mt-0.5">{complaint.title}</p>
-            <div className="flex items-center gap-2 mt-1">
-              <span className="text-[10px] text-[#7A8FA6]">Currently:</span>
-              {complaint.assignedTo ? (
-                <span className="text-[10px] font-semibold text-[#3D5068]">{complaint.assignedTo.name}</span>
-              ) : (
-                <span className="text-[10px] text-red-500 italic">Unassigned</span>
-              )}
-            </div>
-          </div>
-          <label className="block text-[11px] font-semibold text-[#3D5068] mb-1.5">Assign To *</label>
-          <div className="relative mb-3">
-            <select
-              value={officerId}
-              onChange={e => setOfficerId(e.target.value)}
-              className="w-full px-3 py-2 text-[12px] border border-[#DDE3EE] rounded-[10px] focus:outline-none focus:border-blue-400 appearance-none bg-white"
-            >
-              <option value="">— Select officer —</option>
-              {officers.map(o => (
-                <option key={o.id} value={o.id}>
-                  {o.name} · {o.department} · {o.workload === 'ok' ? 'Normal load' : o.workload === 'high' ? 'High load' : 'Overloaded'}
-                </option>
-              ))}
-            </select>
-            <ChevronDown size={14} className="absolute right-3 top-1/2 -translate-y-1/2 text-[#7A8FA6] pointer-events-none" />
-          </div>
-          <label className="block text-[11px] font-semibold text-[#3D5068] mb-1.5">
-            Reason for Reassignment <span className="text-[#7A8FA6] font-normal">(optional)</span>
-          </label>
-          <textarea
-            value={reason}
-            onChange={e => setReason(e.target.value)}
-            rows={2}
-            placeholder="e.g. Officer on leave / Expertise match needed"
-            className="w-full px-3 py-2 text-[12px] border border-[#DDE3EE] rounded-[10px] focus:outline-none focus:border-blue-400 resize-none"
-          />
-        </div>
-        <div className="px-5 pb-5 flex justify-end gap-2">
-          <button onClick={onClose} className="px-4 py-2 rounded-[8px] text-[12px] font-semibold border border-[#DDE3EE] text-[#3D5068] hover:bg-gray-50">Cancel</button>
-          <button onClick={handleSubmit} className="px-4 py-2 rounded-[8px] text-[12px] font-semibold bg-orange-500 text-white hover:bg-orange-600">
-            Reassign
-          </button>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-function EscalateDialog({ complaint, onClose, onConfirm }: { complaint: Complaint; onClose: () => void; onConfirm: (id: string) => void }) {
-  const [level, setLevel] = useState('L2');
-  const [reason, setReason] = useState('');
-  function handleSubmit() {
-    if (!reason.trim()) { toast.error('Please provide an escalation reason.'); return; }
-    onConfirm(complaint.id);
-    toast.warning(`🚨 ${complaint.token} escalated to ${level}. Supervisor notified.`);
-    onClose();
-  }
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-[2px]">
-      <div className="bg-white rounded-[16px] w-full max-w-md shadow-2xl">
-        <div className="flex items-center justify-between px-5 py-4 border-b border-[#DDE3EE]">
-          <div className="flex items-center gap-2">
-            <span className="text-lg">🚨</span>
-            <h2 className="text-[15px] font-bold text-[#0E1C2F]">Escalate Complaint</h2>
-          </div>
-          <button onClick={onClose} className="w-7 h-7 rounded-full hover:bg-gray-100 flex items-center justify-center text-[#7A8FA6]"><X size={14} /></button>
-        </div>
-        <div className="p-5">
-          <div className="bg-red-50 border border-red-200 rounded-[10px] px-3 py-2.5 mb-4">
-            <p className="text-[11px] font-mono text-blue-600 font-bold">{complaint.token}</p>
-            <p className="text-[12px] font-semibold text-[#0E1C2F] mt-0.5">{complaint.title}</p>
-            <div className="flex items-center gap-2 mt-1">
-              <PriorityBadge priority={complaint.priority} />
-              <SLABadge slaStatus={complaint.slaStatus} slaDaysLeft={complaint.slaDaysLeft} />
-            </div>
-          </div>
-          <label className="block text-[11px] font-semibold text-[#3D5068] mb-1.5">Escalate To *</label>
-          <div className="flex gap-2 mb-4">
-            {['L2', 'L3', 'District Collector'].map(l => (
-              <button
-                key={l}
-                onClick={() => setLevel(l)}
-                className={`flex-1 py-2 rounded-[8px] text-[11px] font-semibold border transition-all ${level === l ? 'bg-red-600 text-white border-red-600' : 'bg-white border-[#DDE3EE] text-[#3D5068] hover:border-red-300'}`}
-              >
-                {l}
-              </button>
-            ))}
-          </div>
-          <label className="block text-[11px] font-semibold text-[#3D5068] mb-1.5">Escalation Reason *</label>
-          <textarea
-            value={reason}
-            onChange={e => setReason(e.target.value)}
-            rows={3}
-            placeholder="e.g. SLA breached. No response from assigned officer for 5 days. Citizen is aggrieved."
-            className="w-full px-3 py-2 text-[12px] border border-[#DDE3EE] rounded-[10px] focus:outline-none focus:border-red-400 resize-none"
-          />
-          <p className="text-[10px] text-[#7A8FA6] mt-2">⚡ Supervisor and department head will be notified immediately.</p>
-        </div>
-        <div className="px-5 pb-5 flex justify-end gap-2">
-          <button onClick={onClose} className="px-4 py-2 rounded-[8px] text-[12px] font-semibold border border-[#DDE3EE] text-[#3D5068] hover:bg-gray-50">Cancel</button>
-          <button onClick={handleSubmit} className="px-4 py-2 rounded-[8px] text-[12px] font-semibold bg-red-600 text-white hover:bg-red-700">
-            Escalate Now
-          </button>
-        </div>
-      </div>
     </div>
   );
 }
@@ -277,6 +98,7 @@ export default function DashboardPage() {
 
   const { data: complaints = [] } = useComplaints();
   const { data: officers = [] } = useOfficers();
+  const { data: departments = [] } = useDepartments();
   const updateComplaint = useUpdateComplaint();
 
   const priorityQueue = complaints
@@ -300,8 +122,15 @@ export default function DashboardPage() {
     setActiveComplaint(null);
   }
 
+  function switchDialog(type: DialogType) {
+    if (!activeComplaint) return;
+    setDialogType(type);
+  }
+
   function handleAcknowledge(id: string) {
     updateComplaint.mutate({ id, data: { status: 'acknowledged' } });
+    toast.success(`✋ Complaint acknowledged. Citizen notified via SMS.`);
+    closeDialog();
   }
 
   function handleReassign(id: string, officer: Officer) {
@@ -310,19 +139,65 @@ export default function DashboardPage() {
 
   function handleEscalate(id: string) {
     updateComplaint.mutate({ id, data: { status: 'escalated' } });
+    toast.warning(`🚨 Complaint escalated. Supervisor notified.`);
+    closeDialog();
+  }
+
+  function handleResolve(id: string) {
+    updateComplaint.mutate({ id, data: { status: 'resolved', resolvedAt: new Date().toISOString() } });
+    toast.success(`✅ Complaint resolved and closed.`);
+    closeDialog();
+  }
+
+  function handleSendUpdate(id: string, msg: string) {
+    updateComplaint.mutate({ id, data: { updatedAt: new Date().toISOString() } });
+    toast.success(`📤 Update sent to citizen. SMS & Email notification dispatched.`);
+  }
+
+  function handleCreateGroup(primaryId: string, memberIds: string[], label: string) {
+    const groupId = `g${Date.now()}`;
+    updateComplaint.mutate({ id: primaryId, data: { groupId, isGroupPrimary: true } });
+    memberIds.forEach(mid => {
+      updateComplaint.mutate({ id: mid, data: { groupId, isGroupPrimary: false } });
+    });
+    toast.success(`🔗 Group created — ${label} with ${memberIds.length + 1} complaints.`);
+    closeDialog();
   }
 
   return (
     <div>
       {/* Dialogs */}
-      {dialogType === 'acknowledge' && activeComplaint && (
-        <AcknowledgeDialog complaint={activeComplaint} onClose={closeDialog} onConfirm={handleAcknowledge} />
+      {dialogType === 'view' && activeComplaint && (
+        <ViewDetailDialog
+          complaint={activeComplaint}
+          complaints={complaints}
+          officers={officers}
+          onClose={closeDialog}
+          onAcknowledge={handleAcknowledge}
+          onReassign={handleReassign}
+          onEscalate={handleEscalate}
+          onResolve={handleResolve}
+          onSendUpdate={handleSendUpdate}
+          onOpenReassign={() => switchDialog('reassign')}
+          onOpenGroup={() => switchDialog('group')}
+        />
       )}
       {dialogType === 'reassign' && activeComplaint && (
-        <ReassignDialog complaint={activeComplaint} officers={officers} onClose={closeDialog} onConfirm={handleReassign} />
+        <ReassignDialog
+          complaint={activeComplaint}
+          officers={officers}
+          departments={departments}
+          onClose={closeDialog}
+          onConfirm={handleReassign}
+        />
       )}
-      {dialogType === 'escalate' && activeComplaint && (
-        <EscalateDialog complaint={activeComplaint} onClose={closeDialog} onConfirm={handleEscalate} />
+      {dialogType === 'group' && activeComplaint && (
+        <GroupDialog
+          complaint={activeComplaint}
+          allComplaints={complaints}
+          onClose={closeDialog}
+          onCreateGroup={handleCreateGroup}
+        />
       )}
 
       {/* Page header */}
@@ -377,14 +252,13 @@ export default function DashboardPage() {
                     <tr
                       key={c.id}
                       className={cn(
-                        'hover:bg-[#FAFBFF] transition-colors',
+                        'group hover:bg-[#FAFBFF] transition-colors cursor-pointer',
                         i !== priorityQueue.length - 1 && 'border-b border-[#DDE3EE]'
                       )}
+                      onClick={() => openDialog('view', c)}
                     >
                       <td className="px-3 py-3">
-                        <Link href={`/portal/complaints/${c.id}`} className="font-bold text-[11px] text-blue-600 hover:underline font-mono">
-                          {c.token}
-                        </Link>
+                        <span className="font-bold text-[11px] text-blue-600 font-mono">{c.token}</span>
                       </td>
                       <td className="px-3 py-3">
                         <div className="font-medium text-[#0E1C2F] truncate max-w-[160px]">{c.title}</div>
@@ -408,27 +282,27 @@ export default function DashboardPage() {
                       </td>
                       {/* ── ACTION BUTTONS ── */}
                       <td className="px-3 py-3">
-                        <div className="flex items-center gap-1">
+                        <div className="flex items-center gap-1 opacity-50 group-hover:opacity-100 transition-opacity">
                           <button
-                            onClick={() => openDialog('acknowledge', c)}
-                            title="Acknowledge"
-                            className="px-2 py-1 rounded-[6px] text-[10px] font-semibold bg-amber-50 text-amber-700 border border-amber-200 hover:bg-amber-100 transition-all whitespace-nowrap"
+                            onClick={e => { e.stopPropagation(); openDialog('view', c); }}
+                            title="View"
+                            className="w-[26px] h-[26px] rounded-[6px] border border-[#DDE3EE] bg-white flex items-center justify-center text-[12px] hover:bg-[#F0F2F7] hover:border-[#C8D0DE] transition-all"
                           >
-                            ✋ Ack
+                            👁
                           </button>
                           <button
-                            onClick={() => openDialog('reassign', c)}
+                            onClick={e => { e.stopPropagation(); openDialog('reassign', c); }}
                             title="Reassign"
-                            className="px-2 py-1 rounded-[6px] text-[10px] font-semibold bg-orange-50 text-orange-700 border border-orange-200 hover:bg-orange-100 transition-all whitespace-nowrap"
+                            className="w-[26px] h-[26px] rounded-[6px] border border-[#DDE3EE] bg-white flex items-center justify-center text-[12px] hover:bg-[#F0F2F7] hover:border-[#C8D0DE] transition-all"
                           >
-                            🔄 Reassign
+                            ↗
                           </button>
                           <button
-                            onClick={() => openDialog('escalate', c)}
-                            title="Escalate"
-                            className="px-2 py-1 rounded-[6px] text-[10px] font-semibold bg-red-50 text-red-700 border border-red-200 hover:bg-red-100 transition-all whitespace-nowrap"
+                            onClick={e => { e.stopPropagation(); openDialog('group', c); }}
+                            title="Group"
+                            className="w-[26px] h-[26px] rounded-[6px] border border-[#DDE3EE] bg-white flex items-center justify-center text-[12px] hover:bg-[#F0F2F7] hover:border-[#C8D0DE] transition-all"
                           >
-                            🚨 Escalate
+                            🔗
                           </button>
                         </div>
                       </td>

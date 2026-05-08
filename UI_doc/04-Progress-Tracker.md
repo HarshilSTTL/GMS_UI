@@ -56,6 +56,37 @@
 
 ---
 
+## Phase 2.1 — Dashboard Interactive Modals ✅ COMPLETE
+**Completed:** 2026-05-07
+
+| Task | Status | Notes |
+|---|---|---|
+| Replace Ack/Reassign/Escalate buttons with View/Reassign/Group (matching HTML reference) | ✅ | Three icon buttons: 👁 View, ↗ Reassign, 🔗 Group |
+| View Detail Modal (modal-xl) — full complaint detail | ✅ | Timeline, comm log, send update, sidebar (assignment, SLA, grouping, evidence) |
+| Reassign Modal (modal-md) — department grid + officer list | ✅ | Dept selector grid, officer cards with workload, reason textarea |
+| Group Modal (modal-lg) — AI similarity + complaint linking | ✅ | Similarity engine, checkbox selection, group settings, audit log |
+| Row click opens View detail modal | ✅ | Entire row is clickable, buttons use stopPropagation |
+| All modals wired to JSON data via React Query | ✅ | CRUD operations via API hooks |
+| SLA progress bar in View detail sidebar | ✅ | Dynamic gradient based on elapsed % |
+| Modal animations (fadeIn, slideUp) | ✅ | Added keyframes to globals.css |
+
+---
+
+## Phase 2.2 — Reassign & Team Pages ✅ COMPLETE
+**Completed:** 2026-05-08
+
+| Task | Status | Notes |
+|---|---|---|
+| Reusable `DepartmentSelector` component | ✅ | Shared dept grid with icons, used in Reassign page + ReassignDialog |
+| Reusable `OfficerSelector` component | ✅ | Shared officer list with workload badges |
+| Reusable `SectionCard` component | ✅ | dc-head/dc-body card styling from HTML reference |
+| Reassign page rewritten (two-column layout) | ✅ | Left: complaint selection table with checkboxes. Right: dept grid + officer list + reason + confirm |
+| Reassign page uses JSON departments | ✅ | Uses `useDepartments()` instead of hardcoded array |
+| Team page rewritten (table layout) | ✅ | Columns: Officer, Role, Assigned, In Progress, Overdue, Resolved, SLA%, Status |
+| ReassignDialog updated to use shared components | ✅ | Reduced code via DepartmentSelector + OfficerSelector |
+
+---
+
 ## Phase 3 — API Integration 🔮 FUTURE
 
 | Task                                       | Notes                                      |

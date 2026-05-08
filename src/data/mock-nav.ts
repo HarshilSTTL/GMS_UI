@@ -35,15 +35,16 @@ const CLERK_NAV: NavSection[] = [
     label: 'Workspace',
     items: [
       { id: 'dashboard', label: 'Dashboard', icon: 'LayoutDashboard', path: '/portal/dashboard' },
+      { id: 'complaints', label: 'All Complaints', icon: 'ClipboardList', path: '/portal/complaints', badge: 12, badgeVariant: 'red' },
       { id: 'mywork', label: 'My Work Queue', icon: 'CheckSquare', path: '/portal/my-work', badge: 8, badgeVariant: 'amber' },
-      { id: 'complaints', label: 'All Complaints', icon: 'ClipboardList', path: '/portal/complaints' },
+      { id: 'grouped', label: 'Grouped Cases', icon: 'Link2', path: '/portal/grouped', badge: 3, badgeVariant: 'blue' },
     ],
   },
   {
-    id: 'tools',
-    label: 'Tools',
+    id: 'reports',
+    label: 'Reports',
     items: [
-      { id: 'communicate', label: 'Citizen Comms', icon: 'MessageSquare', path: '/portal/communications' },
+      { id: 'sla_reports', label: 'SLA Reports', icon: 'BarChart2', path: '/portal/reports' },
     ],
   },
 ];
