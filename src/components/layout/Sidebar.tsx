@@ -8,6 +8,7 @@ import {
   Globe2, Building2, MapPin, Star, TrendingUp, Zap,
   AlertCircle, Shield, Radio, Settings, ScrollText,
   MessageSquare, ChevronLeft, ChevronRight, LogOut,
+  FileText, Eye,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useAuthStore, useUIStore } from '@/stores';
@@ -19,7 +20,7 @@ const ICON_MAP: Record<string, React.ElementType> = {
   ArrowUpRight, Users, AlertTriangle, BarChart2,
   Globe2, Building2, MapPin, Star, TrendingUp, Zap,
   AlertCircle, Shield, Radio, Settings, ScrollText,
-  MessageSquare,
+  MessageSquare, FileText, Eye,
 };
 
 function NavIcon({ name }: { name: string }) {

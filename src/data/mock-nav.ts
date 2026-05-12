@@ -99,12 +99,25 @@ const CM_NAV: NavSection[] = [
   },
 ];
 
+const CITIZEN_NAV: NavSection[] = [
+  {
+    id: 'main',
+    label: 'Grievance Portal',
+    items: [
+      { id: 'dashboard', label: 'Dashboard', icon: 'LayoutDashboard', path: '/citizen/dashboard' },
+      { id: 'complaints', label: 'My Complaints', icon: 'ClipboardList', path: '/citizen/complaints' },
+      { id: 'file', label: 'File New', icon: 'FileText', path: '/citizen/file-complaint', badge: undefined },
+      { id: 'track', label: 'Track Status', icon: 'Eye', path: '/citizen/track' },
+    ],
+  },
+];
+
 export const NAV_CONFIG: Record<UserRole, NavSection[]> = {
   nodal_officer: OFFICER_NAV,
   clerk: CLERK_NAV,
   admin: ADMIN_NAV,
   cm: CM_NAV,
-  citizen: [],
+  citizen: CITIZEN_NAV,
 };
 
 export function getNavForRole(role: UserRole): NavSection[] {

@@ -79,4 +79,5 @@ export const DEMO_ACCOUNTS = [
   { label: 'Clerk / Task', email: 'anita.sharma@gujarat.gov.in', password: 'clerk123', color: '#16A34A' },
   { label: 'Admin Console', email: 'bhupesh.patel@gujarat.gov.in', password: 'admin123', color: '#7C3AED' },
   { label: 'CM Dashboard', email: 'cm.office@gujarat.gov.in', password: 'cm123', color: '#C9A84C' },
+  { label: 'Citizen Portal', email: 'citizen@gmail.com', password: 'citizen123', color: '#0891B2' },
 ];
