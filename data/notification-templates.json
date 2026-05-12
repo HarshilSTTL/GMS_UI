@@ -1,0 +1,18 @@
+{
+  "templates": [
+    { "id": "n1", "name": "Complaint Registered", "event": "New complaint created", "channels": ["Email", "SMS"], "content": "Your complaint {token} has been registered. We will address it within {sla_days} days.", "active": true },
+    { "id": "n2", "name": "Acknowledgment", "event": "Officer acknowledges", "channels": ["Email", "SMS", "Push"], "content": "Your complaint {token} has been acknowledged by {officer_name}. Expected resolution by {eta}.", "active": true },
+    { "id": "n3", "name": "Status Update", "event": "Status change", "channels": ["Email", "Push"], "content": "Your complaint {token} status has been updated to {status}.", "active": true },
+    { "id": "n4", "name": "Resolution Notice", "event": "Complaint resolved", "channels": ["Email", "SMS"], "content": "Your complaint {token} has been resolved. Please rate our service: {rating_link}", "active": true },
+    { "id": "n5", "name": "SLA Warning", "event": "SLA 50% elapsed", "channels": ["Email", "Push"], "content": "Complaint {token} is approaching SLA deadline. {days_left} days remaining.", "active": true },
+    { "id": "n6", "name": "SLA Breach Alert", "event": "SLA exceeded", "channels": ["Email", "SMS", "Push"], "content": "SLA BREACH: Complaint {token} has exceeded the resolution deadline. Immediate action required.", "active": true },
+    { "id": "n7", "name": "Escalation Notice", "event": "Complaint escalated", "channels": ["Email", "Push"], "content": "Complaint {token} has been escalated to Level {level}. Assigned to {target_role}.", "active": true },
+    { "id": "n8", "name": "Reassignment Notice", "event": "Complaint reassigned", "channels": ["Email", "Push"], "content": "Complaint {token} has been reassigned from {old_officer} to {new_officer}.", "active": true }
+  ],
+  "channels": [
+    { "id": "ch1", "name": "Email (SMTP)", "provider": "Gov Mail Server", "status": "connected" },
+    { "id": "ch2", "name": "SMS Gateway", "provider": "BSNL / NIC SMS", "status": "connected" },
+    { "id": "ch3", "name": "Push Notifications", "provider": "Firebase Cloud Messaging", "status": "connected" },
+    { "id": "ch4", "name": "WhatsApp", "provider": "Gupshup API", "status": "disconnected" }
+  ]
+}

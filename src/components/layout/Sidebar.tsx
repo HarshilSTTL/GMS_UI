@@ -128,7 +128,7 @@ export function Sidebar() {
             </div>
             {!sidebarCollapsed && (
               <span className="text-white font-bold text-[14px] tracking-tight leading-tight">
-                GMS Officer
+                IGMS Officer
               </span>
             )}
           </div>

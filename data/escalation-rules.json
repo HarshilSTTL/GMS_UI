@@ -1,0 +1,104 @@
+{
+  "rules": [
+    {
+      "id": "e1",
+      "name": "SLA 50% Warning",
+      "trigger": "50% of SLA time elapsed",
+      "level": 1,
+      "targetRole": "Nodal Officer",
+      "notifyVia": [
+        "Email",
+        "Push"
+      ],
+      "autoActions": [
+        "Highlight in dashboard"
+      ],
+      "active": true
+    },
+    {
+      "id": "e2",
+      "name": "SLA 80% Critical",
+      "trigger": "80% of SLA time elapsed",
+      "level": 2,
+      "targetRole": "Department Head",
+      "notifyVia": [
+        "Email",
+        "Push",
+        "SMS"
+      ],
+      "autoActions": [
+        "Highlight in dashboard",
+        "Send reminder to assigned officer"
+      ],
+      "active": true
+    },
+    {
+      "id": "e3",
+      "name": "SLA Breach",
+      "trigger": "SLA time exceeded",
+      "level": 3,
+      "targetRole": "Commissioner",
+      "notifyVia": [
+        "Email",
+        "Push",
+        "SMS"
+      ],
+      "autoActions": [
+        "Auto-escalate to Dept Head",
+        "Flag in CM dashboard",
+        "Generate report"
+      ],
+      "active": true
+    },
+    {
+      "id": "e4",
+      "name": "Critical Priority Auto-Escalate",
+      "trigger": "Complaint marked as Critical priority",
+      "level": 2,
+      "targetRole": "Senior Officer",
+      "notifyVia": [
+        "Email",
+        "Push",
+        "SMS"
+      ],
+      "autoActions": [
+        "Immediate notification",
+        "Add to priority queue"
+      ],
+      "active": true
+    },
+    {
+      "id": "e5",
+      "name": "Repeat Complaint Alert",
+      "trigger": "3+ complaints from same citizen in 7 days",
+      "level": 2,
+      "targetRole": "Nodal Officer",
+      "notifyVia": [
+        "Email",
+        "Push"
+      ],
+      "autoActions": [
+        "Group complaints",
+        "Flag for review"
+      ],
+      "active": true
+    },
+    {
+      "id": "e6",
+      "name": "Public Representative Tag",
+      "trigger": "Complaint tagged by MLA/MP office",
+      "level": 3,
+      "targetRole": "Commissioner",
+      "notifyVia": [
+        "Email",
+        "Push",
+        "SMS"
+      ],
+      "autoActions": [
+        "Priority assignment",
+        "Daily status report"
+      ],
+      "active": false
+    }
+  ]
+}

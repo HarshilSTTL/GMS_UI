@@ -1,0 +1,683 @@
+[
+  {
+    "id": "sla-001",
+    "name": "Drug Shortage — Critical Health",
+    "categoryCode": "HFW-DRUG",
+    "category": "Drug Shortage",
+    "department": "Health (CDHO)",
+    "priority": "critical",
+    "responseHours": 2,
+    "resolutionHours": 24,
+    "escalationLevels": 3,
+    "escalations": [
+      {
+        "level": 1,
+        "afterHours": 8,
+        "role": "Block Health Officer",
+        "notify": [
+          "email",
+          "push"
+        ]
+      },
+      {
+        "level": 2,
+        "afterHours": 16,
+        "role": "CDHO",
+        "notify": [
+          "email",
+          "push",
+          "sms"
+        ]
+      },
+      {
+        "level": 3,
+        "afterHours": 24,
+        "role": "Director Health",
+        "notify": [
+          "email",
+          "push",
+          "sms"
+        ]
+      }
+    ],
+    "conditions": [
+      "category equals Drug Shortage"
+    ],
+    "active": true,
+    "note": "Immediate response required for drug non-availability at health centres"
+  },
+  {
+    "id": "sla-002",
+    "name": "Hospital Cleanliness — Urban",
+    "categoryCode": "HFW-FAC-CLN",
+    "category": "Hospital Cleanliness",
+    "department": "Health (CDHO)",
+    "priority": "high",
+    "responseHours": 8,
+    "resolutionHours": 48,
+    "escalationLevels": 2,
+    "escalations": [
+      {
+        "level": 1,
+        "afterHours": 24,
+        "role": "BHO",
+        "notify": [
+          "email",
+          "push"
+        ]
+      },
+      {
+        "level": 2,
+        "afterHours": 36,
+        "role": "CDHO",
+        "notify": [
+          "email",
+          "push"
+        ]
+      }
+    ],
+    "conditions": [
+      "category equals Hospital Cleanliness",
+      "locationType equals URBAN"
+    ],
+    "active": true,
+    "note": "Applies to urban hospital complaints"
+  },
+  {
+    "id": "sla-003",
+    "name": "PMJAY Card Issue",
+    "categoryCode": "HFW-PMJAY",
+    "category": "PMJAY Card Issue",
+    "department": "Health (CDHO)",
+    "priority": "high",
+    "responseHours": 12,
+    "resolutionHours": 72,
+    "escalationLevels": 2,
+    "escalations": [
+      {
+        "level": 1,
+        "afterHours": 48,
+        "role": "District Coordinator",
+        "notify": [
+          "email"
+        ]
+      },
+      {
+        "level": 2,
+        "afterHours": 72,
+        "role": "State PMJAY Cell",
+        "notify": [
+          "email",
+          "push"
+        ]
+      }
+    ],
+    "conditions": [
+      "category equals PMJAY Card Issue"
+    ],
+    "active": true
+  },
+  {
+    "id": "sla-004",
+    "name": "Water Supply Disruption — Critical",
+    "categoryCode": "WSS-SUPPLY",
+    "category": "Water Supply Disruption",
+    "department": "GWSSB",
+    "priority": "critical",
+    "responseHours": 2,
+    "resolutionHours": 24,
+    "escalationLevels": 3,
+    "escalations": [
+      {
+        "level": 1,
+        "afterHours": 8,
+        "role": "AE Water",
+        "notify": [
+          "email",
+          "push"
+        ]
+      },
+      {
+        "level": 2,
+        "afterHours": 16,
+        "role": "EE Water",
+        "notify": [
+          "email",
+          "push",
+          "sms"
+        ]
+      },
+      {
+        "level": 3,
+        "afterHours": 24,
+        "role": "Chief Engineer",
+        "notify": [
+          "email",
+          "push",
+          "sms"
+        ]
+      }
+    ],
+    "conditions": [
+      "category equals Water Supply Disruption"
+    ],
+    "active": true,
+    "note": "Zero water supply triggers immediate escalation"
+  },
+  {
+    "id": "sla-005",
+    "name": "Pipeline Leakage",
+    "categoryCode": "WSS-LEAK",
+    "category": "Pipeline Leakage",
+    "department": "GWSSB",
+    "priority": "high",
+    "responseHours": 4,
+    "resolutionHours": 24,
+    "escalationLevels": 2,
+    "escalations": [
+      {
+        "level": 1,
+        "afterHours": 12,
+        "role": "AE Water",
+        "notify": [
+          "email",
+          "push"
+        ]
+      },
+      {
+        "level": 2,
+        "afterHours": 18,
+        "role": "EE Water",
+        "notify": [
+          "email",
+          "push"
+        ]
+      }
+    ],
+    "conditions": [
+      "category equals Pipeline Leakage"
+    ],
+    "active": true
+  },
+  {
+    "id": "sla-006",
+    "name": "Water Quality Issue",
+    "categoryCode": "WSS-QUAL",
+    "category": "Water Quality Issue",
+    "department": "GWSSB",
+    "priority": "critical",
+    "responseHours": 1,
+    "resolutionHours": 48,
+    "escalationLevels": 3,
+    "escalations": [
+      {
+        "level": 1,
+        "afterHours": 18,
+        "role": "AE Water",
+        "notify": [
+          "email",
+          "push"
+        ]
+      },
+      {
+        "level": 2,
+        "afterHours": 30,
+        "role": "EE Water",
+        "notify": [
+          "email",
+          "push",
+          "sms"
+        ]
+      },
+      {
+        "level": 3,
+        "afterHours": 42,
+        "role": "Chief Engineer",
+        "notify": [
+          "email",
+          "push",
+          "sms"
+        ]
+      }
+    ],
+    "conditions": [
+      "category equals Water Quality Issue"
+    ],
+    "active": true,
+    "note": "Contaminated water requires immediate lab testing"
+  },
+  {
+    "id": "sla-007",
+    "name": "Potholes — Urban",
+    "categoryCode": "RBD-POTHOLE",
+    "category": "Potholes",
+    "department": "Roads & B",
+    "priority": "medium",
+    "responseHours": 24,
+    "resolutionHours": 168,
+    "escalationLevels": 1,
+    "escalations": [
+      {
+        "level": 1,
+        "afterHours": 120,
+        "role": "AE Roads",
+        "notify": [
+          "email"
+        ]
+      }
+    ],
+    "conditions": [
+      "category equals Potholes",
+      "locationType equals URBAN"
+    ],
+    "active": true,
+    "note": "Urban road pothole complaints"
+  },
+  {
+    "id": "sla-008",
+    "name": "Potholes — Highway",
+    "categoryCode": "RBD-POTHOLE",
+    "category": "Potholes",
+    "department": "Roads & B",
+    "priority": "high",
+    "responseHours": 8,
+    "resolutionHours": 96,
+    "escalationLevels": 2,
+    "escalations": [
+      {
+        "level": 1,
+        "afterHours": 48,
+        "role": "AE Highway",
+        "notify": [
+          "email",
+          "push"
+        ]
+      },
+      {
+        "level": 2,
+        "afterHours": 72,
+        "role": "EE Highway",
+        "notify": [
+          "email",
+          "push"
+        ]
+      }
+    ],
+    "conditions": [
+      "category equals Potholes",
+      "roadType equals HIGHWAY"
+    ],
+    "active": true,
+    "note": "Highway potholes get faster SLA"
+  },
+  {
+    "id": "sla-009",
+    "name": "Street Light Out",
+    "categoryCode": "RBD-LIGHT",
+    "category": "Street Light Out",
+    "department": "Roads & B",
+    "priority": "medium",
+    "responseHours": 12,
+    "resolutionHours": 72,
+    "escalationLevels": 1,
+    "escalations": [
+      {
+        "level": 1,
+        "afterHours": 48,
+        "role": "JE Electrical",
+        "notify": [
+          "email"
+        ]
+      }
+    ],
+    "conditions": [
+      "category equals Street Light Out"
+    ],
+    "active": true
+  },
+  {
+    "id": "sla-010",
+    "name": "Drainage Choked",
+    "categoryCode": "AMC-DRAIN",
+    "category": "Drainage Choked",
+    "department": "AMC",
+    "priority": "high",
+    "responseHours": 4,
+    "resolutionHours": 48,
+    "escalationLevels": 2,
+    "escalations": [
+      {
+        "level": 1,
+        "afterHours": 12,
+        "role": "JE Drainage",
+        "notify": [
+          "email",
+          "push"
+        ]
+      },
+      {
+        "level": 2,
+        "afterHours": 24,
+        "role": "AE Civil",
+        "notify": [
+          "email",
+          "push",
+          "sms"
+        ]
+      }
+    ],
+    "conditions": [
+      "category equals Drainage Choked"
+    ],
+    "active": true,
+    "note": "Monsoon window: 24h SLA"
+  },
+  {
+    "id": "sla-011",
+    "name": "Garbage Collection",
+    "categoryCode": "AMC-WASTE",
+    "category": "Garbage Collection",
+    "department": "AMC",
+    "priority": "medium",
+    "responseHours": 8,
+    "resolutionHours": 24,
+    "escalationLevels": 1,
+    "escalations": [
+      {
+        "level": 1,
+        "afterHours": 18,
+        "role": "Sanitary Inspector",
+        "notify": [
+          "email"
+        ]
+      }
+    ],
+    "conditions": [
+      "category equals Garbage Collection"
+    ],
+    "active": true
+  },
+  {
+    "id": "sla-012",
+    "name": "Encroachment — Public Space",
+    "categoryCode": "AMC-ENCR",
+    "category": "Encroachment",
+    "department": "AMC",
+    "priority": "medium",
+    "responseHours": 24,
+    "resolutionHours": 168,
+    "escalationLevels": 1,
+    "escalations": [
+      {
+        "level": 1,
+        "afterHours": 96,
+        "role": "Ward Officer",
+        "notify": [
+          "email"
+        ]
+      }
+    ],
+    "conditions": [
+      "category equals Encroachment"
+    ],
+    "active": true
+  },
+  {
+    "id": "sla-013",
+    "name": "Electricity Outage",
+    "categoryCode": "DGVCL-OUTAGE",
+    "category": "Electricity Outage",
+    "department": "DGVCL",
+    "priority": "high",
+    "responseHours": 2,
+    "resolutionHours": 12,
+    "escalationLevels": 3,
+    "escalations": [
+      {
+        "level": 1,
+        "afterHours": 4,
+        "role": "JE Electrical",
+        "notify": [
+          "email",
+          "push"
+        ]
+      },
+      {
+        "level": 2,
+        "afterHours": 8,
+        "role": "AE Operations",
+        "notify": [
+          "email",
+          "push",
+          "sms"
+        ]
+      },
+      {
+        "level": 3,
+        "afterHours": 12,
+        "role": "Superintending Engineer",
+        "notify": [
+          "email",
+          "push",
+          "sms"
+        ]
+      }
+    ],
+    "conditions": [
+      "category equals Electricity Outage"
+    ],
+    "active": true,
+    "note": "Power outages get fastest SLA"
+  },
+  {
+    "id": "sla-014",
+    "name": "Land Records — General",
+    "categoryCode": "REV-LAND",
+    "category": "Land Records",
+    "department": "Revenue",
+    "priority": "medium",
+    "responseHours": 48,
+    "resolutionHours": 240,
+    "escalationLevels": 2,
+    "escalations": [
+      {
+        "level": 1,
+        "afterHours": 168,
+        "role": "Talati",
+        "notify": [
+          "email"
+        ]
+      },
+      {
+        "level": 2,
+        "afterHours": 200,
+        "role": "Mamlatdar",
+        "notify": [
+          "email",
+          "push"
+        ]
+      }
+    ],
+    "conditions": [
+      "category equals Land Records"
+    ],
+    "active": true,
+    "note": "Revenue record disputes"
+  },
+  {
+    "id": "sla-015",
+    "name": "Certificates & Documents",
+    "categoryCode": "REV-CERT",
+    "category": "Certificates & Documents",
+    "department": "Revenue",
+    "priority": "medium",
+    "responseHours": 72,
+    "resolutionHours": 168,
+    "escalationLevels": 1,
+    "escalations": [
+      {
+        "level": 1,
+        "afterHours": 120,
+        "role": "Talati",
+        "notify": [
+          "email"
+        ]
+      }
+    ],
+    "conditions": [
+      "category equals Certificates & Documents"
+    ],
+    "active": true,
+    "note": "Under review — currently inactive"
+  },
+  {
+    "id": "sla-016",
+    "name": "Crop Damage Claim",
+    "categoryCode": "AGR-CROP",
+    "category": "Crop Damage Claim",
+    "department": "Revenue",
+    "priority": "high",
+    "responseHours": 24,
+    "resolutionHours": 240,
+    "escalationLevels": 2,
+    "escalations": [
+      {
+        "level": 1,
+        "afterHours": 168,
+        "role": "Tehsildar",
+        "notify": [
+          "email",
+          "push"
+        ]
+      },
+      {
+        "level": 2,
+        "afterHours": 200,
+        "role": "Collector",
+        "notify": [
+          "email",
+          "push",
+          "sms"
+        ]
+      }
+    ],
+    "conditions": [
+      "category equals Crop Damage Claim"
+    ],
+    "active": true,
+    "note": "Natural calamity compensation claims"
+  },
+  {
+    "id": "sla-017",
+    "name": "Default Rule — Catchall",
+    "categoryCode": "*",
+    "category": "All Categories",
+    "department": "All",
+    "priority": "low",
+    "responseHours": 24,
+    "resolutionHours": 240,
+    "escalationLevels": 1,
+    "escalations": [
+      {
+        "level": 1,
+        "afterHours": 168,
+        "role": "District Officer",
+        "notify": [
+          "email"
+        ]
+      }
+    ],
+    "conditions": [
+      "category any"
+    ],
+    "active": true,
+    "note": "Fallback for categories without specific rules"
+  },
+  {
+    "id": "sla-018",
+    "name": "Senior Citizen Override",
+    "categoryCode": "*",
+    "category": "All Categories",
+    "department": "All",
+    "priority": "high",
+    "responseHours": 2,
+    "resolutionHours": 120,
+    "escalationLevels": 2,
+    "escalations": [
+      {
+        "level": 1,
+        "afterHours": 48,
+        "role": "Nodal Officer",
+        "notify": [
+          "email",
+          "push"
+        ]
+      },
+      {
+        "level": 2,
+        "afterHours": 96,
+        "role": "Department Head",
+        "notify": [
+          "email",
+          "push",
+          "sms"
+        ]
+      }
+    ],
+    "conditions": [
+      "citizenType equals SENIOR"
+    ],
+    "active": true,
+    "isOverride": true,
+    "note": "Reduces SLA by 50% for senior citizens"
+  },
+  {
+    "id": "sla-019",
+    "name": "CMO Reference — Priority",
+    "categoryCode": "*",
+    "category": "All Categories",
+    "department": "All",
+    "priority": "critical",
+    "responseHours": 1,
+    "resolutionHours": 24,
+    "escalationLevels": 3,
+    "escalations": [
+      {
+        "level": 1,
+        "afterHours": 8,
+        "role": "Secretary",
+        "notify": [
+          "email",
+          "push",
+          "sms"
+        ]
+      },
+      {
+        "level": 2,
+        "afterHours": 16,
+        "role": "Principal Secretary",
+        "notify": [
+          "email",
+          "push",
+          "sms"
+        ]
+      },
+      {
+        "level": 3,
+        "afterHours": 24,
+        "role": "CM Office",
+        "notify": [
+          "email",
+          "push",
+          "sms"
+        ]
+      }
+    ],
+    "conditions": [
+      "source equals CMO"
+    ],
+    "active": true,
+    "isOverride": true,
+    "note": "CMO-referenced complaints get fastest SLA"
+  }
+]

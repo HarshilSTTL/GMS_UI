@@ -1,0 +1,90 @@
+[
+  {
+    "id": "r1",
+    "name": "admin",
+    "label": "System Administrator",
+    "description": "Full system access — user management, configuration, all dashboards.",
+    "color": "#7C3AED",
+    "bg": "#EDE9FE",
+    "protected": true,
+    "permissions": [
+      { "module": "Dashboard", "code": "dashboard", "levels": ["view", "edit", "approve", "delete"] },
+      { "module": "User Management", "code": "users", "levels": ["view", "edit", "approve", "delete"] },
+      { "module": "Roles & Permissions", "code": "roles", "levels": ["view", "edit", "approve", "delete"] },
+      { "module": "Hierarchy", "code": "hierarchy", "levels": ["view", "edit", "approve", "delete"] },
+      { "module": "Categories", "code": "categories", "levels": ["view", "edit", "approve", "delete"] },
+      { "module": "SLA Rules", "code": "sla", "levels": ["view", "edit", "approve", "delete"] },
+      { "module": "Workflow", "code": "workflow", "levels": ["view", "edit", "approve", "delete"] },
+      { "module": "Notifications", "code": "notif", "levels": ["view", "edit", "approve", "delete"] },
+      { "module": "AI Config", "code": "ai", "levels": ["view", "edit", "approve", "delete"] },
+      { "module": "Master Data", "code": "master", "levels": ["view", "edit", "approve", "delete"] },
+      { "module": "Audit Logs", "code": "audit", "levels": ["view", "edit", "approve", "delete"] }
+    ]
+  },
+  {
+    "id": "r2",
+    "name": "nodal_officer",
+    "label": "Nodal Officer",
+    "description": "Department-level officer responsible for handling and resolving complaints.",
+    "color": "#1A56C4",
+    "bg": "#DBEAFE",
+    "protected": false,
+    "permissions": [
+      { "module": "Dashboard", "code": "dashboard", "levels": ["view"] },
+      { "module": "User Management", "code": "users", "levels": ["view"] },
+      { "module": "Roles & Permissions", "code": "roles", "levels": ["view"] },
+      { "module": "Hierarchy", "code": "hierarchy", "levels": ["view"] },
+      { "module": "Categories", "code": "categories", "levels": ["view", "edit"] },
+      { "module": "SLA Rules", "code": "sla", "levels": ["view", "edit"] },
+      { "module": "Workflow", "code": "workflow", "levels": ["view", "edit"] },
+      { "module": "Notifications", "code": "notif", "levels": ["view", "edit"] },
+      { "module": "AI Config", "code": "ai", "levels": ["view"] },
+      { "module": "Master Data", "code": "master", "levels": ["view"] },
+      { "module": "Audit Logs", "code": "audit", "levels": ["view"] }
+    ]
+  },
+  {
+    "id": "r3",
+    "name": "clerk",
+    "label": "Clerk / Data Entry",
+    "description": "Data entry operator for filing new complaints and basic status updates.",
+    "color": "#065F46",
+    "bg": "#D1FAE5",
+    "protected": false,
+    "permissions": [
+      { "module": "Dashboard", "code": "dashboard", "levels": ["view"] },
+      { "module": "User Management", "code": "users", "levels": [] },
+      { "module": "Roles & Permissions", "code": "roles", "levels": [] },
+      { "module": "Hierarchy", "code": "hierarchy", "levels": ["view"] },
+      { "module": "Categories", "code": "categories", "levels": ["view"] },
+      { "module": "SLA Rules", "code": "sla", "levels": ["view"] },
+      { "module": "Workflow", "code": "workflow", "levels": ["view"] },
+      { "module": "Notifications", "code": "notif", "levels": [] },
+      { "module": "AI Config", "code": "ai", "levels": [] },
+      { "module": "Master Data", "code": "master", "levels": [] },
+      { "module": "Audit Logs", "code": "audit", "levels": [] }
+    ]
+  },
+  {
+    "id": "r4",
+    "name": "cm",
+    "label": "CM / State Official",
+    "description": "Chief Minister office — state-wide overview, critical alerts, and AI action board.",
+    "color": "#92400E",
+    "bg": "#FEF3C7",
+    "protected": false,
+    "permissions": [
+      { "module": "Dashboard", "code": "dashboard", "levels": ["view"] },
+      { "module": "User Management", "code": "users", "levels": ["view"] },
+      { "module": "Roles & Permissions", "code": "roles", "levels": ["view"] },
+      { "module": "Hierarchy", "code": "hierarchy", "levels": ["view"] },
+      { "module": "Categories", "code": "categories", "levels": ["view"] },
+      { "module": "SLA Rules", "code": "sla", "levels": ["view"] },
+      { "module": "Workflow", "code": "workflow", "levels": ["view"] },
+      { "module": "Notifications", "code": "notif", "levels": ["view"] },
+      { "module": "AI Config", "code": "ai", "levels": ["view"] },
+      { "module": "Master Data", "code": "master", "levels": ["view"] },
+      { "module": "Audit Logs", "code": "audit", "levels": ["view"] }
+    ]
+  }
+]

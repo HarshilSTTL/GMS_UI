@@ -1,0 +1,156 @@
+{
+  "workflows": [
+    {
+      "id": "w1",
+      "name": "Standard Complaint",
+      "category": "General",
+      "active": true,
+      "steps": [
+        {
+          "id": "s1",
+          "name": "Register",
+          "role": "Clerk",
+          "action": "Auto-create complaint",
+          "auto": true,
+          "slaHours": 0
+        },
+        {
+          "id": "s2",
+          "name": "Acknowledge",
+          "role": "Nodal Officer",
+          "action": "Review & acknowledge",
+          "auto": false,
+          "slaHours": 4
+        },
+        {
+          "id": "s3",
+          "name": "Assign",
+          "role": "Nodal Officer",
+          "action": "Assign to officer",
+          "auto": false,
+          "slaHours": 8
+        },
+        {
+          "id": "s4",
+          "name": "Investigate",
+          "role": "Field Officer",
+          "action": "Site visit & report",
+          "auto": false,
+          "slaHours": 48
+        },
+        {
+          "id": "s5",
+          "name": "Resolve",
+          "role": "Nodal Officer",
+          "action": "Mark resolved",
+          "auto": false,
+          "slaHours": 24
+        },
+        {
+          "id": "s6",
+          "name": "Close",
+          "role": "System",
+          "action": "Auto-close & notify citizen",
+          "auto": true,
+          "slaHours": 0
+        }
+      ]
+    },
+    {
+      "id": "w2",
+      "name": "Critical Complaint",
+      "category": "Critical",
+      "active": true,
+      "steps": [
+        {
+          "id": "s7",
+          "name": "Register & Alert",
+          "role": "System",
+          "action": "Auto-create + notify supervisor",
+          "auto": true,
+          "slaHours": 0
+        },
+        {
+          "id": "s8",
+          "name": "Immediate Review",
+          "role": "Senior Officer",
+          "action": "Priority review",
+          "auto": false,
+          "slaHours": 1
+        },
+        {
+          "id": "s9",
+          "name": "Emergency Dispatch",
+          "role": "Field Team",
+          "action": "Immediate field action",
+          "auto": false,
+          "slaHours": 2
+        },
+        {
+          "id": "s10",
+          "name": "Resolve & Report",
+          "role": "Senior Officer",
+          "action": "Verify resolution",
+          "auto": false,
+          "slaHours": 12
+        },
+        {
+          "id": "s11",
+          "name": "CM Notification",
+          "role": "System",
+          "action": "Auto-report to CM dashboard",
+          "auto": true,
+          "slaHours": 0
+        }
+      ]
+    },
+    {
+      "id": "w3",
+      "name": "Escalation Flow",
+      "category": "Escalation",
+      "active": true,
+      "steps": [
+        {
+          "id": "s12",
+          "name": "SLA Breach Detect",
+          "role": "System",
+          "action": "Auto-detect SLA breach",
+          "auto": true,
+          "slaHours": 0
+        },
+        {
+          "id": "s13",
+          "name": "Level 1 Escalation",
+          "role": "Department Head",
+          "action": "Review & reassign",
+          "auto": false,
+          "slaHours": 4
+        },
+        {
+          "id": "s14",
+          "name": "Level 2 Escalation",
+          "role": "Commissioner",
+          "action": "Executive review",
+          "auto": false,
+          "slaHours": 8
+        },
+        {
+          "id": "s15",
+          "name": "Level 3 — CM Office",
+          "role": "CM Office",
+          "action": "Direct intervention",
+          "auto": false,
+          "slaHours": 24
+        }
+      ]
+    },
+    {
+      "id": "w1778568862755",
+      "name": "database",
+      "category": "critical",
+      "active": true,
+      "steps": [],
+      "createdAt": "2026-05-12T06:54:22.755Z"
+    }
+  ]
+}
