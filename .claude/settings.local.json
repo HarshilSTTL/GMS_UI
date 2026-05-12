@@ -8,7 +8,10 @@
       "Bash(wc:*)",
       "Bash(npm run:*)",
       "Bash(curl:*)",
-      "Bash(netstat:*)"
+      "Bash(netstat:*)",
+      "Bash(tail:*)",
+      "Bash(python3:*)",
+      "Bash(strings:*)"
     ]
   }
 }

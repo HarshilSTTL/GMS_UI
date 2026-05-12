@@ -1,0 +1,89 @@
+{
+  "features": [
+    {
+      "id": "ai1",
+      "name": "Auto-Classification",
+      "description": "Automatically classify complaints based on type, category, and subject matter",
+      "modelName": "gms-classify-v3",
+      "active": true,
+      "threshold": 75
+    },
+    {
+      "id": "ai2",
+      "name": "Severity Scoring",
+      "description": "Assign severity scores based on complaint content and historical patterns",
+      "modelName": "gms-severity-v2",
+      "active": true,
+      "threshold": 80
+    },
+    {
+      "id": "ai3",
+      "name": "Duplicate Detection",
+      "description": "Identify and flag potential duplicate complaints from same citizen",
+      "modelName": "gms-duplicate-v4",
+      "active": true,
+      "threshold": 72
+    },
+    {
+      "id": "ai4",
+      "name": "Cluster Analysis",
+      "description": "Group related complaints into clusters for better analysis and tracking",
+      "modelName": "gms-cluster-v1",
+      "active": true,
+      "threshold": 65
+    },
+    {
+      "id": "ai5",
+      "name": "Sentiment Analysis",
+      "description": "Analyze citizen tone and urgency from complaint text",
+      "modelName": "gms-sentiment-v2",
+      "active": false,
+      "threshold": 70
+    },
+    {
+      "id": "ai6",
+      "name": "Officer Assignment",
+      "description": "Suggest best officers for complaint assignment based on workload and expertise",
+      "modelName": "gms-assign-v3",
+      "active": false
+    },
+    {
+      "id": "ai7",
+      "name": "Priority Ranking",
+      "description": "Rank complaints by priority for faster resolution",
+      "modelName": "gms-priority-v2",
+      "active": false,
+      "threshold": 68
+    },
+    {
+      "id": "ai8",
+      "name": "SLA Prediction",
+      "description": "Predict likelihood of SLA breach for early warning",
+      "modelName": "gms-sla-v1",
+      "active": false
+    },
+    {
+      "id": "ai9",
+      "name": "Resolution Time Estimator",
+      "description": "Estimate time required to resolve each complaint",
+      "modelName": "gms-estimator-v2",
+      "active": false,
+      "threshold": 76
+    },
+    {
+      "id": "ai10",
+      "name": "Automated Response Generator",
+      "description": "Generate appropriate acknowledgment responses for citizens",
+      "modelName": "gms-response-v1",
+      "active": false,
+      "threshold": 82
+    }
+  ],
+  "stats": {
+    "activeFeatures": 4,
+    "totalFeatures": 10,
+    "apiCallsToday": 12480,
+    "costToday": 47.2,
+    "avgConfidence": 83
+  }
+}

@@ -6,18 +6,18 @@ import { cn } from '@/lib/utils';
 import { useWorkflows } from '@/hooks/useWorkflows';
 
 const colors = {
-  brand: '#1A56C4',
-  red: '#DC2626',
+  brand: '#FF8C42',
+  red: '#ff8a80',
   green: '#16A34A',
   amber: '#D97706',
   violet: '#7C3AED',
-  orange: '#EA580C',
-  ink: '#0E1C2F',
-  t2: '#3D5068',
-  t3: '#7A8FA6',
-  border: '#DDE3EE',
-  card: '#FFFFFF',
-  bg: '#F0F2F7'
+  orange: '#FF8C42',
+  ink: '#0F1A2E',
+  t2: '#666',
+  t3: '#999',
+  border: '#E5E7EB',
+  card: '#fff',
+  bg: '#F4F2EE'
 };
 
 function WorkflowCard({ workflow, onEdit, onDuplicate, onDelete }: {
@@ -76,10 +76,20 @@ function WorkflowCard({ workflow, onEdit, onDuplicate, onDelete }: {
   );
 }
 
+interface WorkflowStep {
+  id: string;
+  name: string;
+  role: string;
+  action: string;
+  auto: boolean;
+  slaHours: number;
+}
+
 interface FormData {
   name: string;
   category: string;
   active: boolean;
+  steps: WorkflowStep[];
 }
 
 export default function AdminWorkflowPage() {
@@ -90,7 +100,7 @@ export default function AdminWorkflowPage() {
 
   const handleEdit = (workflow: any) => {
     setEditingId(workflow.id);
-    setFormData({ name: workflow.name, category: workflow.category, active: workflow.active });
+    setFormData({ name: workflow.name, category: workflow.category, active: workflow.active, steps: workflow.steps });
     setShowModal(true);
   };
 
@@ -125,7 +135,7 @@ export default function AdminWorkflowPage() {
       }
       setShowModal(false);
       setEditingId(null);
-      setFormData({ name: '', category: '', active: true });
+      setFormData({ name: '', category: '', active: true, steps: [] });
     } catch (error) {
       console.error(error);
     }
@@ -152,7 +162,7 @@ export default function AdminWorkflowPage() {
             <p style={{ fontSize: '11px', color: colors.t3, margin: 0 }}>{workflows.length} workflows · Define complaint processing flows</p>
           </div>
         </div>
-        <button onClick={() => { setEditingId(null); setFormData({ name: '', category: '', active: true }); setShowModal(true); }} className="tt-btn">
+        <button onClick={() => { setEditingId(null); setFormData({ name: '', category: '', active: true, steps: [] }); setShowModal(true); }} className="tt-btn">
           + Add Workflow
         </button>
       </div>
@@ -180,8 +190,8 @@ export default function AdminWorkflowPage() {
 
       {/* Modal */}
       {showModal && (
-        <div style={{ position: 'fixed', inset: '0', background: 'rgba(0,0,0,0.4)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 50 }}>
-          <div style={{ background: colors.card, borderRadius: '14px', padding: '20px', width: '380px', boxShadow: '0 4px 24px rgba(14,28,47,0.12)' }}>
+        <div style={{ position: 'fixed', inset: '0', background: 'rgba(0,0,0,0.4)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 50, overflow: 'auto', padding: '20px' }}>
+          <div style={{ background: colors.card, borderRadius: '14px', padding: '20px', width: '500px', boxShadow: '0 4px 24px rgba(14,28,47,0.12)', maxHeight: '90vh', overflowY: 'auto' }}>
             <h2 style={{ fontSize: '15px', fontWeight: '700', color: colors.ink, marginBottom: '16px' }}>
               {editingId ? 'Edit Workflow' : 'Create Workflow'}
             </h2>
@@ -206,6 +216,112 @@ export default function AdminWorkflowPage() {
                   required
                 />
               </div>
+
+              {/* Steps Section */}
+              <div style={{ borderTop: `1px solid ${colors.border}`, paddingTop: '12px', marginTop: '12px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '12px' }}>
+                  <label style={{ fontSize: '10px', fontWeight: '700', color: colors.t2, textTransform: 'uppercase', letterSpacing: '0.5px' }}>Workflow Steps</label>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const newStep: WorkflowStep = { id: `s${Date.now()}`, name: '', role: '', action: '', auto: false, slaHours: 0 };
+                      setFormData({ ...formData, steps: [...formData.steps, newStep] });
+                    }}
+                    style={{ fontSize: '11px', fontWeight: '600', color: colors.brand, background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}
+                  >
+                    + Add Step
+                  </button>
+                </div>
+
+                {formData.steps.length === 0 ? (
+                  <div style={{ fontSize: '11px', color: colors.t3, padding: '12px', background: colors.bg, borderRadius: '6px', textAlign: 'center' }}>
+                    No steps yet. Add one to get started.
+                  </div>
+                ) : (
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                    {formData.steps.map((step, idx) => (
+                      <div key={step.id} style={{ padding: '12px', border: `1px solid ${colors.border}`, borderRadius: '8px', background: colors.bg }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
+                          <span style={{ fontSize: '10px', fontWeight: '700', color: colors.t3 }}>Step {idx + 1}</span>
+                          <button
+                            type="button"
+                            onClick={() => setFormData({ ...formData, steps: formData.steps.filter((_, i) => i !== idx) })}
+                            style={{ fontSize: '10px', color: colors.red, background: 'none', border: 'none', cursor: 'pointer', padding: 0, marginLeft: 'auto' }}
+                          >
+                            Remove
+                          </button>
+                        </div>
+
+                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px', marginBottom: '8px' }}>
+                          <input
+                            type="text"
+                            placeholder="Step name"
+                            value={step.name}
+                            onChange={(e) => {
+                              const updated = [...formData.steps];
+                              updated[idx] = { ...step, name: e.target.value };
+                              setFormData({ ...formData, steps: updated });
+                            }}
+                            style={{ padding: '6px 8px', borderRadius: '4px', border: `1px solid ${colors.border}`, fontSize: '11px', fontFamily: 'inherit' }}
+                          />
+                          <input
+                            type="text"
+                            placeholder="Role (e.g. Officer)"
+                            value={step.role}
+                            onChange={(e) => {
+                              const updated = [...formData.steps];
+                              updated[idx] = { ...step, role: e.target.value };
+                              setFormData({ ...formData, steps: updated });
+                            }}
+                            style={{ padding: '6px 8px', borderRadius: '4px', border: `1px solid ${colors.border}`, fontSize: '11px', fontFamily: 'inherit' }}
+                          />
+                        </div>
+
+                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px', marginBottom: '8px' }}>
+                          <input
+                            type="text"
+                            placeholder="Action"
+                            value={step.action}
+                            onChange={(e) => {
+                              const updated = [...formData.steps];
+                              updated[idx] = { ...step, action: e.target.value };
+                              setFormData({ ...formData, steps: updated });
+                            }}
+                            style={{ padding: '6px 8px', borderRadius: '4px', border: `1px solid ${colors.border}`, fontSize: '11px', fontFamily: 'inherit' }}
+                          />
+                          <input
+                            type="number"
+                            placeholder="SLA Hours"
+                            value={step.slaHours}
+                            onChange={(e) => {
+                              const updated = [...formData.steps];
+                              updated[idx] = { ...step, slaHours: parseInt(e.target.value) || 0 };
+                              setFormData({ ...formData, steps: updated });
+                            }}
+                            style={{ padding: '6px 8px', borderRadius: '4px', border: `1px solid ${colors.border}`, fontSize: '11px', fontFamily: 'inherit' }}
+                          />
+                        </div>
+
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                          <input
+                            type="checkbox"
+                            id={`auto-${step.id}`}
+                            checked={step.auto}
+                            onChange={(e) => {
+                              const updated = [...formData.steps];
+                              updated[idx] = { ...step, auto: e.target.checked };
+                              setFormData({ ...formData, steps: updated });
+                            }}
+                            style={{ cursor: 'pointer' }}
+                          />
+                          <label htmlFor={`auto-${step.id}`} style={{ fontSize: '10px', fontWeight: '600', color: colors.t2, cursor: 'pointer' }}>Automated</label>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                 <input
                   type="checkbox"
@@ -216,6 +332,7 @@ export default function AdminWorkflowPage() {
                 />
                 <label htmlFor="active" style={{ fontSize: '11px', fontWeight: '600', color: colors.t2, cursor: 'pointer' }}>Active</label>
               </div>
+
               <div style={{ display: 'flex', gap: '8px', justifyContent: 'flex-end', marginTop: '8px' }}>
                 <button type="button" onClick={() => setShowModal(false)} style={{ padding: '8px 14px', borderRadius: '6px', fontSize: '11px', fontWeight: '600', background: colors.bg, color: colors.t2, border: 'none', cursor: 'pointer' }}>
                   Cancel

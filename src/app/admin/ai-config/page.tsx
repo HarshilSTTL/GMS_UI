@@ -1,102 +1,241 @@
 'use client';
-import React, { useState } from 'react';
-import { Zap, Brain, MessageSquareText, FileText, ShieldCheck, Sparkles } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { Zap, Settings, LogOut } from 'lucide-react';
 import { toast } from 'sonner';
-import { cn } from '@/lib/utils';
 
 interface AIFeature {
   id: string;
   name: string;
   description: string;
-  icon: React.ElementType;
+  modelName: string;
   active: boolean;
-  confidence: number;
-  lastRun?: string;
+  threshold: number;
 }
 
-const MOCK_FEATURES: AIFeature[] = [
-  { id: 'ai1', name: 'Auto-Categorization', description: 'AI-powered complaint category detection based on description analysis', icon: FileText, active: true, confidence: 94, lastRun: '2 min ago' },
-  { id: 'ai2', name: 'Priority Prediction', description: 'Machine learning model to predict complaint priority based on content and context', icon: Sparkles, active: true, confidence: 87, lastRun: '5 min ago' },
-  { id: 'ai3', name: 'Smart Assignment', description: 'Auto-assign complaints to officers based on workload, expertise, and location', icon: Brain, active: true, confidence: 91, lastRun: '1 min ago' },
-  { id: 'ai4', name: 'Duplicate Detection', description: 'Identify and group similar complaints from same area or citizen', icon: ShieldCheck, active: true, confidence: 88, lastRun: '3 min ago' },
-  { id: 'ai5', name: 'Citizen Sentiment Analysis', description: 'Analyze citizen messages to detect urgency and sentiment', icon: MessageSquareText, active: false, confidence: 79, lastRun: 'Never' },
-  { id: 'ai6', name: 'Resolution Suggestion', description: 'Suggest resolution steps based on historical similar complaints', icon: Sparkles, active: false, confidence: 72, lastRun: 'Never' },
-];
+interface AIStats {
+  activeFeatures: number;
+  totalFeatures: number;
+  apiCallsToday: number;
+  costToday: number;
+  avgConfidence: number;
+}
 
-const AI_STATS = [
-  { label: 'Active Models', value: MOCK_FEATURES.filter(f => f.active).length, color: '#7C3AED' },
-  { label: 'Avg Confidence', value: `${Math.round(MOCK_FEATURES.filter(f => f.active).reduce((a, f) => a + f.confidence, 0) / MOCK_FEATURES.filter(f => f.active).length)}%`, color: '#1A56C4' },
-  { label: 'Auto-Assignments Today', value: 47, color: '#16A34A' },
-  { label: 'Duplicates Caught', value: 12, color: '#EA580C' },
-];
+const colors = {
+  brand: '#FF8C42',
+  red: '#ff8a80',
+  green: '#16A34A',
+  ink: '#0F1A2E',
+  t2: '#666',
+  t3: '#999',
+  border: '#E5E7EB',
+  card: '#fff',
+  bg: '#F4F2EE'
+};
 
 export default function AdminAIConfigPage() {
+  const [features, setFeatures] = useState<AIFeature[]>([]);
+  const [stats, setStats] = useState<AIStats>({ activeFeatures: 0, totalFeatures: 0, apiCallsToday: 0, costToday: 0, avgConfidence: 0 });
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+
+  useEffect(() => {
+    fetchData();
+  }, []);
+
+  const fetchData = async () => {
+    try {
+      const res = await fetch('/api/ai-config');
+      const data = await res.json();
+      setFeatures(data.features);
+      setStats(data.stats);
+    } catch (error) {
+      toast.error('Failed to fetch AI config');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleToggle = async (id: string, newState: boolean) => {
+    const updated = features.map(f => f.id === id ? { ...f, active: newState } : f);
+    setFeatures(updated);
+
+    try {
+      await fetch('/api/ai-config', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id, active: newState }),
+      });
+
+      const activeCount = updated.filter(f => f.active).length;
+      setStats({ ...stats, activeFeatures: activeCount });
+      toast.success(newState ? 'Feature enabled' : 'Feature disabled');
+    } catch (error) {
+      toast.error('Failed to update feature');
+      fetchData();
+    }
+  };
+
+  const handleThresholdChange = (id: string, threshold: number) => {
+    setFeatures(features.map(f => f.id === id ? { ...f, threshold } : f));
+  };
+
+  const handleSaveConfig = async () => {
+    setSaving(true);
+    try {
+      await fetch('/api/ai-config', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'save', features }),
+      });
+      toast.success('Configuration saved successfully');
+    } catch (error) {
+      toast.error('Failed to save configuration');
+    } finally {
+      setSaving(false);
+    }
+  };
+
   return (
-    <div>
-      <div className="mb-5 flex items-center gap-3">
-        <div className="w-10 h-10 rounded-xl bg-purple-100 flex items-center justify-center">
-          <Zap size={20} className="text-purple-600" />
+    <div style={{ background: colors.bg, minHeight: '100vh', padding: '22px' }}>
+      <style>{`
+        input[type="range"] {
+          width: 100%;
+          height: 6px;
+          border-radius: 3px;
+          background: ${colors.border};
+          outline: none;
+          -webkit-appearance: none;
+          appearance: none;
+          cursor: pointer;
+        }
+        input[type="range"]::-webkit-slider-thumb {
+          -webkit-appearance: none;
+          appearance: none;
+          width: 16px;
+          height: 16px;
+          border-radius: 50%;
+          background: ${colors.brand};
+          cursor: pointer;
+          box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+        input[type="range"]::-moz-range-thumb {
+          width: 16px;
+          height: 16px;
+          border-radius: 50%;
+          background: ${colors.brand};
+          cursor: pointer;
+          border: none;
+          box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+      `}</style>
+
+      {/* Header */}
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '28px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
+          <div style={{ width: '44px', height: '44px', borderRadius: '10px', background: '#FFE8D6', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <Zap size={22} style={{ color: colors.brand }} />
+          </div>
+          <div>
+            <h1 style={{ fontSize: '16px', fontWeight: '700', color: colors.ink, margin: '0 0 2px 0' }}>AI Configuration</h1>
+            <p style={{ fontSize: '12px', color: colors.t3, margin: 0 }}>{stats.activeFeatures} of {stats.totalFeatures} features active · {stats.apiCallsToday.toLocaleString()} calls today</p>
+          </div>
         </div>
-        <div>
-          <h1 className="text-[20px] font-bold text-[#0E1C2F]">AI Configuration</h1>
-          <p className="text-[12px] text-[#7A8FA6]">{MOCK_FEATURES.filter(f => f.active).length} active models · Manage AI/ML features</p>
+        <div style={{ display: 'flex', gap: '10px' }}>
+          <button onClick={() => toast.info('Usage logs - coming soon')} style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '8px 14px', borderRadius: '8px', border: `1px solid ${colors.border}`, background: colors.card, color: colors.t2, cursor: 'pointer', fontSize: '12px', fontWeight: '600' }}>
+            <LogOut size={14} />
+            Usage Logs
+          </button>
+          <button onClick={handleSaveConfig} disabled={saving} style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '8px 14px', borderRadius: '8px', border: 'none', background: colors.brand, color: '#fff', cursor: 'pointer', fontSize: '12px', fontWeight: '600', opacity: saving ? 0.6 : 1 }}>
+            <Settings size={14} />
+            {saving ? 'Saving...' : 'Save Config'}
+          </button>
         </div>
       </div>
 
-      {/* Stats */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-5">
-        {AI_STATS.map(s => (
-          <div key={s.label} className="bg-white border border-[#DDE3EE] rounded-[14px] px-4 py-3 relative overflow-hidden shadow-[0_1px_3px_rgba(14,28,47,0.06)]">
-            <div className="absolute top-0 left-0 right-0 h-[3px] rounded-t-[14px]" style={{ background: s.color }} />
-            <div className="text-[10px] font-semibold text-[#7A8FA6] uppercase tracking-wide mb-1">{s.label}</div>
-            <div className="text-[24px] font-bold text-[#0E1C2F]">{s.value}</div>
+      {/* Stats Cards */}
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '14px', marginBottom: '28px' }}>
+        {[
+          { label: 'Active Features', value: `${stats.activeFeatures}/${stats.totalFeatures}`, color: colors.brand },
+          { label: 'API Calls Today', value: stats.apiCallsToday.toLocaleString(), color: '#0F1A2E' },
+          { label: 'Cost Today', value: `$${stats.costToday.toFixed(2)}`, color: colors.green },
+          { label: 'Avg Confidence', value: `${stats.avgConfidence}%`, color: colors.brand },
+        ].map(stat => (
+          <div key={stat.label} style={{ background: colors.card, borderRadius: '10px', padding: '14px 16px', border: `1px solid ${colors.border}`, boxShadow: '0 1px 3px rgba(15,26,46,0.06)' }}>
+            <div style={{ fontSize: '10px', fontWeight: '600', color: colors.t3, textTransform: 'uppercase', marginBottom: '6px' }}>{stat.label}</div>
+            <div style={{ fontSize: '22px', fontWeight: '700', color: stat.color }}>{stat.value}</div>
           </div>
         ))}
       </div>
 
-      {/* Feature cards */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-        {MOCK_FEATURES.map(feature => {
-          const Icon = feature.icon;
-          return (
-            <div key={feature.id} className={cn('bg-white border rounded-[14px] overflow-hidden shadow-[0_1px_3px_rgba(14,28,47,0.06)]', feature.active ? 'border-[#DDE3EE]' : 'border-gray-200 opacity-60')}>
-              <div className="px-5 py-3.5">
-                <div className="flex items-start justify-between mb-2">
-                  <div className="flex items-center gap-2.5">
-                    <div className={cn('w-9 h-9 rounded-lg flex items-center justify-center', feature.active ? 'bg-purple-100' : 'bg-gray-100')}>
-                      <Icon size={16} className={feature.active ? 'text-purple-600' : 'text-gray-400'} />
-                    </div>
-                    <div>
-                      <h3 className="text-[13px] font-bold text-[#0E1C2F]">{feature.name}</h3>
-                      <p className="text-[10px] text-[#7A8FA6]">Last run: {feature.lastRun}</p>
-                    </div>
-                  </div>
-                  <span className={cn('text-[9px] font-bold px-1.5 py-0.5 rounded-full', feature.active ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-500')}>
-                    {feature.active ? 'Active' : 'Disabled'}
+      {/* Features List */}
+      {loading ? (
+        <div style={{ textAlign: 'center', padding: '40px', color: colors.t3 }}>Loading AI features...</div>
+      ) : (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+          {features.map(feature => (
+            <div key={feature.id} style={{ background: colors.card, borderRadius: '10px', padding: '16px', border: `1px solid ${colors.border}`, boxShadow: '0 1px 3px rgba(15,26,46,0.06)', display: 'flex', alignItems: 'center', justifyContent: 'space-between', opacity: feature.active ? 1 : 0.6 }}>
+              {/* Left Side */}
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '8px' }}>
+                  <h3 style={{ fontSize: '13px', fontWeight: '700', color: colors.ink, margin: 0 }}>{feature.name}</h3>
+                  <span style={{ fontSize: '10px', fontWeight: '600', color: feature.active ? colors.green : colors.t3 }}>
+                    {feature.active ? '●' : '○'} {feature.active ? 'ON' : 'OFF'}
                   </span>
                 </div>
-                <p className="text-[11px] text-[#3D5068] mb-3">{feature.description}</p>
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <span className="text-[10px] font-semibold text-[#7A8FA6]">Confidence</span>
-                    <div className="w-24 h-1.5 bg-gray-100 rounded-full overflow-hidden">
-                      <div className={cn('h-full rounded-full', feature.confidence >= 90 ? 'bg-green-500' : feature.confidence >= 80 ? 'bg-amber-500' : 'bg-red-400')}
-                        style={{ width: `${feature.confidence}%` }} />
-                    </div>
-                    <span className="text-[10px] font-bold text-[#0E1C2F]">{feature.confidence}%</span>
+                <p style={{ fontSize: '11px', color: colors.t3, margin: '0 0 8px 0' }}>{feature.description}</p>
+                <p style={{ fontSize: '10px', color: colors.t2, margin: 0 }}>Model: <strong>{feature.modelName}</strong></p>
+              </div>
+
+              {/* Right Side - Threshold Slider */}
+              <div style={{ display: 'flex', alignItems: 'center', gap: '16px', minWidth: '280px', paddingLeft: '20px' }}>
+                <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <span style={{ fontSize: '10px', fontWeight: '600', color: colors.t3 }}>Confidence Threshold</span>
+                    <span style={{ fontSize: '11px', fontWeight: '700', color: colors.brand }}>{feature.threshold}%</span>
                   </div>
-                  <div className="flex gap-1">
-                    <button onClick={() => toast.info('Configure model')} className="px-2 py-1 rounded text-[10px] font-semibold bg-blue-50 text-blue-600 hover:bg-blue-100 border border-blue-200">Config</button>
-                    <button onClick={() => toast.info('Feature toggled')} className={cn('px-2 py-1 rounded text-[10px] font-semibold border', feature.active ? 'bg-red-50 text-red-600 border-red-200' : 'bg-green-50 text-green-600 border-green-200')}>
-                      {feature.active ? 'Disable' : 'Enable'}
-                    </button>
-                  </div>
+                  <input
+                    type="range"
+                    min="0"
+                    max="100"
+                    value={feature.threshold}
+                    onChange={(e) => handleThresholdChange(feature.id, parseInt(e.target.value))}
+                    style={{ width: '100%' }}
+                  />
                 </div>
+
+                {/* Toggle Button */}
+                <button
+                  onClick={() => handleToggle(feature.id, !feature.active)}
+                  style={{
+                    width: '50px',
+                    height: '28px',
+                    borderRadius: '14px',
+                    border: 'none',
+                    background: feature.active ? colors.green : colors.border,
+                    cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    padding: '2px 4px',
+                    position: 'relative',
+                    transition: 'background 0.3s',
+                  }}
+                >
+                  <div style={{
+                    width: '24px',
+                    height: '24px',
+                    borderRadius: '12px',
+                    background: '#fff',
+                    position: 'absolute',
+                    left: feature.active ? '24px' : '2px',
+                    transition: 'left 0.3s',
+                    boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
+                  }} />
+                </button>
               </div>
             </div>
-          );
-        })}
-      </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 }

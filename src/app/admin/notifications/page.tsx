@@ -6,18 +6,18 @@ import { cn } from '@/lib/utils';
 import { useNotificationTemplates } from '@/hooks/useNotificationTemplates';
 
 const colors = {
-  brand: '#1A56C4',
-  red: '#DC2626',
+  brand: '#FF8C42',
+  red: '#ff8a80',
   green: '#16A34A',
   amber: '#D97706',
   violet: '#7C3AED',
-  orange: '#EA580C',
-  ink: '#0E1C2F',
-  t2: '#3D5068',
-  t3: '#7A8FA6',
-  border: '#DDE3EE',
-  card: '#FFFFFF',
-  bg: '#F0F2F7'
+  orange: '#FF8C42',
+  ink: '#0F1A2E',
+  t2: '#666',
+  t3: '#999',
+  border: '#E5E7EB',
+  card: '#fff',
+  bg: '#F4F2EE'
 };
 
 const CHANNEL_ICONS: Record<string, { icon: React.ElementType; color: string }> = {
@@ -177,9 +177,35 @@ export default function AdminNotificationsPage() {
                 <input type="text" placeholder="Event trigger" value={formData.event} onChange={(e) => setFormData({ ...formData, event: e.target.value })} style={{ width: '100%', padding: '8px 10px', borderRadius: '6px', border: `1px solid ${colors.border}`, fontSize: '12px', fontFamily: 'inherit' }} required />
               </div>
               <div>
+                <label style={{ display: 'block', fontSize: '10px', fontWeight: '600', color: colors.t2, marginBottom: '6px' }}>Notification Channels</label>
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', padding: '8px', border: `1px solid ${colors.border}`, borderRadius: '6px', background: colors.bg, minHeight: '36px' }}>
+                  {['Email', 'SMS', 'Push'].map(channel => (
+                    <label key={channel} style={{ display: 'flex', alignItems: 'center', gap: '4px', fontSize: '11px', fontWeight: '600', color: colors.t2, cursor: 'pointer', background: colors.card, padding: '4px 8px', borderRadius: '4px', border: `1px solid ${colors.border}` }}>
+                      <input
+                        type="checkbox"
+                        checked={formData.channels.includes(channel)}
+                        onChange={(e) => {
+                          if (e.target.checked) {
+                            setFormData({ ...formData, channels: [...formData.channels, channel] });
+                          } else {
+                            setFormData({ ...formData, channels: formData.channels.filter(c => c !== channel) });
+                          }
+                        }}
+                        style={{ cursor: 'pointer' }}
+                      />
+                      {channel}
+                    </label>
+                  ))}
+                </div>
+                {formData.channels.length === 0 && <p style={{ fontSize: '9px', color: colors.t3, marginTop: '4px' }}>Select at least one channel</p>}
+              </div>
+
+              <div>
                 <label style={{ display: 'block', fontSize: '10px', fontWeight: '600', color: colors.t2, marginBottom: '6px' }}>Message Content</label>
                 <textarea placeholder="Message template" value={formData.content} onChange={(e) => setFormData({ ...formData, content: e.target.value })} style={{ width: '100%', padding: '8px 10px', borderRadius: '6px', border: `1px solid ${colors.border}`, fontSize: '12px', fontFamily: 'inherit', minHeight: '80px', resize: 'vertical' }} required />
+                <p style={{ fontSize: '8px', color: colors.t3, margin: '4px 0 0 0' }}>Variables: {'{'}{'{token}'}, {'{'}{'{officer_name}'}, {'{'}{'{sla_days}'}, {'{'}{'{status}'}, {'{'}{'{eta}'}, {'{'}{'{rating_link}'}</p>
               </div>
+
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                 <input type="checkbox" id="active" checked={formData.active} onChange={(e) => setFormData({ ...formData, active: e.target.checked })} style={{ cursor: 'pointer' }} />
                 <label htmlFor="active" style={{ fontSize: '11px', fontWeight: '600', color: colors.t2, cursor: 'pointer' }}>Active</label>
