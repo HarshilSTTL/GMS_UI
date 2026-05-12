@@ -1,23 +1,23 @@
-import { NextRequest, NextResponse } from 'next/server';
-import complaints from '@/data/complaints.json';
+import { NextRequest } from 'next/server';
+import { readJson } from '@/lib/db';
+import type { Complaint } from '@/types';
 
-export async function GET(
-  request: NextRequest,
-  { params }: { params: { userId: string } }
-) {
-  try {
-    // Filter complaints for the citizen user
-    // In a real app, you'd filter by citizenEmail or userId
-    // For now, return sample data
-    const citizenComplaints = complaints.filter(c =>
-      c.citizenEmail === 'rajesh@example.com' ||
-      c.citizenEmail === 'priya@example.com' ||
-      c.citizenEmail === 'vikram@example.com' ||
-      c.citizenEmail === 'meera@example.com'
-    );
+type Ctx = { params: Promise<{ userId: string }> };
 
-    return NextResponse.json(citizenComplaints);
-  } catch (error) {
-    return NextResponse.json({ error: 'Failed to fetch complaints' }, { status: 500 });
-  }
+export async function GET(_req: NextRequest, ctx: Ctx) {
+  const { userId } = await ctx.params;
+  const complaints = readJson<Complaint[]>('complaints.json');
+
+  // Filter by citizenEmail or return sample data for demo purposes
+  // In production, complaints would have a citizenUserId field
+  const citizenComplaints = complaints.filter(c =>
+    c.citizenEmail === 'citizen@gmail.com' ||
+    c.citizenEmail === 'rajesh@gmail.com' ||
+    c.citizenEmail?.includes('gmail.com')
+  );
+
+  // If no matching complaints, return first 5 for demo
+  const result = citizenComplaints.length > 0 ? citizenComplaints : complaints.slice(0, 5);
+
+  return Response.json(result);
 }
