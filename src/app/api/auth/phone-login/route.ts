@@ -1,137 +1,87 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { readJson, writeJson, generateSessionToken } from '@/lib/db';
+import { generateSessionToken } from '@/lib/db';
 import { createSession } from '@/lib/session-store';
-import { findUserByPhone, DEMO_USERS } from '@/lib/auth-fallback';
-import { logAuth, logError } from '@/lib/logger';
-import type { User } from '@/types/auth';
 
-const IS_VERCEL = process.env.VERCEL === 'true';
-
-interface OTPRecord {
-  phone: string;
-  otp: string;
-  expiresAt: string;
-}
-
-function verifyOTP(phone: string, otp: string): boolean {
-  // Accept demo OTPs
-  if (otp === '999999' || otp === '123456') return true;
-
-  try {
-    const otpRecords = readJson<OTPRecord[]>('otp-store.json') || [];
-    const record = otpRecords.find(r => r.phone === phone && r.otp === otp);
-
-    if (!record) return false;
-
-    // Check if expired
-    if (new Date(record.expiresAt) < new Date()) return false;
-
-    return true;
-  } catch {
-    // On Vercel or error, accept any 6-digit code as valid
-    return /^\d{6}$/.test(otp);
-  }
-}
+// Hardcoded demo users - NO file I/O
+const DEMO_USERS = [
+  { id: 'u1', name: 'Ravi Varma', phone: '9876543210', email: 'ravi.varma@gujarat.gov.in', role: 'nodal_officer' as const, district: 'Ahmedabad', department: 'Water Supply', designation: 'Nodal Officer' },
+  { id: 'u2', name: 'Anita Sharma', phone: '9876543211', email: 'anita.sharma@gujarat.gov.in', role: 'clerk' as const, district: 'Vadodara', department: 'Power', designation: 'Clerk' },
+  { id: 'u5', name: 'Demo Citizen', phone: '9123456789', email: 'demo.citizen@example.com', role: 'citizen' as const, district: 'Ahmedabad', department: 'N/A', designation: 'Citizen' },
+];
 
 export async function POST(request: NextRequest) {
   try {
     const { phone, otp } = await request.json();
 
     if (!phone || !otp) {
-      return NextResponse.json({ error: 'Phone and OTP are required.' }, { status: 400 });
+      return NextResponse.json({ error: 'Phone and OTP required' }, { status: 400 });
     }
 
-    // Verify OTP (always accept demo codes)
-    if (!verifyOTP(phone, otp)) {
-      return NextResponse.json({ error: 'Invalid or expired OTP.' }, { status: 401 });
+    // Accept any 6-digit OTP for demo
+    if (!/^\d{6}$/.test(otp)) {
+      return NextResponse.json({ error: 'Invalid OTP format' }, { status: 400 });
     }
 
-    let user: User | null = null;
-
-    // Try file-based auth first (localhost), fallback to demo users (Vercel)
-    if (IS_VERCEL) {
-      user = findUserByPhone(phone);
-    } else {
-      try {
-        const users = readJson<User[]>('users.json') || [];
-        user = users.find(u => u.phone === phone) || null;
-      } catch {
-        user = findUserByPhone(phone);
+    // Accept demo OTP codes
+    if (otp !== '999999' && otp !== '123456' && otp !== '000000') {
+      // On Vercel, accept any code
+      if (process.env.VERCEL !== 'true') {
+        return NextResponse.json({ error: 'Invalid OTP' }, { status: 401 });
       }
     }
 
-    let users = IS_VERCEL ? DEMO_USERS : (readJson<User[]>('users.json') || []);
+    // Find user by phone or auto-create
+    let user = DEMO_USERS.find(u => u.phone === phone);
 
     if (!user) {
-      // Create a new citizen account for unknown phone numbers
-      const newId = `u${users.length + 1}`;
+      // Auto-create citizen for any phone
       user = {
-        id: newId,
+        id: `u_${phone}`,
         name: `Citizen ${phone.slice(-4)}`,
-        email: `${phone}@citizen.local`,
         phone,
-        password: '',
-        role: 'citizen',
+        email: `${phone}@citizen.local`,
+        role: 'citizen' as const,
+        district: 'Ahmedabad',
         department: 'N/A',
-        designation: 'Citizen',
-        initials: `C${phone.slice(-1)}`,
-        avatarColor: '#0891B2',
-        permissions: ['complaints.submit', 'complaints.track'],
-        status: 'active',
-        district: '',
-        createdAt: new Date().toISOString()
+        designation: 'Citizen'
       };
-
-      // Only write to file if not on Vercel
-      if (!IS_VERCEL) {
-        try {
-          users.push(user);
-          writeJson('users.json', users);
-        } catch {
-          // Ignore write errors on Vercel
-        }
-      }
-
-      logAuth('Auto-registered citizen via OTP', newId, `phone: ${phone}`);
     }
 
-    if (user.status === 'suspended') {
-      logAuth('Phone login failed - account suspended', user.id);
-      return NextResponse.json({ error: 'Account is suspended.' }, { status: 403 });
-    }
-
-    // Create session
+    // Create session token
     const token = generateSessionToken();
     createSession(token, user.id, user.role);
 
-    // Update last login (skip on Vercel due to read-only filesystem)
-    if (!IS_VERCEL) {
-      try {
-        const allUsers = readJson<User[]>('users.json') || [];
-        const idx = allUsers.findIndex(u => u.id === user.id);
-        if (idx !== -1) {
-          allUsers[idx].lastLogin = new Date().toISOString();
-          writeJson('users.json', allUsers);
-        }
-      } catch {
-        // Ignore write errors
-      }
-    }
+    // Return user (without password)
+    const response = NextResponse.json({
+      user: {
+        id: user.id,
+        name: user.name,
+        email: user.email,
+        phone: user.phone,
+        role: user.role,
+        district: user.district,
+        department: user.department,
+        designation: user.designation,
+        initials: user.name.split(' ').map(n => n[0]).join('').slice(0, 2),
+        avatarColor: '#0891B2',
+        permissions: ['complaints.submit', 'complaints.track'],
+        status: 'active'
+      },
+      token
+    });
 
-    logAuth('Phone login success', user.id);
-
-    const { password: _, ...safeUser } = user;
-    const response = NextResponse.json({ user: safeUser, token });
+    // Set session cookie
     response.cookies.set('gms-session', token, {
       httpOnly: true,
-      secure: IS_VERCEL || process.env.NODE_ENV === 'production',
+      secure: process.env.VERCEL === 'true' || process.env.NODE_ENV === 'production',
       sameSite: 'lax',
       maxAge: 60 * 60 * 24,
       path: '/'
     });
+
     return response;
   } catch (error) {
-    logError('Phone login error', String(error));
-    return NextResponse.json({ error: 'Login failed.' }, { status: 500 });
+    console.error('[PHONE-LOGIN ERROR]', error);
+    return NextResponse.json({ error: 'Login failed' }, { status: 500 });
   }
 }

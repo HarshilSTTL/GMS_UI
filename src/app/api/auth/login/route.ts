@@ -1,76 +1,65 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { readJson, writeJson, generateSessionToken } from '@/lib/db';
+import { generateSessionToken } from '@/lib/db';
 import { createSession } from '@/lib/session-store';
-import { findUserByEmail } from '@/lib/auth-fallback';
-import { logAuth, logError } from '@/lib/logger';
-import type { User } from '@/types/auth';
 
-const IS_VERCEL = process.env.VERCEL === 'true';
+// Hardcoded demo users - NO file I/O
+const DEMO_USERS = [
+  { id: 'u1', name: 'Ravi Varma', email: 'ravi.varma@gujarat.gov.in', password: 'officer123', role: 'nodal_officer' as const, district: 'Ahmedabad', department: 'Water Supply', designation: 'Nodal Officer' },
+  { id: 'u2', name: 'Anita Sharma', email: 'anita.sharma@gujarat.gov.in', password: 'clerk123', role: 'clerk' as const, district: 'Vadodara', department: 'Power', designation: 'Clerk' },
+  { id: 'u3', name: 'Bhupesh Patel', email: 'bhupesh.patel@gujarat.gov.in', password: 'admin123', role: 'admin' as const, district: 'Surat', department: 'Admin', designation: 'Admin' },
+  { id: 'u4', name: 'CM Office', email: 'cm.office@gujarat.gov.in', password: 'cm123', role: 'cm' as const, district: 'Gandhinagar', department: 'CM Office', designation: 'CM' },
+  { id: 'u5', name: 'Demo Citizen', email: 'demo.citizen@example.com', password: 'demo123', role: 'citizen' as const, district: 'Ahmedabad', department: 'N/A', designation: 'Citizen' },
+];
 
 export async function POST(request: NextRequest) {
   try {
     const { email, password } = await request.json();
 
     if (!email || !password) {
-      return NextResponse.json({ error: 'Email and password are required.' }, { status: 400 });
+      return NextResponse.json({ error: 'Email and password required' }, { status: 400 });
     }
 
-    let user: User | null = null;
-
-    // Try file-based auth first (localhost), fallback to demo users (Vercel)
-    if (IS_VERCEL) {
-      user = findUserByEmail(email, password);
-    } else {
-      try {
-        const users = readJson<User[]>('users.json') || [];
-        user = users.find(u => u.email === email && u.password === password) || null;
-      } catch {
-        user = findUserByEmail(email, password);
-      }
-    }
+    // Find user in demo list
+    const user = DEMO_USERS.find(u => u.email === email && u.password === password);
 
     if (!user) {
-      logAuth('Login failed - invalid credentials', email);
-      return NextResponse.json({ error: 'Invalid email or password.' }, { status: 401 });
+      return NextResponse.json({ error: 'Invalid email or password' }, { status: 401 });
     }
 
-    if (user.status === 'suspended') {
-      logAuth('Login failed - account suspended', email);
-      return NextResponse.json({ error: 'Account is suspended.' }, { status: 403 });
-    }
-
-    // Create session
+    // Create session token
     const token = generateSessionToken();
     createSession(token, user.id, user.role);
 
-    // Update last login (skip on Vercel due to read-only filesystem)
-    if (!IS_VERCEL) {
-      try {
-        const users = readJson<User[]>('users.json') || [];
-        const userIdx = users.findIndex(u => u.id === user.id);
-        if (userIdx !== -1) {
-          users[userIdx].lastLogin = new Date().toISOString();
-          writeJson('users.json', users);
-        }
-      } catch {
-        // Skip on error
-      }
-    }
+    // Return user (without password)
+    const response = NextResponse.json({
+      user: {
+        id: user.id,
+        name: user.name,
+        email: user.email,
+        role: user.role,
+        district: user.district,
+        department: user.department,
+        designation: user.designation,
+        initials: user.name.split(' ').map(n => n[0]).join(''),
+        avatarColor: '#3B82F6',
+        permissions: user.role === 'admin' ? ['all'] : ['complaints.view'],
+        status: 'active'
+      },
+      token
+    });
 
-    logAuth('Login success', user.id, `role: ${user.role}`);
-
-    const { password: _, ...safeUser } = user;
-    const response = NextResponse.json({ user: safeUser, token });
+    // Set session cookie
     response.cookies.set('gms-session', token, {
       httpOnly: true,
-      secure: IS_VERCEL || process.env.NODE_ENV === 'production',
+      secure: process.env.VERCEL === 'true' || process.env.NODE_ENV === 'production',
       sameSite: 'lax',
       maxAge: 60 * 60 * 24,
       path: '/'
     });
+
     return response;
   } catch (error) {
-    logError('Login error', String(error));
-    return NextResponse.json({ error: 'Login failed.' }, { status: 500 });
+    console.error('[LOGIN ERROR]', error);
+    return NextResponse.json({ error: 'Login failed' }, { status: 500 });
   }
 }
