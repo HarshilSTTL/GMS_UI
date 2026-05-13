@@ -2,10 +2,18 @@ import fs from 'fs';
 import path from 'path';
 
 const LOGS_DIR = path.join(process.cwd(), 'logs');
+const IS_VERCEL = process.env.VERCEL === 'true';
 
 function ensureLogsDir() {
-  if (!fs.existsSync(LOGS_DIR)) {
-    fs.mkdirSync(LOGS_DIR, { recursive: true });
+  // Skip on Vercel (read-only filesystem)
+  if (IS_VERCEL) return;
+
+  try {
+    if (!fs.existsSync(LOGS_DIR)) {
+      fs.mkdirSync(LOGS_DIR, { recursive: true });
+    }
+  } catch {
+    // Ignore errors on read-only filesystem
   }
 }
 
@@ -22,19 +30,26 @@ function formatTimestamp(): string {
 export type LogLevel = 'INFO' | 'WARN' | 'ERROR' | 'ACTION' | 'AUTH' | 'DATA';
 
 export function log(level: LogLevel, task: string, details?: string) {
-  ensureLogsDir();
-  const logFile = getLogFilePath();
-  const time = formatTimestamp();
-  const entry = details
-    ? `- **[${time}]** [${level}] ${task}\n  \`${details}\`\n`
-    : `- **[${time}]** [${level}] ${task}\n`;
+  // Skip file logging on Vercel (read-only filesystem)
+  if (IS_VERCEL) return;
 
-  // If file doesn't exist, create with header
-  if (!fs.existsSync(logFile)) {
-    const header = `# Log File - ${new Date().toISOString().split('T')[0]}\n\n`;
-    fs.writeFileSync(logFile, header + entry, 'utf-8');
-  } else {
-    fs.appendFileSync(logFile, entry, 'utf-8');
+  try {
+    ensureLogsDir();
+    const logFile = getLogFilePath();
+    const time = formatTimestamp();
+    const entry = details
+      ? `- **[${time}]** [${level}] ${task}\n  \`${details}\`\n`
+      : `- **[${time}]** [${level}] ${task}\n`;
+
+    // If file doesn't exist, create with header
+    if (!fs.existsSync(logFile)) {
+      const header = `# Log File - ${new Date().toISOString().split('T')[0]}\n\n`;
+      fs.writeFileSync(logFile, header + entry, 'utf-8');
+    } else {
+      fs.appendFileSync(logFile, entry, 'utf-8');
+    }
+  } catch {
+    // Ignore write errors on read-only filesystem
   }
 }
 

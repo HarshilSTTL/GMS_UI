@@ -26,6 +26,13 @@ export default function LoginPage() {
     }
   }, [isAuthenticated, user, router]);
 
+  // Redirect to citizen-login when citizen mode is selected
+  useEffect(() => {
+    if (mode === 'citizen') {
+      router.push('/citizen-login');
+    }
+  }, [mode, router]);
+
   useEffect(() => {
     clearError();
     setEmail('');

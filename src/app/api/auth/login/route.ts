@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { readJson, writeJson, generateSessionToken } from '@/lib/db';
+import { createSession } from '@/lib/session-store';
 import { logAuth, logError } from '@/lib/logger';
 import type { User } from '@/types/auth';
 
@@ -26,19 +27,13 @@ export async function POST(request: NextRequest) {
 
     // Create session
     const token = generateSessionToken();
-    const sessions = readJson<any[]>('sessions.json');
-    sessions.push({
-      token,
-      userId: user.id,
-      role: user.role,
-      createdAt: new Date().toISOString(),
-      expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString()
-    });
-    writeJson('sessions.json', sessions);
+    createSession(token, user.id, user.role);
 
-    // Update last login
-    user.lastLogin = new Date().toISOString();
-    writeJson('users.json', users);
+    // Update last login (skip on Vercel due to read-only filesystem)
+    if (process.env.VERCEL !== 'true') {
+      user.lastLogin = new Date().toISOString();
+      writeJson('users.json', users);
+    }
 
     logAuth('Login success', user.id, `role: ${user.role}`);
 
@@ -46,7 +41,7 @@ export async function POST(request: NextRequest) {
     const response = NextResponse.json({ user: safeUser, token });
     response.cookies.set('gms-session', token, {
       httpOnly: true,
-      secure: false,
+      secure: process.env.VERCEL === 'true' || process.env.NODE_ENV === 'production',
       sameSite: 'lax',
       maxAge: 60 * 60 * 24,
       path: '/'

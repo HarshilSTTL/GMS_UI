@@ -1,7 +1,28 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { readJson, writeJson, generateSessionToken } from '@/lib/db';
+import { createSession } from '@/lib/session-store';
 import { logAuth, logError } from '@/lib/logger';
 import type { User } from '@/types/auth';
+
+interface OTPRecord {
+  phone: string;
+  otp: string;
+  expiresAt: string;
+}
+
+function verifyOTP(phone: string, otp: string): boolean {
+  if (otp === '999999') return true; // Backdoor for testing
+
+  const otpRecords = readJson<OTPRecord[]>('otp-store.json') || [];
+  const record = otpRecords.find(r => r.phone === phone && r.otp === otp);
+
+  if (!record) return false;
+
+  // Check if expired
+  if (new Date(record.expiresAt) < new Date()) return false;
+
+  return true;
+}
 
 export async function POST(request: NextRequest) {
   try {
@@ -11,13 +32,9 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Phone and OTP are required.' }, { status: 400 });
     }
 
-    // Verify OTP (accept 999999 as backdoor)
-    if (otp !== '999999') {
-      // In production, verify against stored OTP
-      // For now, accept any 6-digit OTP
-      if (!/^\d{6}$/.test(otp)) {
-        return NextResponse.json({ error: 'Invalid OTP.' }, { status: 401 });
-      }
+    // Verify OTP
+    if (!verifyOTP(phone, otp)) {
+      return NextResponse.json({ error: 'Invalid or expired OTP.' }, { status: 401 });
     }
 
     const users = readJson<User[]>('users.json');
@@ -54,19 +71,13 @@ export async function POST(request: NextRequest) {
 
     // Create session
     const token = generateSessionToken();
-    const sessions = readJson<any[]>('sessions.json');
-    sessions.push({
-      token,
-      userId: user.id,
-      role: user.role,
-      createdAt: new Date().toISOString(),
-      expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString()
-    });
-    writeJson('sessions.json', sessions);
+    createSession(token, user.id, user.role);
 
-    // Update last login
-    user.lastLogin = new Date().toISOString();
-    writeJson('users.json', users);
+    // Update last login (skip on Vercel due to read-only filesystem)
+    if (process.env.VERCEL !== 'true') {
+      user.lastLogin = new Date().toISOString();
+      writeJson('users.json', users);
+    }
 
     logAuth('Phone login success', user.id);
 
@@ -74,7 +85,7 @@ export async function POST(request: NextRequest) {
     const response = NextResponse.json({ user: safeUser, token });
     response.cookies.set('gms-session', token, {
       httpOnly: true,
-      secure: false,
+      secure: process.env.VERCEL === 'true' || process.env.NODE_ENV === 'production',
       sameSite: 'lax',
       maxAge: 60 * 60 * 24,
       path: '/'

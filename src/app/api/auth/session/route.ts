@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { readJson } from '@/lib/db';
+import { getSession } from '@/lib/session-store';
 import type { User } from '@/types/auth';
 
 export async function GET(request: NextRequest) {
@@ -10,8 +11,7 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'Not authenticated.' }, { status: 401 });
     }
 
-    const sessions = readJson<any[]>('sessions.json');
-    const session = sessions.find(s => s.token === token);
+    const session = getSession(token);
 
     if (!session) {
       return NextResponse.json({ error: 'Invalid session.' }, { status: 401 });

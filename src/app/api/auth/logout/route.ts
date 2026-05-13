@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { readJson, writeJson } from '@/lib/db';
+import { deleteSession } from '@/lib/session-store';
 import { logAuth } from '@/lib/logger';
 
 export async function POST(request: NextRequest) {
@@ -7,16 +7,14 @@ export async function POST(request: NextRequest) {
     const token = request.cookies.get('gms-session')?.value;
 
     if (token) {
-      const sessions = readJson<any[]>('sessions.json');
-      const updated = sessions.filter(s => s.token !== token);
-      writeJson('sessions.json', updated);
+      deleteSession(token);
       logAuth('Logout', 'unknown');
     }
 
     const response = NextResponse.json({ success: true });
     response.cookies.set('gms-session', '', {
       httpOnly: true,
-      secure: false,
+      secure: process.env.VERCEL === 'true' || process.env.NODE_ENV === 'production',
       sameSite: 'lax',
       maxAge: 0,
       path: '/'

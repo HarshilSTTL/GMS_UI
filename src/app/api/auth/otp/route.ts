@@ -1,8 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { readJson, writeJson } from '@/lib/db';
 import { logAuth } from '@/lib/logger';
 
-// In-memory OTP store (resets on server restart)
-const OTP_STORE: Record<string, string> = {};
+interface OTPRecord {
+  phone: string;
+  otp: string;
+  expiresAt: string;
+}
 
 export async function POST(request: NextRequest) {
   try {
@@ -13,7 +17,16 @@ export async function POST(request: NextRequest) {
     }
 
     const otp = String(Math.floor(100000 + Math.random() * 900000));
-    OTP_STORE[phone] = otp;
+
+    // Store OTP in JSON file (expires in 10 minutes)
+    const otpRecords = readJson<OTPRecord[]>('otp-store.json') || [];
+    const expiresAt = new Date(Date.now() + 10 * 60 * 1000).toISOString();
+
+    // Remove old OTP for this phone if exists
+    const filtered = otpRecords.filter(r => r.phone !== phone || new Date(r.expiresAt) > new Date());
+    filtered.push({ phone, otp, expiresAt });
+
+    writeJson('otp-store.json', filtered);
 
     logAuth('OTP generated', phone, `OTP: ${otp}`);
 
@@ -29,9 +42,24 @@ export async function POST(request: NextRequest) {
 
 export function verifyOTP(phone: string, otp: string): boolean {
   if (otp === '999999') return true; // Backdoor for testing
-  return OTP_STORE[phone] === otp;
+
+  const otpRecords = readJson<OTPRecord[]>('otp-store.json') || [];
+  const record = otpRecords.find(r => r.phone === phone && r.otp === otp);
+
+  if (!record) return false;
+
+  // Check if expired
+  if (new Date(record.expiresAt) < new Date()) return false;
+
+  return true;
 }
 
 export function storeOTP(phone: string, otp: string): void {
-  OTP_STORE[phone] = otp;
+  const otpRecords = readJson<OTPRecord[]>('otp-store.json') || [];
+  const expiresAt = new Date(Date.now() + 10 * 60 * 1000).toISOString();
+
+  const filtered = otpRecords.filter(r => r.phone !== phone || new Date(r.expiresAt) > new Date());
+  filtered.push({ phone, otp, expiresAt });
+
+  writeJson('otp-store.json', filtered);
 }
