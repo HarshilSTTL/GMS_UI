@@ -2,14 +2,20 @@ import fs from 'fs';
 import path from 'path';
 
 const DATA_DIR = path.join(process.cwd(), 'data');
+const IS_VERCEL = process.env.VERCEL === 'true';
 
 export function readJson<T>(filename: string): T {
-  const file = path.join(DATA_DIR, filename);
-  if (!fs.existsSync(file)) {
+  try {
+    const file = path.join(DATA_DIR, filename);
+    if (!fs.existsSync(file)) {
+      return [] as unknown as T;
+    }
+    const raw = fs.readFileSync(file, 'utf-8');
+    return JSON.parse(raw) as T;
+  } catch (error) {
+    console.error(`Failed to read ${filename}:`, error);
     return [] as unknown as T;
   }
-  const raw = fs.readFileSync(file, 'utf-8');
-  return JSON.parse(raw) as T;
 }
 
 export function writeJson<T>(filename: string, data: T): void {
