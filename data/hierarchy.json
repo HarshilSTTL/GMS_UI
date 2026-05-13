@@ -1,0 +1,72 @@
+{
+  "id": "GOG",
+  "name": "Government of Gujarat",
+  "type": "state",
+  "headCount": 9,
+  "children": [
+    {
+      "id": "D-GWSSB",
+      "name": "Gujarat Water Supply & Sewerage Board",
+      "type": "department",
+      "headCount": 1840,
+      "children": [
+        { "id": "O-GWSSB-AHM", "name": "GWSSB Ahmedabad Regional Office", "type": "office", "headCount": 320, "children": [] },
+        { "id": "O-GWSSB-SUR", "name": "GWSSB Surat Regional Office", "type": "office", "headCount": 240, "children": [] },
+        { "id": "O-GWSSB-RAJ", "name": "GWSSB Rajkot Regional Office", "type": "office", "headCount": 180, "children": [] }
+      ]
+    },
+    {
+      "id": "D-HEALTH",
+      "name": "Health & Family Welfare Department",
+      "type": "department",
+      "headCount": 4280,
+      "children": [
+        { "id": "O-HFWD-AHM", "name": "CDHO Office Ahmedabad", "type": "office", "headCount": 72, "children": [] },
+        { "id": "O-HFWD-SUR", "name": "CDHO Office Surat", "type": "office", "headCount": 64, "children": [] },
+        { "id": "O-HFWD-VAD", "name": "CDHO Office Vadodara", "type": "office", "headCount": 58, "children": [] },
+        { "id": "O-HFWD-GNR", "name": "District Health Office Gandhinagar", "type": "office", "headCount": 48, "children": [] }
+      ]
+    },
+    {
+      "id": "D-RBD",
+      "name": "Roads & Buildings Department",
+      "type": "department",
+      "headCount": 2150,
+      "children": [
+        { "id": "O-RBD-AHM", "name": "R&B Circle Office Ahmedabad", "type": "office", "headCount": 280, "children": [] },
+        { "id": "O-RBD-SUR", "name": "R&B Circle Office Surat", "type": "office", "headCount": 180, "children": [] }
+      ]
+    },
+    {
+      "id": "D-AMC",
+      "name": "Ahmedabad Municipal Corporation",
+      "type": "department",
+      "headCount": 4200,
+      "children": [
+        { "id": "O-AMC-ZONE-W", "name": "AMC Zone West", "type": "office", "headCount": 520, "children": [] },
+        { "id": "O-AMC-ZONE-E", "name": "AMC Zone East", "type": "office", "headCount": 480, "children": [] },
+        { "id": "O-AMC-ZONE-N", "name": "AMC Zone North", "type": "office", "headCount": 440, "children": [] }
+      ]
+    },
+    {
+      "id": "D-DGVCL",
+      "name": "Dakshin Gujarat Vij Company Limited",
+      "type": "department",
+      "headCount": 3200,
+      "children": [
+        { "id": "O-DGVCL-AHM", "name": "DGVCL Ahmedabad Circle", "type": "office", "headCount": 640, "children": [] },
+        { "id": "O-DGVCL-SUR", "name": "DGVCL Surat Circle", "type": "office", "headCount": 380, "children": [] }
+      ]
+    },
+    {
+      "id": "D-REV",
+      "name": "Revenue Department",
+      "type": "department",
+      "headCount": 1450,
+      "children": [
+        { "id": "O-REV-AHM", "name": "Collectorate Ahmedabad", "type": "office", "headCount": 180, "children": [] },
+        { "id": "O-REV-SUR", "name": "Collectorate Surat", "type": "office", "headCount": 150, "children": [] }
+      ]
+    }
+  ]
+}

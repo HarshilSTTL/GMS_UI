@@ -1,0 +1,7 @@
+[
+  { "id": "o1", "name": "Ravi Varma",    "initials": "RV", "color": "#1A56C4", "role": "Nodal Officer", "department": "GWSSB",     "workload": "high" },
+  { "id": "o2", "name": "Anita Sharma",  "initials": "AS", "color": "#16A34A", "role": "Senior Clerk",  "department": "Revenue",    "workload": "ok"   },
+  { "id": "o3", "name": "Nikhil Joshi",  "initials": "NJ", "color": "#D97706", "role": "Clerk",         "department": "GWSSB",     "workload": "full"  },
+  { "id": "o4", "name": "Pooja Desai",   "initials": "PD", "color": "#7C3AED", "role": "Nodal Officer", "department": "RTO",       "workload": "ok"   },
+  { "id": "o5", "name": "Suresh Mehta",  "initials": "SM", "color": "#0891B2", "role": "Clerk",         "department": "Education", "workload": "ok"   }
+]

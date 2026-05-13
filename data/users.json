@@ -1,0 +1,101 @@
+[
+  {
+    "id": "u1",
+    "name": "Ravi Varma",
+    "email": "ravi.varma@gujarat.gov.in",
+    "role": "nodal_officer",
+    "dept": "GWSSB",
+    "district": "Ahmedabad",
+    "status": "active",
+    "lastLogin": "2025-05-06",
+    "complaints": 48
+  },
+  {
+    "id": "u2",
+    "name": "Pooja Desai",
+    "email": "pooja.desai@gujarat.gov.in",
+    "role": "nodal_officer",
+    "dept": "Roads & B",
+    "district": "Surat",
+    "status": "active",
+    "lastLogin": "2025-05-07",
+    "complaints": 62
+  },
+  {
+    "id": "u3",
+    "name": "Anita Sharma",
+    "email": "anita.sharma@gujarat.gov.in",
+    "role": "nodal_officer",
+    "dept": "AMC",
+    "district": "Ahmedabad",
+    "status": "active",
+    "lastLogin": "2025-05-05",
+    "complaints": 34
+  },
+  {
+    "id": "u4",
+    "name": "Dev Patel",
+    "email": "dev.patel@gujarat.gov.in",
+    "role": "clerk",
+    "dept": "DGVCL",
+    "district": "Gandhinagar",
+    "status": "active",
+    "lastLogin": "2025-05-07",
+    "complaints": 12
+  },
+  {
+    "id": "u5",
+    "name": "Sonal Mehta",
+    "email": "sonal.mehta@gujarat.gov.in",
+    "role": "clerk",
+    "dept": "Revenue",
+    "district": "Mehsana",
+    "status": "active",
+    "lastLogin": "2025-04-28",
+    "complaints": 8
+  },
+  {
+    "id": "u6",
+    "name": "Kiran Shah",
+    "email": "kiran.shah@gujarat.gov.in",
+    "role": "nodal_officer",
+    "dept": "AMC",
+    "district": "Surat (East)",
+    "status": "active",
+    "lastLogin": "2025-05-06",
+    "complaints": 27
+  },
+  {
+    "id": "u7",
+    "name": "Meena Kapoor",
+    "email": "meena.kapoor@gujarat.gov.in",
+    "role": "nodal_officer",
+    "dept": "Health (CDHO)",
+    "district": "Ahmedabad",
+    "status": "suspended",
+    "lastLogin": "2025-04-20",
+    "complaints": 0
+  },
+  {
+    "id": "u8",
+    "name": "Harish Trivedi",
+    "email": "harish.trivedi@gujarat.gov.in",
+    "role": "admin",
+    "dept": "System",
+    "district": "Gandhinagar",
+    "status": "active",
+    "lastLogin": "2025-05-07",
+    "complaints": 0
+  },
+  {
+    "name": "harshil kachhadiya",
+    "email": "harshilkachhadiya.dev@gmail.com",
+    "role": "admin",
+    "dept": "Admin",
+    "district": "Surat",
+    "id": "u9",
+    "status": "active",
+    "lastLogin": "2026-05-08",
+    "complaints": 0
+  }
+]

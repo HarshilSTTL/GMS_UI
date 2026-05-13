@@ -35,15 +35,16 @@ const CLERK_NAV: NavSection[] = [
     label: 'Workspace',
     items: [
       { id: 'dashboard', label: 'Dashboard', icon: 'LayoutDashboard', path: '/portal/dashboard' },
+      { id: 'complaints', label: 'All Complaints', icon: 'ClipboardList', path: '/portal/complaints', badge: 12, badgeVariant: 'red' },
       { id: 'mywork', label: 'My Work Queue', icon: 'CheckSquare', path: '/portal/my-work', badge: 8, badgeVariant: 'amber' },
-      { id: 'complaints', label: 'All Complaints', icon: 'ClipboardList', path: '/portal/complaints' },
+      { id: 'grouped', label: 'Grouped Cases', icon: 'Link2', path: '/portal/grouped', badge: 3, badgeVariant: 'blue' },
     ],
   },
   {
-    id: 'tools',
-    label: 'Tools',
+    id: 'reports',
+    label: 'Reports',
     items: [
-      { id: 'communicate', label: 'Citizen Comms', icon: 'MessageSquare', path: '/portal/communications' },
+      { id: 'sla_reports', label: 'SLA Reports', icon: 'BarChart2', path: '/portal/reports' },
     ],
   },
 ];
@@ -53,20 +54,53 @@ const ADMIN_NAV: NavSection[] = [
     id: 'console',
     label: 'Admin Console',
     items: [
-      { id: 'overview', label: 'Overview', icon: 'LayoutDashboard', path: '/admin/overview' },
+      { id: 'overview', label: 'Dashboard', icon: 'LayoutDashboard', path: '/admin/overview' },
       { id: 'users', label: 'User Management', icon: 'Users', path: '/admin/users' },
-      { id: 'departments', label: 'Departments', icon: 'Building2', path: '/admin/departments' },
       { id: 'roles', label: 'Roles & Permissions', icon: 'Shield', path: '/admin/roles' },
-      { id: 'channels', label: 'Channels Setup', icon: 'Radio', path: '/admin/channels' },
+      { id: 'hierarchy', label: 'Hierarchy Builder', icon: 'Building2', path: '/admin/hierarchy' },
+      { id: 'categories', label: 'Categories', icon: 'Radio', path: '/admin/categories' },
+    ],
+  },
+  {
+    id: 'rules',
+    label: 'Rules & Workflow',
+    items: [
+      { id: 'sla', label: 'SLA Rule Engine', icon: 'BarChart2', path: '/admin/sla' },
+      { id: 'workflow', label: 'Workflow Configuration', icon: 'Settings', path: '/admin/workflow' },
+      { id: 'escalation', label: 'Escalation Matrix', icon: 'AlertTriangle', path: '/admin/escalation' },
+      { id: 'notif', label: 'Notifications', icon: 'MessageSquare', path: '/admin/notifications' },
     ],
   },
   {
     id: 'system',
     label: 'System',
     items: [
-      { id: 'settings', label: 'System Settings', icon: 'Settings', path: '/admin/settings' },
+      { id: 'ai', label: 'AI Configuration', icon: 'Zap', path: '/admin/ai-config' },
+      { id: 'master', label: 'Master Data', icon: 'Globe2', path: '/admin/master' },
       { id: 'audit', label: 'Audit Logs', icon: 'ScrollText', path: '/admin/audit' },
-      { id: 'reports', label: 'Global Reports', icon: 'BarChart2', path: '/admin/reports' },
+    ],
+  },
+];
+
+const CITIZEN_NAV: NavSection[] = [
+  {
+    id: 'main',
+    label: 'Citizen Portal',
+    items: [
+      { id: 'dashboard', label: 'Dashboard', icon: 'LayoutDashboard', path: '/citizen' },
+      { id: 'grievances', label: 'My Grievances', icon: 'ClipboardList', path: '/citizen/grievances', badge: 6 },
+      { id: 'submit', label: 'Submit Grievance', icon: 'PlusCircle', path: '/citizen/submit' },
+      { id: 'track', label: 'Track Grievance', icon: 'Search', path: '/citizen/track' },
+    ],
+  },
+  {
+    id: 'personal',
+    label: 'My Account',
+    items: [
+      { id: 'profile', label: 'Profile', icon: 'User', path: '/citizen/profile' },
+      { id: 'notifications', label: 'Notifications', icon: 'Bell', path: '/citizen/notifications', badge: 3, badgeVariant: 'red' },
+      { id: 'schemes', label: 'Schemes & Services', icon: 'Building', path: '/citizen/schemes' },
+      { id: 'help', label: 'Need Assistance', icon: 'HelpCircle', path: '/citizen/help' },
     ],
   },
 ];
@@ -93,7 +127,7 @@ export const NAV_CONFIG: Record<UserRole, NavSection[]> = {
   clerk: CLERK_NAV,
   admin: ADMIN_NAV,
   cm: CM_NAV,
-  citizen: [],
+  citizen: CITIZEN_NAV,
 };
 
 export function getNavForRole(role: UserRole): NavSection[] {
@@ -106,7 +140,7 @@ export function getDefaultPath(role: UserRole): string {
     clerk: '/portal/dashboard',
     admin: '/admin/overview',
     cm: '/cm/overview',
-    citizen: '/citizen/dashboard',
+    citizen: '/citizen',
   };
   return paths[role] ?? '/portal/dashboard';
 }

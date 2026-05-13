@@ -2,7 +2,7 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import { User, LoginCredentials } from '@/types';
-import { mockLogin } from '@/data';
+import { mockLogin, mockPhoneLogin, mockRegisterCitizen } from '@/data';
 
 interface AuthStore {
   user: User | null;
@@ -11,6 +11,8 @@ interface AuthStore {
   isLoading: boolean;
   error: string | null;
   login: (credentials: LoginCredentials) => Promise<boolean>;
+  loginWithPhone: (phone: string, otp: string) => Promise<boolean>;
+  register: (data: Parameters<typeof mockRegisterCitizen>[0]) => Promise<boolean>;
   logout: () => void;
   clearError: () => void;
 }
@@ -41,6 +43,39 @@ export const useAuthStore = create<AuthStore>()(
           set({ isLoading: false, error: 'Invalid email or password.' });
           return false;
         }
+      },
+
+      loginWithPhone: async (phone, otp) => {
+        set({ isLoading: true, error: null });
+        await new Promise(r => setTimeout(r, 600));
+        const result = mockPhoneLogin(phone, otp);
+        if (result) {
+          set({
+            user: result.user,
+            token: result.token,
+            isAuthenticated: true,
+            isLoading: false,
+            error: null,
+          });
+          return true;
+        } else {
+          set({ isLoading: false, error: 'Invalid OTP. Please try again.' });
+          return false;
+        }
+      },
+
+      register: async (data) => {
+        set({ isLoading: true, error: null });
+        await new Promise(r => setTimeout(r, 600));
+        const result = mockRegisterCitizen(data);
+        set({
+          user: result.user,
+          token: result.token,
+          isAuthenticated: true,
+          isLoading: false,
+          error: null,
+        });
+        return true;
       },
 
       logout: () => {

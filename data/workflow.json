@@ -1,0 +1,37 @@
+{
+  "states": [
+    { "id": "NEW", "label": "New", "color": "#0EA5E9", "isInitial": true, "isTerminal": false },
+    { "id": "TRIAGED", "label": "Triaged", "color": "#7C3AED", "isInitial": false, "isTerminal": false },
+    { "id": "ASSIGNED", "label": "Assigned", "color": "#1A3260", "isInitial": false, "isTerminal": false },
+    { "id": "IN_PROGRESS", "label": "In Progress", "color": "#F59E0B", "isInitial": false, "isTerminal": false },
+    { "id": "INFO_REQ", "label": "Info Requested", "color": "#0891B2", "isInitial": false, "isTerminal": false },
+    { "id": "ESCALATED", "label": "Escalated", "color": "#DC2626", "isInitial": false, "isTerminal": false },
+    { "id": "RESOLVED", "label": "Resolved", "color": "#16A34A", "isInitial": false, "isTerminal": false },
+    { "id": "CLOSED", "label": "Closed", "color": "#6B7280", "isInitial": false, "isTerminal": true },
+    { "id": "REOPENED", "label": "Re-opened", "color": "#DB2777", "isInitial": false, "isTerminal": false }
+  ],
+  "transitions": [
+    { "id": "t1", "from": "NEW", "to": "TRIAGED", "action": "AI auto-classify", "trigger": "system", "description": "System auto-classifies the complaint based on category, priority, and department using AI." },
+    { "id": "t2", "from": "TRIAGED", "to": "ASSIGNED", "action": "Assign to officer", "trigger": "manual", "description": "Nodal officer or auto-routing assigns the complaint to a field officer." },
+    { "id": "t3", "from": "ASSIGNED", "to": "IN_PROGRESS", "action": "Officer accepts", "trigger": "manual", "description": "Assigned officer accepts and starts working on the complaint." },
+    { "id": "t4", "from": "IN_PROGRESS", "to": "INFO_REQ", "action": "Need more info", "trigger": "manual", "description": "Officer requests additional information from the citizen." },
+    { "id": "t5", "from": "INFO_REQ", "to": "IN_PROGRESS", "action": "Citizen replies", "trigger": "citizen", "description": "Citizen provides the requested additional information." },
+    { "id": "t6", "from": "IN_PROGRESS", "to": "ESCALATED", "action": "SLA breach / manual", "trigger": "system_or_manual", "description": "Complaint is escalated due to SLA breach or manual escalation by officer." },
+    { "id": "t7", "from": "ESCALATED", "to": "IN_PROGRESS", "action": "Action taken", "trigger": "manual", "description": "Higher authority takes action and routes back to working state." },
+    { "id": "t8", "from": "IN_PROGRESS", "to": "RESOLVED", "action": "Officer resolves", "trigger": "manual", "description": "Officer marks the complaint as resolved with resolution details." },
+    { "id": "t9", "from": "RESOLVED", "to": "CLOSED", "action": "Auto-close after 24h", "trigger": "system", "description": "System auto-closes the complaint after 24 hours if citizen does not respond." },
+    { "id": "t10", "from": "CLOSED", "to": "REOPENED", "action": "Citizen requests", "trigger": "citizen", "description": "Citizen reopens the complaint within the allowed timeframe." },
+    { "id": "t11", "from": "REOPENED", "to": "IN_PROGRESS", "action": "Re-assigned", "trigger": "manual", "description": "Complaint is re-assigned to an officer for further action." }
+  ],
+  "actionsByState": {
+    "NEW": ["View", "Triage"],
+    "TRIAGED": ["View", "Assign", "Re-classify"],
+    "ASSIGNED": ["View", "Accept", "Reassign", "Forward"],
+    "IN_PROGRESS": ["Resolve", "Escalate", "Request Info", "Add Note"],
+    "INFO_REQ": ["View", "Re-message Citizen", "Cancel Request"],
+    "ESCALATED": ["View", "Assign Higher", "Resolve"],
+    "RESOLVED": ["View", "Close", "Reopen"],
+    "CLOSED": ["View", "Reopen"],
+    "REOPENED": ["Assign", "Resolve"]
+  }
+}
