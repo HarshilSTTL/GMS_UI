@@ -1,12 +1,20 @@
 import { NextRequest, NextResponse } from 'next/server';
-import complaints from '@/data/complaints.json';
+import fs from 'fs';
+import path from 'path';
+
+function getComplaints() {
+  const raw = fs.readFileSync(path.join(process.cwd(), 'data/complaints.json'), 'utf-8');
+  return JSON.parse(raw);
+}
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { token: string } }
+  { params }: { params: Promise<{ token: string }> }
 ) {
   try {
-    const complaint = complaints.find(c => c.token === params.token);
+    const { token } = await params;
+    const complaints = getComplaints();
+    const complaint = complaints.find((c: any) => c.token === token);
 
     if (!complaint) {
       return NextResponse.json({ error: 'Complaint not found' }, { status: 404 });
