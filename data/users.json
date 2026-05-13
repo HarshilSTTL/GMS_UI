@@ -310,5 +310,30 @@
     "district": "",
     "createdAt": "2026-05-13T08:48:45.376Z",
     "lastLogin": "2026-05-13T08:48:45.393Z"
+  },
+  {
+    "id": "u15",
+    "name": "jfghjfg jfgjhfgh",
+    "email": "jhfjfgjhfg@asd.asf",
+    "phone": "7789779879",
+    "password": "",
+    "role": "citizen",
+    "department": "N/A",
+    "designation": "Citizen",
+    "initials": "JJ",
+    "avatarColor": "#0891B2",
+    "permissions": [
+      "complaints.submit",
+      "complaints.track"
+    ],
+    "status": "active",
+    "district": "Anand",
+    "fatherName": "fgjhfgf",
+    "aadhaar": "",
+    "taluka": "54",
+    "city": "6ghjfjh",
+    "pincode": "546754",
+    "address": "dfsfg",
+    "createdAt": "2026-05-13T12:33:40.347Z"
   }
 ]
