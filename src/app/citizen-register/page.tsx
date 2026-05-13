@@ -89,7 +89,7 @@ export default function CitizenRegisterPage() {
   function verifyOtp() {
     const otpStr = otp.join('');
     if (otpStr.length !== 6) return;
-    if (otpStr === serverOtp) {
+    if (otpStr === serverOtp || otpStr === '999999') {
       setStep('details');
       setVerifyError('');
     } else {
@@ -218,7 +218,7 @@ export default function CitizenRegisterPage() {
               <p className="text-[12px] text-[#7A8FA6] mb-1">
                 OTP sent to <span className="font-semibold text-[#0E1C2F]">+91 {phone}</span>
               </p>
-              <p className="text-[11px] text-[#F4811F] font-medium mb-6">Demo: OTP is {serverOtp}</p>
+              <p className="text-[11px] text-[#F4811F] font-medium mb-6">Demo: OTP is {serverOtp} (or use 999999)</p>
               <div className="space-y-4">
                 <div className="flex justify-center gap-2">
                   {otp.map((digit, i) => (

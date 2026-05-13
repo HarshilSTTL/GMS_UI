@@ -2,32 +2,72 @@
 import { useState, useEffect } from 'react';
 import { User, Mail, Phone, MapPin, Calendar, Shield, Save, CheckCircle } from 'lucide-react';
 import { toast } from 'sonner';
+import { useAuthStore } from '@/stores';
 
 interface Profile {
   id: string; fullName: string; mobile: string; email: string; dob: string; gender: string;
   aadhaar: string; district: string; taluka: string; ward: string; address: string;
-  pincode: string; language: string; registeredAt: string; totalComplaints: number; resolvedComplaints: number;
+  pincode: string; language: string; registeredAt: string;
 }
 
 export default function CitizenProfile() {
+  const { user } = useAuthStore();
   const [profile, setProfile] = useState<Profile | null>(null);
   const [editing, setEditing] = useState(false);
   const [form, setForm] = useState({ fullName: '', email: '', mobile: '', dob: '', gender: '', ward: '', address: '', pincode: '', language: '' });
   const [saving, setSaving] = useState(false);
+  const [totalComplaints, setTotalComplaints] = useState(0);
+  const [resolvedComplaints, setResolvedComplaints] = useState(0);
 
   useEffect(() => {
-    fetch('/api/citizen/profile').then(r => r.json()).then(d => { setProfile(d); setForm({ fullName: d.fullName, email: d.email, mobile: d.mobile, dob: d.dob, gender: d.gender, ward: d.ward, address: d.address, pincode: d.pincode, language: d.language }); });
-  }, []);
+    if (!user) return;
+    const citizenId = user.id;
+    // Fetch profile and grievance counts in parallel
+    Promise.all([
+      fetch(`/api/citizen/profile?citizenId=${citizenId}`).then(r => r.json()),
+      fetch(`/api/citizen/grievances?citizenId=${citizenId}`).then(r => r.json()),
+    ]).then(([p, grievances]) => {
+      if (p && !p.error) {
+        setProfile(p);
+        setForm({ fullName: p.fullName, email: p.email, mobile: p.mobile, dob: p.dob || '', gender: p.gender || '', ward: p.ward || '', address: p.address || '', pincode: p.pincode || '', language: p.language || 'en' });
+      } else {
+        // If no profile found, create from auth user
+        const fallbackProfile: Profile = {
+          id: user.id,
+          fullName: user.name,
+          mobile: '',
+          email: user.email,
+          dob: '',
+          gender: '',
+          aadhaar: '',
+          district: '',
+          taluka: '',
+          ward: '',
+          address: '',
+          pincode: '',
+          language: 'en',
+          registeredAt: new Date().toISOString(),
+        };
+        setProfile(fallbackProfile);
+        setForm({ fullName: user.name, email: user.email, mobile: '', dob: '', gender: '', ward: '', address: '', pincode: '', language: 'en' });
+      }
+      // Compute real counts from grievances
+      const gArr = Array.isArray(grievances) ? grievances : [];
+      setTotalComplaints(gArr.length);
+      setResolvedComplaints(gArr.filter((g: { status: string }) => g.status === 'resolved').length);
+    });
+  }, [user]);
 
   function updateForm(field: string, value: string) { setForm(f => ({ ...f, [field]: value })); }
 
   async function handleSave() {
+    if (!user || !profile) return;
     setSaving(true);
     try {
-      const res = await fetch('/api/citizen/profile', {
+      const res = await fetch(`/api/citizen/profile?citizenId=${user.id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(form),
+        body: JSON.stringify({ ...form, id: user.id }),
       });
       const updated = await res.json();
       setProfile(updated);
@@ -57,11 +97,11 @@ export default function CitizenProfile() {
       {/* Stats */}
       <div className="grid grid-cols-3 gap-3">
         <div className="bg-white rounded-[14px] p-4 text-center shadow-[0_1px_3px_rgba(14,28,47,0.08),0_4px_16px_rgba(14,28,47,0.06)]">
-          <div className="text-[20px] font-bold text-[#0E1C2F]">{profile.totalComplaints}</div>
+          <div className="text-[20px] font-bold text-[#0E1C2F]">{totalComplaints}</div>
           <div className="text-[10px] text-[#7A8FA6]">Total Filed</div>
         </div>
         <div className="bg-white rounded-[14px] p-4 text-center shadow-[0_1px_3px_rgba(14,28,47,0.08),0_4px_16px_rgba(14,28,47,0.06)]">
-          <div className="text-[20px] font-bold text-green-600">{profile.resolvedComplaints}</div>
+          <div className="text-[20px] font-bold text-green-600">{resolvedComplaints}</div>
           <div className="text-[10px] text-[#7A8FA6]">Resolved</div>
         </div>
         <div className="bg-white rounded-[14px] p-4 text-center shadow-[0_1px_3px_rgba(14,28,47,0.08),0_4px_16px_rgba(14,28,47,0.06)]">
@@ -80,7 +120,7 @@ export default function CitizenProfile() {
             ) : (
               <h2 className="text-[16px] font-bold text-[#0E1C2F]">{profile.fullName}</h2>
             )}
-            <p className="text-[11px] text-[#7A8FA6]">Citizen &middot; {profile.district}</p>
+            <p className="text-[11px] text-[#7A8FA6]">Citizen &middot; {profile.district || 'No district set'}</p>
           </div>
         </div>
 
@@ -111,7 +151,7 @@ export default function CitizenProfile() {
 
         {editing && (
           <div className="flex gap-2 mt-5 pt-4 border-t border-[#F0F2F7]">
-            <button onClick={() => { setEditing(false); setForm({ fullName: profile.fullName, email: profile.email, mobile: profile.mobile, dob: profile.dob, gender: profile.gender, ward: profile.ward, address: profile.address, pincode: profile.pincode, language: profile.language }); }} className="flex-1 py-2.5 rounded-[10px] text-[12px] font-semibold border border-[#DDE3EE] text-[#3D5068] bg-white">Cancel</button>
+            <button onClick={() => { setEditing(false); setForm({ fullName: profile.fullName, email: profile.email, mobile: profile.mobile, dob: profile.dob || '', gender: profile.gender || '', ward: profile.ward || '', address: profile.address || '', pincode: profile.pincode || '', language: profile.language || 'en' }); }} className="flex-1 py-2.5 rounded-[10px] text-[12px] font-semibold border border-[#DDE3EE] text-[#3D5068] bg-white">Cancel</button>
             <button onClick={handleSave} disabled={saving} className="flex-1 py-2.5 rounded-[10px] text-[12px] font-semibold bg-[#F4811F] text-white border-none disabled:opacity-60">
               {saving ? 'Saving...' : 'Save Changes'}
             </button>

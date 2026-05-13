@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react';
 import { Bell, Check, CheckCheck } from 'lucide-react';
 import Link from 'next/link';
 import { toast } from 'sonner';
+import { useAuthStore } from '@/stores';
 
 interface Notification {
   id: string; title: string; message: string; timestamp: string; isRead: boolean; type: string; grievanceId?: string;
@@ -18,22 +19,25 @@ const TYPE_CONFIG: Record<string, { color: string; bg: string }> = {
 };
 
 export default function CitizenNotifications() {
+  const { user } = useAuthStore();
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch('/api/citizen/notifications').then(r => r.json()).then(d => { setNotifications(d); setLoading(false); });
-  }, []);
+    const url = user ? `/api/citizen/notifications?citizenId=${user.id}` : '/api/citizen/notifications';
+    fetch(url).then(r => r.json()).then(d => { setNotifications(Array.isArray(d) ? d : []); setLoading(false); });
+  }, [user]);
 
   const unreadCount = notifications.filter(n => !n.isRead).length;
+  const notifUrl = user ? `/api/citizen/notifications?citizenId=${user.id}` : '/api/citizen/notifications';
 
   async function markRead(id: string) {
-    await fetch('/api/citizen/notifications', { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id, isRead: true }) });
+    await fetch(notifUrl, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id, isRead: true }) });
     setNotifications(prev => prev.map(n => n.id === id ? { ...n, isRead: true } : n));
   }
 
   async function markAllRead() {
-    await fetch('/api/citizen/notifications', { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ markAllRead: true }) });
+    await fetch(notifUrl, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ markAllRead: true }) });
     setNotifications(prev => prev.map(n => ({ ...n, isRead: true })));
     toast.success('All notifications marked as read');
   }

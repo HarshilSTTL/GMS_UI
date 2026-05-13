@@ -2,6 +2,7 @@
 import { useState, useEffect } from 'react';
 import { FileText, Search, Filter, Plus, ChevronUp, ChevronDown, ArrowUpDown } from 'lucide-react';
 import Link from 'next/link';
+import { useAuthStore } from '@/stores';
 
 interface Grievance {
   id: string; token: string; title: string; category: string; status: string;
@@ -30,6 +31,7 @@ type SortKey = 'token' | 'submittedDate' | 'status' | 'priority';
 type SortDir = 'asc' | 'desc';
 
 export default function CitizenGrievances() {
+  const { user } = useAuthStore();
   const [grievances, setGrievances] = useState<Grievance[]>([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState('all');
@@ -38,8 +40,9 @@ export default function CitizenGrievances() {
   const [sortDir, setSortDir] = useState<SortDir>('desc');
 
   useEffect(() => {
-    fetch('/api/citizen/grievances').then(r => r.json()).then(d => { setGrievances(d); setLoading(false); });
-  }, []);
+    const url = user ? `/api/citizen/grievances?citizenId=${user.id}` : '/api/citizen/grievances';
+    fetch(url).then(r => r.json()).then(d => { setGrievances(Array.isArray(d) ? d : []); setLoading(false); });
+  }, [user]);
 
   const filtered = grievances
     .filter(g => filter === 'all' || g.status === filter)

@@ -3,6 +3,7 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { ArrowLeft, CheckCircle, MapPin, FileText, User } from 'lucide-react';
 import { toast } from 'sonner';
+import { useAuthStore } from '@/stores';
 
 const CATEGORIES = [
   { icon: '💧', label: 'Water Supply', dept: 'GWSSB' },
@@ -28,6 +29,7 @@ const PRIORITIES = [
 
 export default function SubmitGrievance() {
   const router = useRouter();
+  const { user } = useAuthStore();
   const [step, setStep] = useState(1);
   const [form, setForm] = useState({
     category: '', title: '', description: '', location: '', ward: '', district: '',
@@ -45,7 +47,7 @@ export default function SubmitGrievance() {
       const res = await fetch('/api/citizen/grievances', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(form),
+        body: JSON.stringify({ ...form, citizenId: user?.id || '' }),
       });
       const data = await res.json();
       toast.success(`Grievance filed! Token: ${data.token}`);

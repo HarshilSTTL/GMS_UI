@@ -6,6 +6,7 @@ import { Phone, ShieldCheck, ArrowLeft, RefreshCw, ArrowRight } from 'lucide-rea
 import { cn } from '@/lib/utils';
 import { useAuthStore } from '@/stores';
 import { getDefaultPath } from '@/data';
+import { storeOTP } from '@/data/mock-users';
 
 export default function CitizenLoginPage() {
   const router = useRouter();
@@ -45,6 +46,7 @@ export default function CitizenLoginPage() {
       const data = await res.json();
       if (data.success) {
         setServerOtp(data.otp);
+        storeOTP(phone, data.otp);
         setStep('otp');
         setTimer(30);
       }
@@ -165,7 +167,7 @@ export default function CitizenLoginPage() {
                 OTP sent to <span className="font-semibold text-[#0E1C2F]">+91 {phone}</span>
               </p>
               <p className="text-[11px] text-[#F4811F] font-medium mb-6">
-                Demo: OTP is {serverOtp}
+                Demo: OTP is {serverOtp} (or use 999999)
               </p>
 
               <div className="space-y-4">

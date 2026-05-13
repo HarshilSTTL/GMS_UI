@@ -2,7 +2,7 @@
 import { useState, useEffect } from 'react';
 import { FileText, Clock, CheckCircle, AlertTriangle, Plus, Search, ArrowRight, Zap, BarChart2, Bot } from 'lucide-react';
 import Link from 'next/link';
-import { toast } from 'sonner';
+import { useAuthStore } from '@/stores';
 
 interface Grievance {
   id: string; token: string; title: string; category: string; status: string;
@@ -31,20 +31,23 @@ const PRIORITY_CONFIG: Record<string, { label: string; color: string }> = {
 };
 
 export default function CitizenDashboard() {
+  const { user } = useAuthStore();
   const [grievances, setGrievances] = useState<Grievance[]>([]);
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    if (!user) return;
+    const citizenId = user.id;
     Promise.all([
-      fetch('/api/citizen/grievances').then(r => r.json()),
-      fetch('/api/citizen/notifications').then(r => r.json()),
+      fetch(`/api/citizen/grievances?citizenId=${citizenId}`).then(r => r.json()),
+      fetch(`/api/citizen/notifications?citizenId=${citizenId}`).then(r => r.json()),
     ]).then(([g, n]) => {
-      setGrievances(g);
-      setNotifications(n);
+      setGrievances(Array.isArray(g) ? g : []);
+      setNotifications(Array.isArray(n) ? n : []);
       setLoading(false);
     });
-  }, []);
+  }, [user]);
 
   const total = grievances.length;
   const active = grievances.filter(g => g.status === 'pending' || g.status === 'in_progress' || g.status === 'acknowledged' || g.status === 'under_review').length;
@@ -61,6 +64,8 @@ export default function CitizenDashboard() {
     { label: 'Escalated', value: escalated, icon: AlertTriangle, accent: '#DC2626', bg: '#FEF2F2' },
   ];
 
+  const displayName = user?.name?.split(' ')[0] || 'Citizen';
+
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
@@ -75,7 +80,7 @@ export default function CitizenDashboard() {
       <div className="rounded-[14px] p-5 text-white" style={{ background: 'linear-gradient(135deg, #0F1A2E, #1A3260)' }}>
         <div className="flex items-start justify-between">
           <div>
-            <h1 className="text-[18px] font-bold mb-1">Welcome back, Rajesh</h1>
+            <h1 className="text-[18px] font-bold mb-1">Welcome back, {displayName}</h1>
             <p className="text-[12px] text-blue-200">
               You have <span className="font-bold text-yellow-300">{active} active</span> and{' '}
               <span className="font-bold text-green-300">{unreadNotifs} new</span> notifications.

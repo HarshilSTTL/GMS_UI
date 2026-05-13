@@ -1,5 +1,5 @@
 'use client';
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { User, Mail, Phone, Lock, Bell, CheckCircle, AlertCircle } from 'lucide-react';
 import { useAuthStore } from '@/stores';
 import { cn } from '@/lib/utils';
@@ -11,12 +11,13 @@ export default function CitizenSettings() {
   const [tab, setTab] = useState<Tab>('profile');
   const [saved, setSaved] = useState(false);
   const [error, setError] = useState('');
+  const [loading, setLoading] = useState(true);
 
   const [profileForm, setProfileForm] = useState({
-    name: user?.name ?? '',
-    email: user?.email ?? '',
+    name: '',
+    email: '',
     phone: '',
-    district: 'Ahmedabad',
+    district: '',
     ward: '',
   });
 
@@ -35,17 +36,67 @@ export default function CitizenSettings() {
   });
   const [secError, setSecError] = useState('');
 
-  function handleProfileSave(e: React.FormEvent) {
+  // Load profile data from JSON on mount
+  useEffect(() => {
+    if (!user) return;
+    fetch(`/api/citizen/profile?citizenId=${user.id}`)
+      .then(r => r.json())
+      .then(p => {
+        if (p && !p.error) {
+          setProfileForm({
+            name: p.fullName || user.name || '',
+            email: p.email || user.email || '',
+            phone: p.mobile || '',
+            district: p.district || '',
+            ward: p.ward || '',
+          });
+        } else {
+          setProfileForm({
+            name: user.name || '',
+            email: user.email || '',
+            phone: '',
+            district: '',
+            ward: '',
+          });
+        }
+        setLoading(false);
+      })
+      .catch(() => setLoading(false));
+  }, [user]);
+
+  async function handleProfileSave(e: React.FormEvent) {
     e.preventDefault();
     setError('');
     if (!profileForm.name.trim()) { setError('Name is required.'); return; }
-    // In a real app, call PATCH /api/users/:id
-    setSaved(true);
-    setTimeout(() => setSaved(false), 3000);
+    if (!user) return;
+
+    try {
+      const res = await fetch(`/api/citizen/profile?citizenId=${user.id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          id: user.id,
+          fullName: profileForm.name,
+          email: profileForm.email,
+          mobile: profileForm.phone,
+          district: profileForm.district,
+          ward: profileForm.ward,
+        }),
+      });
+      if (res.ok) {
+        setSaved(true);
+        setTimeout(() => setSaved(false), 3000);
+      } else {
+        setError('Failed to save. Please try again.');
+      }
+    } catch {
+      setError('Failed to save. Please try again.');
+    }
   }
 
   function handleNotifSave(e: React.FormEvent) {
     e.preventDefault();
+    // Notification preferences are stored locally for now
     setSaved(true);
     setTimeout(() => setSaved(false), 3000);
   }
@@ -66,6 +117,14 @@ export default function CitizenSettings() {
     { id: 'notifications', label: 'Notifications', icon: Bell },
     { id: 'security', label: 'Security', icon: Lock },
   ];
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <div className="w-6 h-6 border-2 border-blue-600/30 border-t-blue-600 rounded-full animate-spin" />
+      </div>
+    );
+  }
 
   return (
     <div className="max-w-2xl mx-auto space-y-4">
@@ -103,7 +162,7 @@ export default function CitizenSettings() {
         })}
       </div>
 
-      {/* ── Profile Tab ── */}
+      {/* Profile Tab */}
       {tab === 'profile' && (
         <div className="bg-white rounded-xl border border-[#DDE3EE] p-5 space-y-4">
           {/* Avatar */}
@@ -115,8 +174,8 @@ export default function CitizenSettings() {
               {user?.initials}
             </div>
             <div>
-              <p className="text-[14px] font-bold text-[#0E1C2F]">{user?.name}</p>
-              <p className="text-[11px] text-[#7A8FA6]">{user?.email}</p>
+              <p className="text-[14px] font-bold text-[#0E1C2F]">{profileForm.name || user?.name}</p>
+              <p className="text-[11px] text-[#7A8FA6]">{profileForm.email || user?.email}</p>
               <span className="mt-1 inline-block px-2 py-0.5 bg-teal-100 text-teal-700 rounded-md text-[10px] font-bold">Citizen</span>
             </div>
           </div>
@@ -130,7 +189,6 @@ export default function CitizenSettings() {
 
           <form onSubmit={handleProfileSave} className="space-y-4">
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              {/* Full Name */}
               <div>
                 <label className="block text-[11px] font-bold text-[#3D5068] mb-1.5">Full Name</label>
                 <div className="relative">
@@ -144,7 +202,6 @@ export default function CitizenSettings() {
                 </div>
               </div>
 
-              {/* Email */}
               <div>
                 <label className="block text-[11px] font-bold text-[#3D5068] mb-1.5">Email Address</label>
                 <div className="relative">
@@ -158,7 +215,6 @@ export default function CitizenSettings() {
                 </div>
               </div>
 
-              {/* Phone */}
               <div>
                 <label className="block text-[11px] font-bold text-[#3D5068] mb-1.5">Mobile Number</label>
                 <div className="relative">
@@ -173,7 +229,6 @@ export default function CitizenSettings() {
                 </div>
               </div>
 
-              {/* District */}
               <div>
                 <label className="block text-[11px] font-bold text-[#3D5068] mb-1.5">District</label>
                 <select
@@ -181,6 +236,7 @@ export default function CitizenSettings() {
                   onChange={e => setProfileForm({ ...profileForm, district: e.target.value })}
                   className="w-full px-3 py-2.5 border border-[#DDE3EE] rounded-lg text-[12px] text-[#0E1C2F] outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/10 bg-white"
                 >
+                  <option value="">Select District</option>
                   {['Ahmedabad','Surat','Vadodara','Rajkot','Gandhinagar','Bhavnagar','Jamnagar','Junagadh'].map(d => (
                     <option key={d} value={d}>{d}</option>
                   ))}
@@ -188,7 +244,6 @@ export default function CitizenSettings() {
               </div>
             </div>
 
-            {/* Ward */}
             <div>
               <label className="block text-[11px] font-bold text-[#3D5068] mb-1.5">Ward / Area</label>
               <input
@@ -212,7 +267,7 @@ export default function CitizenSettings() {
         </div>
       )}
 
-      {/* ── Notifications Tab ── */}
+      {/* Notifications Tab */}
       {tab === 'notifications' && (
         <div className="bg-white rounded-xl border border-[#DDE3EE] p-5">
           <form onSubmit={handleNotifSave} className="space-y-5">
@@ -284,7 +339,7 @@ export default function CitizenSettings() {
         </div>
       )}
 
-      {/* ── Security Tab ── */}
+      {/* Security Tab */}
       {tab === 'security' && (
         <div className="bg-white rounded-xl border border-[#DDE3EE] p-5 space-y-4">
           <div>
