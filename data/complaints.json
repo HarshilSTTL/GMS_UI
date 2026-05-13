@@ -444,7 +444,7 @@
     "groupId": "grp-sg-highway",
     "isGroupPrimary": true,
     "createdAt": "2025-05-02T11:20:00Z",
-    "updatedAt": "2026-05-12T13:28:08.052Z",
+    "updatedAt": "2026-05-13T08:18:31.488Z",
     "resolvedAt": null,
     "citizenId": "citizen_meena",
     "timeline": [
@@ -601,7 +601,7 @@
     "groupId": null,
     "isGroupPrimary": false,
     "createdAt": "2025-05-01T15:30:00Z",
-    "updatedAt": "2026-05-12T13:28:08.062Z",
+    "updatedAt": "2026-05-13T08:18:31.557Z",
     "resolvedAt": null,
     "citizenId": "citizen_dinesh",
     "timeline": [
@@ -675,7 +675,7 @@
     "groupId": null,
     "isGroupPrimary": false,
     "createdAt": "2025-05-06T10:15:00Z",
-    "updatedAt": "2026-05-12T13:28:08.071Z",
+    "updatedAt": "2026-05-13T08:18:31.310Z",
     "resolvedAt": null,
     "citizenId": "citizen_hiren",
     "timeline": [
@@ -720,18 +720,18 @@
     "ward": "Ward 18",
     "district": "Ahmedabad",
     "assignedTo": {
-      "id": "o2",
-      "name": "Anita Sharma",
-      "initials": "AS",
-      "color": "#16A34A",
-      "role": "Senior Clerk",
-      "department": "Revenue",
-      "workload": "ok"
+      "id": "o1",
+      "name": "Ravi Varma",
+      "initials": "RV",
+      "color": "#1A56C4",
+      "role": "Nodal Officer",
+      "department": "GWSSB",
+      "workload": "high"
     },
     "groupId": null,
     "isGroupPrimary": false,
     "createdAt": "2025-04-07T09:00:00Z",
-    "updatedAt": "2026-05-08T04:39:43.369Z",
+    "updatedAt": "2026-05-13T08:18:31.200Z",
     "resolvedAt": null,
     "citizenId": "citizen_kiran",
     "timeline": [
@@ -805,7 +805,7 @@
     "groupId": null,
     "isGroupPrimary": false,
     "createdAt": "2025-05-06T14:00:00Z",
-    "updatedAt": "2026-05-08T04:43:59.176Z",
+    "updatedAt": "2026-05-13T08:18:31.695Z",
     "resolvedAt": null,
     "citizenId": "citizen_priya_n",
     "timeline": [
@@ -1016,18 +1016,18 @@
     "ward": "Ward 9",
     "district": "Ahmedabad",
     "assignedTo": {
-      "id": "o2",
-      "name": "Anita Sharma",
-      "initials": "AS",
-      "color": "#16A34A",
-      "role": "Senior Clerk",
-      "department": "Revenue",
-      "workload": "ok"
+      "id": "o1",
+      "name": "Ravi Varma",
+      "initials": "RV",
+      "color": "#1A56C4",
+      "role": "Nodal Officer",
+      "department": "GWSSB",
+      "workload": "high"
     },
     "groupId": null,
     "isGroupPrimary": false,
     "createdAt": "2025-03-22T11:00:00Z",
-    "updatedAt": "2026-05-08T04:41:30.069Z",
+    "updatedAt": "2026-05-13T08:18:31.633Z",
     "resolvedAt": null,
     "citizenId": "citizen_ashok",
     "timeline": [
@@ -1101,7 +1101,7 @@
     "groupId": null,
     "isGroupPrimary": false,
     "createdAt": "2025-05-07T06:00:00Z",
-    "updatedAt": "2025-05-07T08:30:00Z",
+    "updatedAt": "2026-05-13T08:18:31.748Z",
     "resolvedAt": null,
     "citizenId": "citizen_bhavna",
     "timeline": [
@@ -1323,7 +1323,7 @@
     "groupId": null,
     "isGroupPrimary": false,
     "createdAt": "2025-05-04T09:30:00Z",
-    "updatedAt": "2026-05-08T06:00:00Z",
+    "updatedAt": "2026-05-13T08:18:32.326Z",
     "resolvedAt": null,
     "citizenId": "citizen_priya_s",
     "timeline": [
@@ -1379,7 +1379,7 @@
     "groupId": null,
     "isGroupPrimary": false,
     "createdAt": "2025-05-05T11:00:00Z",
-    "updatedAt": "2026-05-08T06:00:00Z",
+    "updatedAt": "2026-05-13T08:18:32.231Z",
     "resolvedAt": null,
     "citizenId": "citizen_ramesh",
     "timeline": [
@@ -1435,7 +1435,7 @@
     "groupId": "grp-sg-highway",
     "isGroupPrimary": false,
     "createdAt": "2025-05-03T14:00:00Z",
-    "updatedAt": "2026-05-08T06:00:00Z",
+    "updatedAt": "2026-05-13T08:18:32.275Z",
     "resolvedAt": null,
     "citizenId": "citizen_amit",
     "timeline": [
@@ -1509,7 +1509,7 @@
     "groupId": null,
     "isGroupPrimary": false,
     "createdAt": "2025-03-08T10:00:00Z",
-    "updatedAt": "2026-05-08T06:00:00Z",
+    "updatedAt": "2026-05-13T08:18:32.134Z",
     "resolvedAt": null,
     "citizenId": "citizen_suresh",
     "timeline": [
@@ -1573,7 +1573,7 @@
     "ward": "Ward 7",
     "district": "Ahmedabad",
     "assignedTo": {
-      "id": "u1",
+      "id": "o1",
       "name": "Ravi Varma",
       "initials": "RV",
       "color": "#1A56C4",
@@ -1615,7 +1615,7 @@
     "feedback": null,
     "rating": null,
     "createdAt": "2026-05-05T09:00:00Z",
-    "updatedAt": "2026-05-06T14:30:00Z",
+    "updatedAt": "2026-05-13T08:18:32.056Z",
     "resolvedAt": null
   },
   {
@@ -1711,7 +1711,15 @@
     "location": "Navarangpura, Ahmedabad",
     "ward": "Ward 5",
     "district": "Ahmedabad",
-    "assignedTo": null,
+    "assignedTo": {
+      "id": "o1",
+      "name": "Ravi Varma",
+      "initials": "RV",
+      "color": "#1A56C4",
+      "role": "Nodal Officer",
+      "department": "GWSSB",
+      "workload": "high"
+    },
     "groupId": null,
     "isGroupPrimary": false,
     "timeline": [
@@ -1728,7 +1736,7 @@
     "feedback": null,
     "rating": null,
     "createdAt": "2026-05-03T08:45:00Z",
-    "updatedAt": "2026-05-03T08:45:00Z",
+    "updatedAt": "2026-05-13T08:18:32.014Z",
     "resolvedAt": null
   },
   {
@@ -1751,13 +1759,13 @@
     "ward": "Ward 2",
     "district": "Ahmedabad",
     "assignedTo": {
-      "id": "u8",
-      "name": "Nikhil Joshi",
-      "initials": "NJ",
-      "color": "#F59E0B",
+      "id": "o1",
+      "name": "Ravi Varma",
+      "initials": "RV",
+      "color": "#1A56C4",
       "role": "Nodal Officer",
-      "department": "DGVCL",
-      "workload": "ok"
+      "department": "GWSSB",
+      "workload": "high"
     },
     "groupId": null,
     "isGroupPrimary": false,
@@ -1793,7 +1801,7 @@
     "feedback": null,
     "rating": null,
     "createdAt": "2026-05-01T15:30:00Z",
-    "updatedAt": "2026-05-05T11:00:00Z",
+    "updatedAt": "2026-05-13T08:18:31.922Z",
     "resolvedAt": null
   },
   {
@@ -1816,13 +1824,13 @@
     "ward": "Ward 18",
     "district": "Ahmedabad",
     "assignedTo": {
-      "id": "u2",
-      "name": "Anita Sharma",
-      "initials": "AS",
-      "color": "#16A34A",
-      "role": "Senior Clerk",
-      "department": "Revenue Department",
-      "workload": "ok"
+      "id": "o1",
+      "name": "Ravi Varma",
+      "initials": "RV",
+      "color": "#1A56C4",
+      "role": "Nodal Officer",
+      "department": "GWSSB",
+      "workload": "high"
     },
     "groupId": null,
     "isGroupPrimary": false,
@@ -1867,7 +1875,7 @@
     "feedback": null,
     "rating": null,
     "createdAt": "2026-04-07T09:00:00Z",
-    "updatedAt": "2026-05-07T07:00:00Z",
+    "updatedAt": "2026-05-13T08:18:31.964Z",
     "resolvedAt": null
   },
   {
@@ -1889,7 +1897,15 @@
     "location": "Vatva Industrial Area, Ahmedabad",
     "ward": "Ward 22",
     "district": "Ahmedabad",
-    "assignedTo": null,
+    "assignedTo": {
+      "id": "o1",
+      "name": "Ravi Varma",
+      "initials": "RV",
+      "color": "#1A56C4",
+      "role": "Nodal Officer",
+      "department": "GWSSB",
+      "workload": "high"
+    },
     "groupId": null,
     "isGroupPrimary": false,
     "timeline": [
@@ -1906,7 +1922,185 @@
     "feedback": null,
     "rating": null,
     "createdAt": "2026-05-06T14:00:00Z",
-    "updatedAt": "2026-05-06T14:00:00Z",
+    "updatedAt": "2026-05-13T08:18:31.877Z",
     "resolvedAt": null
+  },
+  {
+    "id": "demo_c1",
+    "token": "DEMO-2026-00001",
+    "title": "Road pothole causing accidents — Demo Ward 12",
+    "description": "There is a large pothole on the main road in Ward 12 that is causing accidents. Multiple vehicles have been damaged. The pothole needs immediate repair before someone gets seriously hurt.",
+    "category": "Roads & Pavements",
+    "department": "Roads & Buildings",
+    "status": "open",
+    "priority": "high",
+    "channel": "web",
+    "slaStatus": "ok",
+    "slaDaysLeft": 5,
+    "citizenId": "u_dummy_01",
+    "citizenName": "Demo Citizen",
+    "citizenPhone": "+91 91234 56789",
+    "citizenEmail": "demo.citizen@example.com",
+    "location": "Ward 12, Ahmedabad",
+    "ward": "Ward 12",
+    "district": "Ahmedabad",
+    "assignedTo": null,
+    "groupId": null,
+    "isGroupPrimary": false,
+    "timeline": [
+      {
+        "id": "tl-demo-c1-1",
+        "type": "created",
+        "title": "Grievance Filed",
+        "actor": "Demo Citizen",
+        "actorRole": "citizen",
+        "timestamp": "2026-05-13T10:00:00Z",
+        "description": "Grievance submitted via web portal"
+      }
+    ],
+    "feedback": null,
+    "rating": null,
+    "createdAt": "2026-05-13T10:00:00Z",
+    "updatedAt": "2026-05-13T10:00:00Z",
+    "resolvedAt": null
+  },
+  {
+    "id": "demo_c2",
+    "token": "DEMO-2026-00002",
+    "title": "Street light not working — Demo Ward 12",
+    "description": "The street light near the main junction has been broken for 2 weeks. This is causing safety issues at night. Children feel unsafe walking back from school.",
+    "category": "Street Lighting",
+    "department": "AMC",
+    "status": "in_progress",
+    "priority": "medium",
+    "channel": "web",
+    "slaStatus": "ok",
+    "slaDaysLeft": 4,
+    "citizenId": "u_dummy_01",
+    "citizenName": "Demo Citizen",
+    "citizenPhone": "+91 91234 56789",
+    "citizenEmail": "demo.citizen@example.com",
+    "location": "Main Junction, Ward 12, Ahmedabad",
+    "ward": "Ward 12",
+    "district": "Ahmedabad",
+    "assignedTo": {
+      "id": "u6",
+      "name": "Pooja Desai",
+      "initials": "PD",
+      "color": "#E11D48",
+      "role": "Nodal Officer",
+      "department": "Roads & Buildings",
+      "workload": "medium"
+    },
+    "groupId": null,
+    "isGroupPrimary": false,
+    "timeline": [
+      {
+        "id": "tl-demo-c2-1",
+        "type": "created",
+        "title": "Grievance Filed",
+        "actor": "Demo Citizen",
+        "actorRole": "citizen",
+        "timestamp": "2026-05-12T14:30:00Z",
+        "description": "Grievance submitted via web portal"
+      },
+      {
+        "id": "tl-demo-c2-2",
+        "type": "assigned",
+        "title": "Assigned to Pooja Desai",
+        "actor": "System",
+        "actorRole": "system",
+        "timestamp": "2026-05-12T15:00:00Z",
+        "description": "Auto-assigned based on department"
+      },
+      {
+        "id": "tl-demo-c2-3",
+        "type": "status_change",
+        "title": "Work In Progress",
+        "actor": "Pooja Desai",
+        "actorRole": "officer",
+        "timestamp": "2026-05-13T09:00:00Z",
+        "description": "Officer is working on this grievance"
+      }
+    ],
+    "feedback": null,
+    "rating": null,
+    "createdAt": "2026-05-12T14:30:00Z",
+    "updatedAt": "2026-05-13T09:00:00Z",
+    "resolvedAt": null
+  },
+  {
+    "id": "demo_c3",
+    "token": "DEMO-2026-00003",
+    "title": "Water supply issue fixed — Demo Ward 12",
+    "description": "Water supply issue in our area has been resolved. Thank you for the quick response and fixing the main pipe.",
+    "category": "Water Supply",
+    "department": "GWSSB",
+    "status": "resolved",
+    "priority": "medium",
+    "channel": "web",
+    "slaStatus": "ok",
+    "slaDaysLeft": 0,
+    "citizenId": "u_dummy_01",
+    "citizenName": "Demo Citizen",
+    "citizenPhone": "+91 91234 56789",
+    "citizenEmail": "demo.citizen@example.com",
+    "location": "Ward 12, Ahmedabad",
+    "ward": "Ward 12",
+    "district": "Ahmedabad",
+    "assignedTo": {
+      "id": "u1",
+      "name": "Ravi Varma",
+      "initials": "RV",
+      "color": "#1A56C4",
+      "role": "Nodal Officer",
+      "department": "GWSSB",
+      "workload": "high"
+    },
+    "groupId": null,
+    "isGroupPrimary": false,
+    "timeline": [
+      {
+        "id": "tl-demo-c3-1",
+        "type": "created",
+        "title": "Grievance Filed",
+        "actor": "Demo Citizen",
+        "actorRole": "citizen",
+        "timestamp": "2026-05-10T10:00:00Z",
+        "description": "Grievance submitted via web portal"
+      },
+      {
+        "id": "tl-demo-c3-2",
+        "type": "assigned",
+        "title": "Assigned to Ravi Varma",
+        "actor": "System",
+        "actorRole": "system",
+        "timestamp": "2026-05-10T10:30:00Z",
+        "description": "Auto-assigned to GWSSB Nodal Officer"
+      },
+      {
+        "id": "tl-demo-c3-3",
+        "type": "status_change",
+        "title": "Work In Progress",
+        "actor": "Ravi Varma",
+        "actorRole": "officer",
+        "timestamp": "2026-05-10T11:00:00Z",
+        "description": "Officer is working on this grievance"
+      },
+      {
+        "id": "tl-demo-c3-4",
+        "type": "resolved",
+        "title": "Grievance Resolved",
+        "actor": "Ravi Varma",
+        "actorRole": "officer",
+        "timestamp": "2026-05-11T16:45:00Z",
+        "description": "Resolved by Ravi Varma"
+      }
+    ],
+    "feedback": "Excellent service! The team fixed the issue very quickly.",
+    "rating": 5,
+    "createdAt": "2026-05-10T10:00:00Z",
+    "updatedAt": "2026-05-11T16:45:00Z",
+    "resolvedAt": "2026-05-11T16:45:00Z"
   }
 ]

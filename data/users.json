@@ -10,10 +10,17 @@
     "designation": "Nodal Officer",
     "initials": "RV",
     "avatarColor": "#1A56C4",
-    "permissions": ["complaints.view", "complaints.assign", "complaints.reassign", "team.view", "reports.view", "escalations.view"],
+    "permissions": [
+      "complaints.view",
+      "complaints.assign",
+      "complaints.reassign",
+      "team.view",
+      "reports.view",
+      "escalations.view"
+    ],
     "status": "active",
     "district": "Ahmedabad",
-    "lastLogin": "2026-05-12T10:30:00Z",
+    "lastLogin": "2026-05-13T08:17:30.205Z",
     "createdAt": "2024-01-15T00:00:00Z"
   },
   {
@@ -27,7 +34,11 @@
     "designation": "Senior Clerk",
     "initials": "AS",
     "avatarColor": "#16A34A",
-    "permissions": ["complaints.view", "complaints.update", "complaints.resolve"],
+    "permissions": [
+      "complaints.view",
+      "complaints.update",
+      "complaints.resolve"
+    ],
     "status": "active",
     "district": "Mehsana",
     "lastLogin": "2026-05-11T08:00:00Z",
@@ -44,7 +55,9 @@
     "designation": "System Administrator",
     "initials": "BP",
     "avatarColor": "#7C3AED",
-    "permissions": ["*"],
+    "permissions": [
+      "*"
+    ],
     "status": "active",
     "district": "Gandhinagar",
     "lastLogin": "2026-05-13T09:00:00Z",
@@ -61,10 +74,15 @@
     "designation": "CM Intelligence View",
     "initials": "CM",
     "avatarColor": "#C9A84C",
-    "permissions": ["dashboard.cm", "reports.view", "departments.view", "districts.view"],
+    "permissions": [
+      "dashboard.cm",
+      "reports.view",
+      "departments.view",
+      "districts.view"
+    ],
     "status": "active",
     "district": "Gandhinagar",
-    "lastLogin": "2026-05-10T11:00:00Z",
+    "lastLogin": "2026-05-13T08:18:50.288Z",
     "createdAt": "2024-01-01T00:00:00Z"
   },
   {
@@ -78,7 +96,10 @@
     "designation": "Citizen",
     "initials": "RP",
     "avatarColor": "#0891B2",
-    "permissions": ["complaints.submit", "complaints.track"],
+    "permissions": [
+      "complaints.submit",
+      "complaints.track"
+    ],
     "status": "active",
     "district": "Ahmedabad",
     "lastLogin": "2026-05-13T08:15:00Z",
@@ -102,7 +123,13 @@
     "designation": "Nodal Officer",
     "initials": "PD",
     "avatarColor": "#E11D48",
-    "permissions": ["complaints.view", "complaints.assign", "complaints.reassign", "team.view", "reports.view"],
+    "permissions": [
+      "complaints.view",
+      "complaints.assign",
+      "complaints.reassign",
+      "team.view",
+      "reports.view"
+    ],
     "status": "active",
     "district": "Surat",
     "lastLogin": "2026-05-07T14:00:00Z",
@@ -119,7 +146,10 @@
     "designation": "Junior Clerk",
     "initials": "DP",
     "avatarColor": "#0EA5E9",
-    "permissions": ["complaints.view", "complaints.update"],
+    "permissions": [
+      "complaints.view",
+      "complaints.update"
+    ],
     "status": "active",
     "district": "Gandhinagar",
     "lastLogin": "2026-05-07T09:00:00Z",
@@ -136,7 +166,13 @@
     "designation": "Nodal Officer",
     "initials": "NJ",
     "avatarColor": "#F59E0B",
-    "permissions": ["complaints.view", "complaints.assign", "complaints.reassign", "team.view", "reports.view"],
+    "permissions": [
+      "complaints.view",
+      "complaints.assign",
+      "complaints.reassign",
+      "team.view",
+      "reports.view"
+    ],
     "status": "active",
     "district": "Ahmedabad",
     "lastLogin": "2026-05-08T11:30:00Z",
@@ -153,7 +189,14 @@
     "designation": "Nodal Officer",
     "initials": "KS",
     "avatarColor": "#8B5CF6",
-    "permissions": ["complaints.view", "complaints.assign", "complaints.reassign", "team.view", "reports.view", "escalations.view"],
+    "permissions": [
+      "complaints.view",
+      "complaints.assign",
+      "complaints.reassign",
+      "team.view",
+      "reports.view",
+      "escalations.view"
+    ],
     "status": "active",
     "district": "Surat",
     "lastLogin": "2026-05-06T16:00:00Z",
@@ -170,10 +213,82 @@
     "designation": "System Administrator",
     "initials": "HK",
     "avatarColor": "#EC4899",
-    "permissions": ["*"],
+    "permissions": [
+      "*"
+    ],
     "status": "active",
     "district": "Surat",
     "lastLogin": "2026-05-08T07:00:00Z",
     "createdAt": "2025-01-01T00:00:00Z"
+  },
+  {
+    "id": "u11",
+    "name": "Citizen 6546",
+    "email": "4644646546@citizen.local",
+    "phone": "4644646546",
+    "password": "",
+    "role": "citizen",
+    "department": "N/A",
+    "designation": "Citizen",
+    "initials": "C6",
+    "avatarColor": "#0891B2",
+    "permissions": [
+      "complaints.submit",
+      "complaints.track"
+    ],
+    "status": "active",
+    "district": "",
+    "createdAt": "2026-05-13T08:14:59.751Z",
+    "lastLogin": "2026-05-13T08:14:59.787Z"
+  },
+  {
+    "id": "u12",
+    "name": "Harshil",
+    "email": "8979879797@citizen.local",
+    "phone": "8979879797",
+    "password": "",
+    "role": "citizen",
+    "department": "N/A",
+    "designation": "Citizen",
+    "initials": "C7",
+    "avatarColor": "#0891B2",
+    "permissions": [
+      "complaints.submit",
+      "complaints.track"
+    ],
+    "status": "active",
+    "district": "",
+    "createdAt": "2026-05-13T08:15:21.397Z",
+    "lastLogin": "2026-05-13T08:15:21.422Z",
+    "ward": "surat",
+    "address": "surat",
+    "pincode": "395010"
+  },
+  {
+    "id": "u_dummy_01",
+    "name": "Demo Citizen",
+    "email": "demo.citizen@example.com",
+    "phone": "9123456789",
+    "password": "demo123",
+    "role": "citizen",
+    "department": "N/A",
+    "designation": "Citizen",
+    "initials": "DC",
+    "avatarColor": "#8B5CF6",
+    "permissions": [
+      "complaints.submit",
+      "complaints.track"
+    ],
+    "status": "active",
+    "district": "Ahmedabad",
+    "city": "Ahmedabad",
+    "taluka": "Ahmedabad City",
+    "ward": "Ward 12",
+    "address": "123 Demo Street, Near Central Station, Ahmedabad",
+    "pincode": "380001",
+    "fatherName": "Demo Father",
+    "aadhaar": "XXXX XXXX 5678",
+    "createdAt": "2026-05-13T10:00:00Z",
+    "lastLogin": "2026-05-13T10:00:00Z"
   }
 ]
