@@ -1,0 +1,50 @@
+[
+  {
+    "id": "f1",
+    "question": "How do I file a grievance?",
+    "answer": "Login to the Swagat portal, click 'Submit Grievance', select a category, describe your issue with location details, and submit. You'll get a token (e.g. GJ-2026-XXXX) and SMS confirmation within seconds.",
+    "category": "filing"
+  },
+  {
+    "id": "f2",
+    "question": "What is the SLA for my complaint?",
+    "answer": "SLA depends on category. Critical (Water Emergency, Health Hazard) = same-day. High (Road Damage, Electricity) = 5-7 days. Medium (Sanitation, Documents) = 10 days. The SLA timer is shown on every grievance card.",
+    "category": "sla"
+  },
+  {
+    "id": "f3",
+    "question": "What happens if SLA is breached?",
+    "answer": "The system auto-escalates to the next administrative level (CLERK → NODAL OFFICER → DIRECTOR → PRINCIPAL SECRETARY). You also receive an SMS alert and can manually click 'Escalate' from your grievance detail page.",
+    "category": "sla"
+  },
+  {
+    "id": "f4",
+    "question": "Can I file anonymously?",
+    "answer": "Yes — but anonymous complaints have lower priority and cannot be tracked. We recommend OTP-verified filing so you receive updates and can provide feedback.",
+    "category": "filing"
+  },
+  {
+    "id": "f5",
+    "question": "How does AI clustering work?",
+    "answer": "When 5+ similar complaints (same SOP code) are filed within a 5 km radius and 7-day window, the AI engine auto-clusters them and routes to a single officer for bulk root-cause resolution.",
+    "category": "system"
+  },
+  {
+    "id": "f6",
+    "question": "Is my data secure?",
+    "answer": "Yes. All data is encrypted at rest and in transit. Aadhaar is masked (XXXX XXXX 1234). Data handling follows the DPDP Act 2023 and is auditable.",
+    "category": "privacy"
+  },
+  {
+    "id": "f7",
+    "question": "How can I track my complaint?",
+    "answer": "Go to 'Track Grievance' and enter your token number (e.g. GJ-2026-05341). You can also track via SMS by sending your token to 1800-180-6127.",
+    "category": "tracking"
+  },
+  {
+    "id": "f8",
+    "question": "Can I reopen a resolved complaint?",
+    "answer": "Yes. Within 7 days of resolution, you can click 'Reopen Case' on the grievance detail page and provide a reason. This resets the SLA timer and reassigns to the original officer.",
+    "category": "resolution"
+  }
+]

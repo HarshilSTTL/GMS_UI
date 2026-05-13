@@ -1,9 +1,10 @@
 'use client';
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useCallback } from 'react';
 import { Search, Download, RotateCcw } from 'lucide-react';
 import { toast } from 'sonner';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { cn } from '@/lib/utils';
-import { useComplaints, useUpdateComplaint } from '@/hooks/useComplaints';
+import { useAuthStore } from '@/stores';
 import { useOfficers } from '@/hooks/useOfficers';
 import { useDepartments } from '@/hooks/useDepartments';
 import { StatusBadge, PriorityBadge, ChannelBadge, SLABadge } from '@/components/gms/StatusBadge';
@@ -43,10 +44,37 @@ function daysAgo(dateStr: string): string {
 }
 
 export default function ComplaintsPage() {
-  const { data: complaints = [], isLoading } = useComplaints();
+  const { user } = useAuthStore();
+  const queryClient = useQueryClient();
+
+  // Fetch grievances from the unified API
+  const { data: grievancesResponse, isLoading } = useQuery({
+    queryKey: ['grievances'],
+    queryFn: async () => {
+      const res = await fetch('/api/grievances');
+      if (!res.ok) throw new Error('Failed to fetch grievances');
+      return res.json() as Promise<{ data: Complaint[]; total: number }>;
+    },
+  });
+  const complaints = grievancesResponse?.data ?? [];
+
   const { data: officers = [] } = useOfficers();
   const { data: departments = [] } = useDepartments();
-  const updateComplaint = useUpdateComplaint();
+
+  // Helper to PATCH a grievance action and refresh the list
+  const patchGrievance = useCallback(async (id: string, action: string, rest: Record<string, any> = {}) => {
+    const res = await fetch(`/api/grievances/${id}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ action, actorId: user?.id || 'unknown', ...rest }),
+    });
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      throw new Error(err.error || 'Action failed');
+    }
+    queryClient.invalidateQueries({ queryKey: ['grievances'] });
+    return res.json();
+  }, [user?.id, queryClient]);
 
   const [search, setSearch] = useState('');
   const [quickFilter, setQuickFilter] = useState<QuickFilter>('all');
@@ -90,16 +118,18 @@ export default function ComplaintsPage() {
   function resetFilters() { setSearch(''); setQuickFilter('all'); setPriorityFilter('all'); setSelected(new Set()); }
 
   /* ─── Dialog handlers ─── */
-  function handleAcknowledge(id: string) { updateComplaint.mutate({ id, data: { status: 'acknowledged' } }); toast.success('✋ Complaint acknowledged. Citizen notified via SMS.'); closeDialog(); }
-  function handleReassign(id: string, officer: Officer) { updateComplaint.mutate({ id, data: { assignedTo: officer } }); }
-  function handleEscalate(id: string) { updateComplaint.mutate({ id, data: { status: 'escalated' } }); toast.warning('🚨 Complaint escalated. Supervisor notified.'); closeDialog(); }
-  function handleResolve(id: string) { updateComplaint.mutate({ id, data: { status: 'resolved', resolvedAt: new Date().toISOString() } }); toast.success('✅ Complaint resolved.'); closeDialog(); }
-  function handleSendUpdate(id: string, msg: string) { updateComplaint.mutate({ id, data: { updatedAt: new Date().toISOString() } }); toast.success('📤 Update sent to citizen.'); }
-  function handleCreateGroup(primaryId: string, memberIds: string[], label: string) {
+  async function handleAcknowledge(id: string) { await patchGrievance(id, 'acknowledge'); toast.success('Complaint acknowledged. Citizen notified via SMS.'); closeDialog(); }
+  async function handleReassign(id: string, officer: Officer) { await patchGrievance(id, 'reassign', { newOfficerId: officer.id }); }
+  async function handleEscalate(id: string) { await patchGrievance(id, 'escalate'); toast.warning('Complaint escalated. Supervisor notified.'); closeDialog(); }
+  async function handleResolve(id: string) { await patchGrievance(id, 'resolve'); toast.success('Complaint resolved.'); closeDialog(); }
+  async function handleSendUpdate(id: string, msg: string) { await patchGrievance(id, 'send_update', { message: msg }); toast.success('Update sent to citizen.'); }
+  async function handleCreateGroup(primaryId: string, memberIds: string[], label: string) {
     const groupId = `g${Date.now()}`;
-    updateComplaint.mutate({ id: primaryId, data: { groupId, isGroupPrimary: true } });
-    memberIds.forEach(mid => updateComplaint.mutate({ id: mid, data: { groupId, isGroupPrimary: false } }));
-    toast.success(`🔗 Group created — ${label} with ${memberIds.length + 1} complaints.`);
+    await patchGrievance(primaryId, 'add_note', { note: `Grouped as primary: ${label} (${groupId})` });
+    for (const mid of memberIds) {
+      await patchGrievance(mid, 'add_note', { note: `Added to group: ${label} (${groupId})` });
+    }
+    toast.success(`Group created - ${label} with ${memberIds.length + 1} complaints.`);
     closeDialog();
   }
 

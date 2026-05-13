@@ -30,7 +30,57 @@
     "isGroupPrimary": false,
     "createdAt": "2025-05-05T09:00:00Z",
     "updatedAt": "2026-05-08T09:12:32.648Z",
-    "resolvedAt": "2026-05-08T07:20:24.467Z"
+    "resolvedAt": "2026-05-08T07:20:24.467Z",
+    "citizenId": "u5",
+    "timeline": [
+      {
+        "id": "tl-c1-1",
+        "type": "created",
+        "title": "Grievance Filed",
+        "actor": "Rajesh Patel",
+        "actorRole": "citizen",
+        "timestamp": "2025-05-05T09:00:00Z",
+        "description": "Grievance submitted via whatsapp"
+      },
+      {
+        "id": "tl-c1-2",
+        "type": "assigned",
+        "title": "Assigned to Suresh Mehta",
+        "actor": "System",
+        "actorRole": "system",
+        "timestamp": "2025-05-05T09:00:00Z",
+        "description": "Auto-assigned to Suresh Mehta (Education)"
+      },
+      {
+        "id": "tl-c1-3",
+        "type": "acknowledged",
+        "title": "Grievance Acknowledged",
+        "actor": "Suresh Mehta",
+        "actorRole": "officer",
+        "timestamp": "2026-05-08T09:12:32.648Z",
+        "description": "Grievance acknowledged and queued for processing"
+      },
+      {
+        "id": "tl-c1-4",
+        "type": "status_change",
+        "title": "Work In Progress",
+        "actor": "Suresh Mehta",
+        "actorRole": "officer",
+        "timestamp": "2026-05-08T09:12:32.648Z",
+        "description": "Officer has started working on this grievance"
+      },
+      {
+        "id": "tl-c1-5",
+        "type": "resolved",
+        "title": "Grievance Resolved",
+        "actor": "Suresh Mehta",
+        "actorRole": "officer",
+        "timestamp": "2026-05-08T07:20:24.467Z",
+        "description": "Grievance has been resolved"
+      }
+    ],
+    "feedback": null,
+    "rating": null
   },
   {
     "id": "c2",
@@ -63,7 +113,57 @@
     "isGroupPrimary": false,
     "createdAt": "2025-05-03T08:00:00Z",
     "updatedAt": "2026-05-08T09:42:31.335Z",
-    "resolvedAt": "2026-05-08T09:42:25.871Z"
+    "resolvedAt": "2026-05-08T09:42:25.871Z",
+    "citizenId": "citizen_mohan",
+    "timeline": [
+      {
+        "id": "tl-c2-1",
+        "type": "created",
+        "title": "Grievance Filed",
+        "actor": "Mohan Patel",
+        "actorRole": "citizen",
+        "timestamp": "2025-05-03T08:00:00Z",
+        "description": "Grievance submitted via call"
+      },
+      {
+        "id": "tl-c2-2",
+        "type": "assigned",
+        "title": "Assigned to Ravi Varma",
+        "actor": "System",
+        "actorRole": "system",
+        "timestamp": "2025-05-03T08:00:00Z",
+        "description": "Auto-assigned to Ravi Varma (GWSSB)"
+      },
+      {
+        "id": "tl-c2-3",
+        "type": "acknowledged",
+        "title": "Grievance Acknowledged",
+        "actor": "Ravi Varma",
+        "actorRole": "officer",
+        "timestamp": "2026-05-08T09:42:31.335Z",
+        "description": "Grievance acknowledged and queued for processing"
+      },
+      {
+        "id": "tl-c2-4",
+        "type": "status_change",
+        "title": "Work In Progress",
+        "actor": "Ravi Varma",
+        "actorRole": "officer",
+        "timestamp": "2026-05-08T09:42:31.335Z",
+        "description": "Officer has started working on this grievance"
+      },
+      {
+        "id": "tl-c2-5",
+        "type": "resolved",
+        "title": "Grievance Resolved",
+        "actor": "Ravi Varma",
+        "actorRole": "officer",
+        "timestamp": "2026-05-08T09:42:25.871Z",
+        "description": "Grievance has been resolved"
+      }
+    ],
+    "feedback": null,
+    "rating": null
   },
   {
     "id": "c3",
@@ -96,7 +196,57 @@
     "isGroupPrimary": false,
     "createdAt": "2025-05-03T10:30:00Z",
     "updatedAt": "2026-05-08T09:42:31.403Z",
-    "resolvedAt": "2026-05-08T09:42:25.871Z"
+    "resolvedAt": "2026-05-08T09:42:25.871Z",
+    "citizenId": "citizen_fatima",
+    "timeline": [
+      {
+        "id": "tl-c3-1",
+        "type": "created",
+        "title": "Grievance Filed",
+        "actor": "Fatima Shaikh",
+        "actorRole": "citizen",
+        "timestamp": "2025-05-03T10:30:00Z",
+        "description": "Grievance submitted via web"
+      },
+      {
+        "id": "tl-c3-2",
+        "type": "assigned",
+        "title": "Assigned to Ravi Varma",
+        "actor": "System",
+        "actorRole": "system",
+        "timestamp": "2025-05-03T10:30:00Z",
+        "description": "Auto-assigned to Ravi Varma (GWSSB)"
+      },
+      {
+        "id": "tl-c3-3",
+        "type": "acknowledged",
+        "title": "Grievance Acknowledged",
+        "actor": "Ravi Varma",
+        "actorRole": "officer",
+        "timestamp": "2026-05-08T09:42:31.403Z",
+        "description": "Grievance acknowledged and queued for processing"
+      },
+      {
+        "id": "tl-c3-4",
+        "type": "status_change",
+        "title": "Work In Progress",
+        "actor": "Ravi Varma",
+        "actorRole": "officer",
+        "timestamp": "2026-05-08T09:42:31.403Z",
+        "description": "Officer has started working on this grievance"
+      },
+      {
+        "id": "tl-c3-5",
+        "type": "resolved",
+        "title": "Grievance Resolved",
+        "actor": "Ravi Varma",
+        "actorRole": "officer",
+        "timestamp": "2026-05-08T09:42:25.871Z",
+        "description": "Grievance has been resolved"
+      }
+    ],
+    "feedback": null,
+    "rating": null
   },
   {
     "id": "c4",
@@ -129,7 +279,57 @@
     "isGroupPrimary": false,
     "createdAt": "2025-05-04T07:15:00Z",
     "updatedAt": "2026-05-08T09:42:31.450Z",
-    "resolvedAt": "2026-05-08T09:42:25.871Z"
+    "resolvedAt": "2026-05-08T09:42:25.871Z",
+    "citizenId": "citizen_rakesh",
+    "timeline": [
+      {
+        "id": "tl-c4-1",
+        "type": "created",
+        "title": "Grievance Filed",
+        "actor": "Rakesh Sharma",
+        "actorRole": "citizen",
+        "timestamp": "2025-05-04T07:15:00Z",
+        "description": "Grievance submitted via whatsapp"
+      },
+      {
+        "id": "tl-c4-2",
+        "type": "assigned",
+        "title": "Assigned to Ravi Varma",
+        "actor": "System",
+        "actorRole": "system",
+        "timestamp": "2025-05-04T07:15:00Z",
+        "description": "Auto-assigned to Ravi Varma (GWSSB)"
+      },
+      {
+        "id": "tl-c4-3",
+        "type": "acknowledged",
+        "title": "Grievance Acknowledged",
+        "actor": "Ravi Varma",
+        "actorRole": "officer",
+        "timestamp": "2026-05-08T09:42:31.450Z",
+        "description": "Grievance acknowledged and queued for processing"
+      },
+      {
+        "id": "tl-c4-4",
+        "type": "status_change",
+        "title": "Work In Progress",
+        "actor": "Ravi Varma",
+        "actorRole": "officer",
+        "timestamp": "2026-05-08T09:42:31.450Z",
+        "description": "Officer has started working on this grievance"
+      },
+      {
+        "id": "tl-c4-5",
+        "type": "resolved",
+        "title": "Grievance Resolved",
+        "actor": "Ravi Varma",
+        "actorRole": "officer",
+        "timestamp": "2026-05-08T09:42:25.871Z",
+        "description": "Grievance has been resolved"
+      }
+    ],
+    "feedback": null,
+    "rating": null
   },
   {
     "id": "c5",
@@ -162,7 +362,57 @@
     "isGroupPrimary": false,
     "createdAt": "2025-05-04T14:00:00Z",
     "updatedAt": "2026-05-08T09:42:31.483Z",
-    "resolvedAt": "2026-05-08T09:42:25.871Z"
+    "resolvedAt": "2026-05-08T09:42:25.871Z",
+    "citizenId": "citizen_suman",
+    "timeline": [
+      {
+        "id": "tl-c5-1",
+        "type": "created",
+        "title": "Grievance Filed",
+        "actor": "Suman Patel",
+        "actorRole": "citizen",
+        "timestamp": "2025-05-04T14:00:00Z",
+        "description": "Grievance submitted via email"
+      },
+      {
+        "id": "tl-c5-2",
+        "type": "assigned",
+        "title": "Assigned to Ravi Varma",
+        "actor": "System",
+        "actorRole": "system",
+        "timestamp": "2025-05-04T14:00:00Z",
+        "description": "Auto-assigned to Ravi Varma (GWSSB)"
+      },
+      {
+        "id": "tl-c5-3",
+        "type": "acknowledged",
+        "title": "Grievance Acknowledged",
+        "actor": "Ravi Varma",
+        "actorRole": "officer",
+        "timestamp": "2026-05-08T09:42:31.483Z",
+        "description": "Grievance acknowledged and queued for processing"
+      },
+      {
+        "id": "tl-c5-4",
+        "type": "status_change",
+        "title": "Work In Progress",
+        "actor": "Ravi Varma",
+        "actorRole": "officer",
+        "timestamp": "2026-05-08T09:42:31.483Z",
+        "description": "Officer has started working on this grievance"
+      },
+      {
+        "id": "tl-c5-5",
+        "type": "resolved",
+        "title": "Grievance Resolved",
+        "actor": "Ravi Varma",
+        "actorRole": "officer",
+        "timestamp": "2026-05-08T09:42:25.871Z",
+        "description": "Grievance has been resolved"
+      }
+    ],
+    "feedback": null,
+    "rating": null
   },
   {
     "id": "c6",
@@ -195,7 +445,48 @@
     "isGroupPrimary": true,
     "createdAt": "2025-05-02T11:20:00Z",
     "updatedAt": "2026-05-12T13:28:08.052Z",
-    "resolvedAt": null
+    "resolvedAt": null,
+    "citizenId": "citizen_meena",
+    "timeline": [
+      {
+        "id": "tl-c6-1",
+        "type": "created",
+        "title": "Grievance Filed",
+        "actor": "Meena Joshi",
+        "actorRole": "citizen",
+        "timestamp": "2025-05-02T11:20:00Z",
+        "description": "Grievance submitted via web"
+      },
+      {
+        "id": "tl-c6-2",
+        "type": "assigned",
+        "title": "Assigned to Ravi Varma",
+        "actor": "System",
+        "actorRole": "system",
+        "timestamp": "2025-05-02T11:20:00Z",
+        "description": "Auto-assigned to Ravi Varma (GWSSB)"
+      },
+      {
+        "id": "tl-c6-3",
+        "type": "acknowledged",
+        "title": "Grievance Acknowledged",
+        "actor": "Ravi Varma",
+        "actorRole": "officer",
+        "timestamp": "2026-05-12T13:28:08.052Z",
+        "description": "Grievance acknowledged and queued for processing"
+      },
+      {
+        "id": "tl-c6-4",
+        "type": "escalated",
+        "title": "Grievance Escalated",
+        "actor": "Ravi Varma",
+        "actorRole": "officer",
+        "timestamp": "2026-05-12T13:28:08.052Z",
+        "description": "Grievance escalated to higher authority"
+      }
+    ],
+    "feedback": null,
+    "rating": null
   },
   {
     "id": "c7",
@@ -228,7 +519,57 @@
     "isGroupPrimary": false,
     "createdAt": "2025-05-03T08:45:00Z",
     "updatedAt": "2026-05-08T04:41:25.270Z",
-    "resolvedAt": "2026-05-08T04:41:25.211Z"
+    "resolvedAt": "2026-05-08T04:41:25.211Z",
+    "citizenId": "citizen_sunita",
+    "timeline": [
+      {
+        "id": "tl-c7-1",
+        "type": "created",
+        "title": "Grievance Filed",
+        "actor": "Sunita Rao",
+        "actorRole": "citizen",
+        "timestamp": "2025-05-03T08:45:00Z",
+        "description": "Grievance submitted via mobile"
+      },
+      {
+        "id": "tl-c7-2",
+        "type": "assigned",
+        "title": "Assigned to Anita Sharma",
+        "actor": "System",
+        "actorRole": "system",
+        "timestamp": "2025-05-03T08:45:00Z",
+        "description": "Auto-assigned to Anita Sharma (Revenue)"
+      },
+      {
+        "id": "tl-c7-3",
+        "type": "acknowledged",
+        "title": "Grievance Acknowledged",
+        "actor": "Anita Sharma",
+        "actorRole": "officer",
+        "timestamp": "2026-05-08T04:41:25.270Z",
+        "description": "Grievance acknowledged and queued for processing"
+      },
+      {
+        "id": "tl-c7-4",
+        "type": "status_change",
+        "title": "Work In Progress",
+        "actor": "Anita Sharma",
+        "actorRole": "officer",
+        "timestamp": "2026-05-08T04:41:25.270Z",
+        "description": "Officer has started working on this grievance"
+      },
+      {
+        "id": "tl-c7-5",
+        "type": "resolved",
+        "title": "Grievance Resolved",
+        "actor": "Anita Sharma",
+        "actorRole": "officer",
+        "timestamp": "2026-05-08T04:41:25.211Z",
+        "description": "Grievance has been resolved"
+      }
+    ],
+    "feedback": null,
+    "rating": null
   },
   {
     "id": "c8",
@@ -261,7 +602,48 @@
     "isGroupPrimary": false,
     "createdAt": "2025-05-01T15:30:00Z",
     "updatedAt": "2026-05-12T13:28:08.062Z",
-    "resolvedAt": null
+    "resolvedAt": null,
+    "citizenId": "citizen_dinesh",
+    "timeline": [
+      {
+        "id": "tl-c8-1",
+        "type": "created",
+        "title": "Grievance Filed",
+        "actor": "Dinesh Trivedi",
+        "actorRole": "citizen",
+        "timestamp": "2025-05-01T15:30:00Z",
+        "description": "Grievance submitted via call"
+      },
+      {
+        "id": "tl-c8-2",
+        "type": "assigned",
+        "title": "Assigned to Ravi Varma",
+        "actor": "System",
+        "actorRole": "system",
+        "timestamp": "2025-05-01T15:30:00Z",
+        "description": "Auto-assigned to Ravi Varma (GWSSB)"
+      },
+      {
+        "id": "tl-c8-3",
+        "type": "acknowledged",
+        "title": "Grievance Acknowledged",
+        "actor": "Ravi Varma",
+        "actorRole": "officer",
+        "timestamp": "2026-05-12T13:28:08.062Z",
+        "description": "Grievance acknowledged and queued for processing"
+      },
+      {
+        "id": "tl-c8-4",
+        "type": "status_change",
+        "title": "Work In Progress",
+        "actor": "Ravi Varma",
+        "actorRole": "officer",
+        "timestamp": "2026-05-12T13:28:08.062Z",
+        "description": "Officer has started working on this grievance"
+      }
+    ],
+    "feedback": null,
+    "rating": null
   },
   {
     "id": "c9",
@@ -294,7 +676,30 @@
     "isGroupPrimary": false,
     "createdAt": "2025-05-06T10:15:00Z",
     "updatedAt": "2026-05-12T13:28:08.071Z",
-    "resolvedAt": null
+    "resolvedAt": null,
+    "citizenId": "citizen_hiren",
+    "timeline": [
+      {
+        "id": "tl-c9-1",
+        "type": "created",
+        "title": "Grievance Filed",
+        "actor": "Hiren Shah",
+        "actorRole": "citizen",
+        "timestamp": "2025-05-06T10:15:00Z",
+        "description": "Grievance submitted via email"
+      },
+      {
+        "id": "tl-c9-2",
+        "type": "assigned",
+        "title": "Assigned to Ravi Varma",
+        "actor": "System",
+        "actorRole": "system",
+        "timestamp": "2025-05-06T10:15:00Z",
+        "description": "Auto-assigned to Ravi Varma (GWSSB)"
+      }
+    ],
+    "feedback": null,
+    "rating": null
   },
   {
     "id": "c10",
@@ -327,7 +732,48 @@
     "isGroupPrimary": false,
     "createdAt": "2025-04-07T09:00:00Z",
     "updatedAt": "2026-05-08T04:39:43.369Z",
-    "resolvedAt": null
+    "resolvedAt": null,
+    "citizenId": "citizen_kiran",
+    "timeline": [
+      {
+        "id": "tl-c10-1",
+        "type": "created",
+        "title": "Grievance Filed",
+        "actor": "Kiran Barot",
+        "actorRole": "citizen",
+        "timestamp": "2025-04-07T09:00:00Z",
+        "description": "Grievance submitted via web"
+      },
+      {
+        "id": "tl-c10-2",
+        "type": "assigned",
+        "title": "Assigned to Anita Sharma",
+        "actor": "System",
+        "actorRole": "system",
+        "timestamp": "2025-04-07T09:00:00Z",
+        "description": "Auto-assigned to Anita Sharma (Revenue)"
+      },
+      {
+        "id": "tl-c10-3",
+        "type": "acknowledged",
+        "title": "Grievance Acknowledged",
+        "actor": "Anita Sharma",
+        "actorRole": "officer",
+        "timestamp": "2026-05-08T04:39:43.369Z",
+        "description": "Grievance acknowledged and queued for processing"
+      },
+      {
+        "id": "tl-c10-4",
+        "type": "escalated",
+        "title": "Grievance Escalated",
+        "actor": "Anita Sharma",
+        "actorRole": "officer",
+        "timestamp": "2026-05-08T04:39:43.369Z",
+        "description": "Grievance escalated to higher authority"
+      }
+    ],
+    "feedback": null,
+    "rating": null
   },
   {
     "id": "c11",
@@ -360,7 +806,30 @@
     "isGroupPrimary": false,
     "createdAt": "2025-05-06T14:00:00Z",
     "updatedAt": "2026-05-08T04:43:59.176Z",
-    "resolvedAt": null
+    "resolvedAt": null,
+    "citizenId": "citizen_priya_n",
+    "timeline": [
+      {
+        "id": "tl-c11-1",
+        "type": "created",
+        "title": "Grievance Filed",
+        "actor": "Priya Nair",
+        "actorRole": "citizen",
+        "timestamp": "2025-05-06T14:00:00Z",
+        "description": "Grievance submitted via whatsapp"
+      },
+      {
+        "id": "tl-c11-2",
+        "type": "assigned",
+        "title": "Assigned to Ravi Varma",
+        "actor": "System",
+        "actorRole": "system",
+        "timestamp": "2025-05-06T14:00:00Z",
+        "description": "Auto-assigned to Ravi Varma (GWSSB)"
+      }
+    ],
+    "feedback": null,
+    "rating": null
   },
   {
     "id": "c12",
@@ -393,7 +862,57 @@
     "isGroupPrimary": false,
     "createdAt": "2025-05-05T06:30:00Z",
     "updatedAt": "2025-05-05T16:45:00Z",
-    "resolvedAt": "2025-05-05T16:45:00Z"
+    "resolvedAt": "2025-05-05T16:45:00Z",
+    "citizenId": "citizen_vimal",
+    "timeline": [
+      {
+        "id": "tl-c12-1",
+        "type": "created",
+        "title": "Grievance Filed",
+        "actor": "Vimal Desai",
+        "actorRole": "citizen",
+        "timestamp": "2025-05-05T06:30:00Z",
+        "description": "Grievance submitted via call"
+      },
+      {
+        "id": "tl-c12-2",
+        "type": "assigned",
+        "title": "Assigned to Ravi Varma",
+        "actor": "System",
+        "actorRole": "system",
+        "timestamp": "2025-05-05T06:30:00Z",
+        "description": "Auto-assigned to Ravi Varma (GWSSB)"
+      },
+      {
+        "id": "tl-c12-3",
+        "type": "acknowledged",
+        "title": "Grievance Acknowledged",
+        "actor": "Ravi Varma",
+        "actorRole": "officer",
+        "timestamp": "2025-05-05T16:45:00Z",
+        "description": "Grievance acknowledged and queued for processing"
+      },
+      {
+        "id": "tl-c12-4",
+        "type": "status_change",
+        "title": "Work In Progress",
+        "actor": "Ravi Varma",
+        "actorRole": "officer",
+        "timestamp": "2025-05-05T16:45:00Z",
+        "description": "Officer has started working on this grievance"
+      },
+      {
+        "id": "tl-c12-5",
+        "type": "resolved",
+        "title": "Grievance Resolved",
+        "actor": "Ravi Varma",
+        "actorRole": "officer",
+        "timestamp": "2025-05-05T16:45:00Z",
+        "description": "Grievance has been resolved"
+      }
+    ],
+    "feedback": null,
+    "rating": null
   },
   {
     "id": "c13",
@@ -426,7 +945,57 @@
     "isGroupPrimary": false,
     "createdAt": "2025-05-04T16:00:00Z",
     "updatedAt": "2026-05-08T09:12:14.526Z",
-    "resolvedAt": "2026-05-08T09:12:14.476Z"
+    "resolvedAt": "2026-05-08T09:12:14.476Z",
+    "citizenId": "citizen_anita_m",
+    "timeline": [
+      {
+        "id": "tl-c13-1",
+        "type": "created",
+        "title": "Grievance Filed",
+        "actor": "Anita Mehta",
+        "actorRole": "citizen",
+        "timestamp": "2025-05-04T16:00:00Z",
+        "description": "Grievance submitted via mobile"
+      },
+      {
+        "id": "tl-c13-2",
+        "type": "assigned",
+        "title": "Assigned to Ravi Varma",
+        "actor": "System",
+        "actorRole": "system",
+        "timestamp": "2025-05-04T16:00:00Z",
+        "description": "Auto-assigned to Ravi Varma (GWSSB)"
+      },
+      {
+        "id": "tl-c13-3",
+        "type": "acknowledged",
+        "title": "Grievance Acknowledged",
+        "actor": "Ravi Varma",
+        "actorRole": "officer",
+        "timestamp": "2026-05-08T09:12:14.526Z",
+        "description": "Grievance acknowledged and queued for processing"
+      },
+      {
+        "id": "tl-c13-4",
+        "type": "status_change",
+        "title": "Work In Progress",
+        "actor": "Ravi Varma",
+        "actorRole": "officer",
+        "timestamp": "2026-05-08T09:12:14.526Z",
+        "description": "Officer has started working on this grievance"
+      },
+      {
+        "id": "tl-c13-5",
+        "type": "resolved",
+        "title": "Grievance Resolved",
+        "actor": "Ravi Varma",
+        "actorRole": "officer",
+        "timestamp": "2026-05-08T09:12:14.476Z",
+        "description": "Grievance has been resolved"
+      }
+    ],
+    "feedback": null,
+    "rating": null
   },
   {
     "id": "c14",
@@ -459,7 +1028,48 @@
     "isGroupPrimary": false,
     "createdAt": "2025-03-22T11:00:00Z",
     "updatedAt": "2026-05-08T04:41:30.069Z",
-    "resolvedAt": null
+    "resolvedAt": null,
+    "citizenId": "citizen_ashok",
+    "timeline": [
+      {
+        "id": "tl-c14-1",
+        "type": "created",
+        "title": "Grievance Filed",
+        "actor": "Ashok Gandhibhai",
+        "actorRole": "citizen",
+        "timestamp": "2025-03-22T11:00:00Z",
+        "description": "Grievance submitted via walk_in"
+      },
+      {
+        "id": "tl-c14-2",
+        "type": "assigned",
+        "title": "Assigned to Anita Sharma",
+        "actor": "System",
+        "actorRole": "system",
+        "timestamp": "2025-03-22T11:00:00Z",
+        "description": "Auto-assigned to Anita Sharma (Revenue)"
+      },
+      {
+        "id": "tl-c14-3",
+        "type": "acknowledged",
+        "title": "Grievance Acknowledged",
+        "actor": "Anita Sharma",
+        "actorRole": "officer",
+        "timestamp": "2026-05-08T04:41:30.069Z",
+        "description": "Grievance acknowledged and queued for processing"
+      },
+      {
+        "id": "tl-c14-4",
+        "type": "escalated",
+        "title": "Grievance Escalated",
+        "actor": "Anita Sharma",
+        "actorRole": "officer",
+        "timestamp": "2026-05-08T04:41:30.069Z",
+        "description": "Grievance escalated to higher authority"
+      }
+    ],
+    "feedback": null,
+    "rating": null
   },
   {
     "id": "c15",
@@ -492,7 +1102,39 @@
     "isGroupPrimary": false,
     "createdAt": "2025-05-07T06:00:00Z",
     "updatedAt": "2025-05-07T08:30:00Z",
-    "resolvedAt": null
+    "resolvedAt": null,
+    "citizenId": "citizen_bhavna",
+    "timeline": [
+      {
+        "id": "tl-c15-1",
+        "type": "created",
+        "title": "Grievance Filed",
+        "actor": "Bhavna Patel",
+        "actorRole": "citizen",
+        "timestamp": "2025-05-07T06:00:00Z",
+        "description": "Grievance submitted via mobile"
+      },
+      {
+        "id": "tl-c15-2",
+        "type": "assigned",
+        "title": "Assigned to Ravi Varma",
+        "actor": "System",
+        "actorRole": "system",
+        "timestamp": "2025-05-07T06:00:00Z",
+        "description": "Auto-assigned to Ravi Varma (GWSSB)"
+      },
+      {
+        "id": "tl-c15-3",
+        "type": "acknowledged",
+        "title": "Grievance Acknowledged",
+        "actor": "Ravi Varma",
+        "actorRole": "officer",
+        "timestamp": "2025-05-07T08:30:00Z",
+        "description": "Grievance acknowledged and queued for processing"
+      }
+    ],
+    "feedback": null,
+    "rating": null
   },
   {
     "id": "c16",
@@ -525,7 +1167,48 @@
     "isGroupPrimary": false,
     "createdAt": "2025-04-25T10:00:00Z",
     "updatedAt": "2025-05-07T09:00:00Z",
-    "resolvedAt": null
+    "resolvedAt": null,
+    "citizenId": "citizen_neha",
+    "timeline": [
+      {
+        "id": "tl-c16-1",
+        "type": "created",
+        "title": "Grievance Filed",
+        "actor": "Dr. Neha Kapoor",
+        "actorRole": "citizen",
+        "timestamp": "2025-04-25T10:00:00Z",
+        "description": "Grievance submitted via email"
+      },
+      {
+        "id": "tl-c16-2",
+        "type": "assigned",
+        "title": "Assigned to Ravi Varma",
+        "actor": "System",
+        "actorRole": "system",
+        "timestamp": "2025-04-25T10:00:00Z",
+        "description": "Auto-assigned to Ravi Varma (GWSSB)"
+      },
+      {
+        "id": "tl-c16-3",
+        "type": "acknowledged",
+        "title": "Grievance Acknowledged",
+        "actor": "Ravi Varma",
+        "actorRole": "officer",
+        "timestamp": "2025-05-07T09:00:00Z",
+        "description": "Grievance acknowledged and queued for processing"
+      },
+      {
+        "id": "tl-c16-4",
+        "type": "escalated",
+        "title": "Grievance Escalated",
+        "actor": "Ravi Varma",
+        "actorRole": "officer",
+        "timestamp": "2025-05-07T09:00:00Z",
+        "description": "Grievance escalated to higher authority"
+      }
+    ],
+    "feedback": null,
+    "rating": null
   },
   {
     "id": "c17",
@@ -558,7 +1241,57 @@
     "isGroupPrimary": false,
     "createdAt": "2025-04-30T13:00:00Z",
     "updatedAt": "2026-05-08T04:41:15.345Z",
-    "resolvedAt": "2026-05-08T04:41:15.277Z"
+    "resolvedAt": "2026-05-08T04:41:15.277Z",
+    "citizenId": "citizen_pradeep",
+    "timeline": [
+      {
+        "id": "tl-c17-1",
+        "type": "created",
+        "title": "Grievance Filed",
+        "actor": "Pradeep Kumar Singh",
+        "actorRole": "citizen",
+        "timestamp": "2025-04-30T13:00:00Z",
+        "description": "Grievance submitted via web"
+      },
+      {
+        "id": "tl-c17-2",
+        "type": "assigned",
+        "title": "Assigned to Ravi Varma",
+        "actor": "System",
+        "actorRole": "system",
+        "timestamp": "2025-04-30T13:00:00Z",
+        "description": "Auto-assigned to Ravi Varma (GWSSB)"
+      },
+      {
+        "id": "tl-c17-3",
+        "type": "acknowledged",
+        "title": "Grievance Acknowledged",
+        "actor": "Ravi Varma",
+        "actorRole": "officer",
+        "timestamp": "2026-05-08T04:41:15.345Z",
+        "description": "Grievance acknowledged and queued for processing"
+      },
+      {
+        "id": "tl-c17-4",
+        "type": "status_change",
+        "title": "Work In Progress",
+        "actor": "Ravi Varma",
+        "actorRole": "officer",
+        "timestamp": "2026-05-08T04:41:15.345Z",
+        "description": "Officer has started working on this grievance"
+      },
+      {
+        "id": "tl-c17-5",
+        "type": "resolved",
+        "title": "Grievance Resolved",
+        "actor": "Ravi Varma",
+        "actorRole": "officer",
+        "timestamp": "2026-05-08T04:41:15.277Z",
+        "description": "Grievance has been resolved"
+      }
+    ],
+    "feedback": null,
+    "rating": null
   },
   {
     "id": "c18",
@@ -591,7 +1324,30 @@
     "isGroupPrimary": false,
     "createdAt": "2025-05-04T09:30:00Z",
     "updatedAt": "2026-05-08T06:00:00Z",
-    "resolvedAt": null
+    "resolvedAt": null,
+    "citizenId": "citizen_priya_s",
+    "timeline": [
+      {
+        "id": "tl-c18-1",
+        "type": "created",
+        "title": "Grievance Filed",
+        "actor": "Priya Shah",
+        "actorRole": "citizen",
+        "timestamp": "2025-05-04T09:30:00Z",
+        "description": "Grievance submitted via web"
+      },
+      {
+        "id": "tl-c18-2",
+        "type": "assigned",
+        "title": "Assigned to Ravi Varma",
+        "actor": "System",
+        "actorRole": "system",
+        "timestamp": "2025-05-04T09:30:00Z",
+        "description": "Auto-assigned to Ravi Varma (GWSSB)"
+      }
+    ],
+    "feedback": null,
+    "rating": null
   },
   {
     "id": "c19",
@@ -624,7 +1380,30 @@
     "isGroupPrimary": false,
     "createdAt": "2025-05-05T11:00:00Z",
     "updatedAt": "2026-05-08T06:00:00Z",
-    "resolvedAt": null
+    "resolvedAt": null,
+    "citizenId": "citizen_ramesh",
+    "timeline": [
+      {
+        "id": "tl-c19-1",
+        "type": "created",
+        "title": "Grievance Filed",
+        "actor": "Ramesh Joshi",
+        "actorRole": "citizen",
+        "timestamp": "2025-05-05T11:00:00Z",
+        "description": "Grievance submitted via mobile"
+      },
+      {
+        "id": "tl-c19-2",
+        "type": "assigned",
+        "title": "Assigned to Ravi Varma",
+        "actor": "System",
+        "actorRole": "system",
+        "timestamp": "2025-05-05T11:00:00Z",
+        "description": "Auto-assigned to Ravi Varma (GWSSB)"
+      }
+    ],
+    "feedback": null,
+    "rating": null
   },
   {
     "id": "c20",
@@ -657,7 +1436,48 @@
     "isGroupPrimary": false,
     "createdAt": "2025-05-03T14:00:00Z",
     "updatedAt": "2026-05-08T06:00:00Z",
-    "resolvedAt": null
+    "resolvedAt": null,
+    "citizenId": "citizen_amit",
+    "timeline": [
+      {
+        "id": "tl-c20-1",
+        "type": "created",
+        "title": "Grievance Filed",
+        "actor": "Amit Shah",
+        "actorRole": "citizen",
+        "timestamp": "2025-05-03T14:00:00Z",
+        "description": "Grievance submitted via call"
+      },
+      {
+        "id": "tl-c20-2",
+        "type": "assigned",
+        "title": "Assigned to Ravi Varma",
+        "actor": "System",
+        "actorRole": "system",
+        "timestamp": "2025-05-03T14:00:00Z",
+        "description": "Auto-assigned to Ravi Varma (GWSSB)"
+      },
+      {
+        "id": "tl-c20-3",
+        "type": "acknowledged",
+        "title": "Grievance Acknowledged",
+        "actor": "Ravi Varma",
+        "actorRole": "officer",
+        "timestamp": "2026-05-08T06:00:00Z",
+        "description": "Grievance acknowledged and queued for processing"
+      },
+      {
+        "id": "tl-c20-4",
+        "type": "status_change",
+        "title": "Work In Progress",
+        "actor": "Ravi Varma",
+        "actorRole": "officer",
+        "timestamp": "2026-05-08T06:00:00Z",
+        "description": "Officer has started working on this grievance"
+      }
+    ],
+    "feedback": null,
+    "rating": null
   },
   {
     "id": "c21",
@@ -690,6 +1510,403 @@
     "isGroupPrimary": false,
     "createdAt": "2025-03-08T10:00:00Z",
     "updatedAt": "2026-05-08T06:00:00Z",
+    "resolvedAt": null,
+    "citizenId": "citizen_suresh",
+    "timeline": [
+      {
+        "id": "tl-c21-1",
+        "type": "created",
+        "title": "Grievance Filed",
+        "actor": "Suresh Patel",
+        "actorRole": "citizen",
+        "timestamp": "2025-03-08T10:00:00Z",
+        "description": "Grievance submitted via email"
+      },
+      {
+        "id": "tl-c21-2",
+        "type": "assigned",
+        "title": "Assigned to Ravi Varma",
+        "actor": "System",
+        "actorRole": "system",
+        "timestamp": "2025-03-08T10:00:00Z",
+        "description": "Auto-assigned to Ravi Varma (GWSSB)"
+      },
+      {
+        "id": "tl-c21-3",
+        "type": "acknowledged",
+        "title": "Grievance Acknowledged",
+        "actor": "Ravi Varma",
+        "actorRole": "officer",
+        "timestamp": "2026-05-08T06:00:00Z",
+        "description": "Grievance acknowledged and queued for processing"
+      },
+      {
+        "id": "tl-c21-4",
+        "type": "status_change",
+        "title": "Work In Progress",
+        "actor": "Ravi Varma",
+        "actorRole": "officer",
+        "timestamp": "2026-05-08T06:00:00Z",
+        "description": "Officer has started working on this grievance"
+      }
+    ],
+    "feedback": null,
+    "rating": null
+  },
+  {
+    "id": "cg1",
+    "token": "GJ-2026-05341",
+    "title": "Water supply disruption in Ward 7",
+    "description": "No water supply in Ward 7, Sabarmati area for the past 3 days. Multiple families affected including children and elderly residents.",
+    "category": "Water Supply",
+    "department": "GWSSB",
+    "status": "in_progress",
+    "priority": "high",
+    "channel": "web",
+    "slaStatus": "warn",
+    "slaDaysLeft": 2,
+    "citizenId": "u5",
+    "citizenName": "Rajesh Patel",
+    "citizenPhone": "+91 98765 43210",
+    "citizenEmail": "citizen@gmail.com",
+    "location": "Ward 7, Sabarmati, Ahmedabad",
+    "ward": "Ward 7",
+    "district": "Ahmedabad",
+    "assignedTo": {
+      "id": "u1",
+      "name": "Ravi Varma",
+      "initials": "RV",
+      "color": "#1A56C4",
+      "role": "Nodal Officer",
+      "department": "GWSSB",
+      "workload": "high"
+    },
+    "groupId": null,
+    "isGroupPrimary": false,
+    "timeline": [
+      {
+        "id": "tl-cg1-1",
+        "type": "created",
+        "title": "Grievance Filed",
+        "actor": "Rajesh Patel",
+        "actorRole": "citizen",
+        "timestamp": "2026-05-05T09:00:00Z",
+        "description": "Grievance submitted via web"
+      },
+      {
+        "id": "tl-cg1-2",
+        "type": "assigned",
+        "title": "Assigned to Ravi Varma",
+        "actor": "System",
+        "actorRole": "system",
+        "timestamp": "2026-05-05T09:00:00Z",
+        "description": "Auto-assigned to Ravi Varma"
+      },
+      {
+        "id": "tl-cg1-3",
+        "type": "status_change",
+        "title": "Work In Progress",
+        "actor": "Ravi Varma",
+        "actorRole": "officer",
+        "timestamp": "2026-05-06T14:30:00Z",
+        "description": "Officer is working on this grievance"
+      }
+    ],
+    "feedback": null,
+    "rating": null,
+    "createdAt": "2026-05-05T09:00:00Z",
+    "updatedAt": "2026-05-06T14:30:00Z",
+    "resolvedAt": null
+  },
+  {
+    "id": "cg2",
+    "token": "GJ-2026-04812",
+    "title": "Road pothole causing accidents near Thaltej",
+    "description": "Deep pothole on SG Highway near Thaltej circle. Two accidents reported this week. Urgent repair needed.",
+    "category": "Roads & Infrastructure",
+    "department": "Roads & Buildings",
+    "status": "resolved",
+    "priority": "high",
+    "channel": "mobile",
+    "slaStatus": "ok",
+    "slaDaysLeft": 0,
+    "citizenId": "u5",
+    "citizenName": "Rajesh Patel",
+    "citizenPhone": "+91 98765 43210",
+    "citizenEmail": "citizen@gmail.com",
+    "location": "SG Highway, Thaltej, Ahmedabad",
+    "ward": "Ward 14",
+    "district": "Ahmedabad",
+    "assignedTo": {
+      "id": "u6",
+      "name": "Pooja Desai",
+      "initials": "PD",
+      "color": "#E11D48",
+      "role": "Nodal Officer",
+      "department": "Roads & Buildings",
+      "workload": "ok"
+    },
+    "groupId": null,
+    "isGroupPrimary": false,
+    "timeline": [
+      {
+        "id": "tl-cg2-1",
+        "type": "created",
+        "title": "Grievance Filed",
+        "actor": "Rajesh Patel",
+        "actorRole": "citizen",
+        "timestamp": "2026-04-20T11:20:00Z",
+        "description": "Grievance submitted via mobile"
+      },
+      {
+        "id": "tl-cg2-2",
+        "type": "assigned",
+        "title": "Assigned to Pooja Desai",
+        "actor": "System",
+        "actorRole": "system",
+        "timestamp": "2026-04-20T11:20:00Z",
+        "description": "Auto-assigned to Pooja Desai"
+      },
+      {
+        "id": "tl-cg2-3",
+        "type": "status_change",
+        "title": "Work In Progress",
+        "actor": "Pooja Desai",
+        "actorRole": "officer",
+        "timestamp": "2026-04-28T16:45:00Z",
+        "description": "Officer is working on this grievance"
+      },
+      {
+        "id": "tl-cg2-4",
+        "type": "resolved",
+        "title": "Grievance Resolved",
+        "actor": "Pooja Desai",
+        "actorRole": "officer",
+        "timestamp": "2026-04-28T16:45:00Z",
+        "description": "Grievance has been resolved"
+      }
+    ],
+    "feedback": "Pothole repaired. Good work.",
+    "rating": 4,
+    "createdAt": "2026-04-20T11:20:00Z",
+    "updatedAt": "2026-04-28T16:45:00Z",
+    "resolvedAt": "2026-04-28T16:45:00Z"
+  },
+  {
+    "id": "cg3",
+    "token": "GJ-2026-05310",
+    "title": "Garbage not collected for 5 days",
+    "description": "Garbage collection has not happened in Navarangpura area for 5 consecutive days. Creating health hazard for residents.",
+    "category": "Sanitation",
+    "department": "AMC",
+    "status": "open",
+    "priority": "medium",
+    "channel": "whatsapp",
+    "slaStatus": "ok",
+    "slaDaysLeft": 5,
+    "citizenId": "u5",
+    "citizenName": "Rajesh Patel",
+    "citizenPhone": "+91 98765 43210",
+    "citizenEmail": "citizen@gmail.com",
+    "location": "Navarangpura, Ahmedabad",
+    "ward": "Ward 5",
+    "district": "Ahmedabad",
+    "assignedTo": null,
+    "groupId": null,
+    "isGroupPrimary": false,
+    "timeline": [
+      {
+        "id": "tl-cg3-1",
+        "type": "created",
+        "title": "Grievance Filed",
+        "actor": "Rajesh Patel",
+        "actorRole": "citizen",
+        "timestamp": "2026-05-03T08:45:00Z",
+        "description": "Grievance submitted via whatsapp"
+      }
+    ],
+    "feedback": null,
+    "rating": null,
+    "createdAt": "2026-05-03T08:45:00Z",
+    "updatedAt": "2026-05-03T08:45:00Z",
+    "resolvedAt": null
+  },
+  {
+    "id": "cg4",
+    "token": "GJ-2026-05255",
+    "title": "Street lights not working on Manek Chowk Road",
+    "description": "8 street lights on Manek Chowk Road are non-functional for over a week. Major safety concern at night for pedestrians.",
+    "category": "Electricity & Lighting",
+    "department": "DGVCL",
+    "status": "in_progress",
+    "priority": "low",
+    "channel": "call",
+    "slaStatus": "ok",
+    "slaDaysLeft": 5,
+    "citizenId": "u5",
+    "citizenName": "Rajesh Patel",
+    "citizenPhone": "+91 98765 43210",
+    "citizenEmail": "citizen@gmail.com",
+    "location": "Manek Chowk Road, Ahmedabad",
+    "ward": "Ward 2",
+    "district": "Ahmedabad",
+    "assignedTo": {
+      "id": "u8",
+      "name": "Nikhil Joshi",
+      "initials": "NJ",
+      "color": "#F59E0B",
+      "role": "Nodal Officer",
+      "department": "DGVCL",
+      "workload": "ok"
+    },
+    "groupId": null,
+    "isGroupPrimary": false,
+    "timeline": [
+      {
+        "id": "tl-cg4-1",
+        "type": "created",
+        "title": "Grievance Filed",
+        "actor": "Rajesh Patel",
+        "actorRole": "citizen",
+        "timestamp": "2026-05-01T15:30:00Z",
+        "description": "Grievance submitted via call"
+      },
+      {
+        "id": "tl-cg4-2",
+        "type": "assigned",
+        "title": "Assigned to Nikhil Joshi",
+        "actor": "System",
+        "actorRole": "system",
+        "timestamp": "2026-05-01T15:30:00Z",
+        "description": "Auto-assigned to Nikhil Joshi"
+      },
+      {
+        "id": "tl-cg4-3",
+        "type": "status_change",
+        "title": "Work In Progress",
+        "actor": "Nikhil Joshi",
+        "actorRole": "officer",
+        "timestamp": "2026-05-05T11:00:00Z",
+        "description": "Officer is working on this grievance"
+      }
+    ],
+    "feedback": null,
+    "rating": null,
+    "createdAt": "2026-05-01T15:30:00Z",
+    "updatedAt": "2026-05-05T11:00:00Z",
+    "resolvedAt": null
+  },
+  {
+    "id": "cg5",
+    "token": "GJ-2026-05100",
+    "title": "Birth certificate not issued after 30 days",
+    "description": "Applied for birth certificate 30 days ago from Ghatlodia municipal office. No response received yet.",
+    "category": "Documents & Certificates",
+    "department": "Revenue Department",
+    "status": "escalated",
+    "priority": "high",
+    "channel": "web",
+    "slaStatus": "breach",
+    "slaDaysLeft": -3,
+    "citizenId": "u5",
+    "citizenName": "Rajesh Patel",
+    "citizenPhone": "+91 98765 43210",
+    "citizenEmail": "citizen@gmail.com",
+    "location": "Ghatlodia, Ahmedabad",
+    "ward": "Ward 18",
+    "district": "Ahmedabad",
+    "assignedTo": {
+      "id": "u2",
+      "name": "Anita Sharma",
+      "initials": "AS",
+      "color": "#16A34A",
+      "role": "Senior Clerk",
+      "department": "Revenue Department",
+      "workload": "ok"
+    },
+    "groupId": null,
+    "isGroupPrimary": false,
+    "timeline": [
+      {
+        "id": "tl-cg5-1",
+        "type": "created",
+        "title": "Grievance Filed",
+        "actor": "Rajesh Patel",
+        "actorRole": "citizen",
+        "timestamp": "2026-04-07T09:00:00Z",
+        "description": "Grievance submitted via web"
+      },
+      {
+        "id": "tl-cg5-2",
+        "type": "assigned",
+        "title": "Assigned to Anita Sharma",
+        "actor": "System",
+        "actorRole": "system",
+        "timestamp": "2026-04-07T09:00:00Z",
+        "description": "Auto-assigned to Anita Sharma"
+      },
+      {
+        "id": "tl-cg5-3",
+        "type": "status_change",
+        "title": "Work In Progress",
+        "actor": "Anita Sharma",
+        "actorRole": "officer",
+        "timestamp": "2026-05-07T07:00:00Z",
+        "description": "Officer is working on this grievance"
+      },
+      {
+        "id": "tl-cg5-4",
+        "type": "escalated",
+        "title": "Grievance Escalated",
+        "actor": "Anita Sharma",
+        "actorRole": "officer",
+        "timestamp": "2026-05-07T07:00:00Z",
+        "description": "Grievance escalated due to SLA breach"
+      }
+    ],
+    "feedback": null,
+    "rating": null,
+    "createdAt": "2026-04-07T09:00:00Z",
+    "updatedAt": "2026-05-07T07:00:00Z",
+    "resolvedAt": null
+  },
+  {
+    "id": "cg6",
+    "token": "GJ-2026-05398",
+    "title": "Sewage overflow near residential area",
+    "description": "Sewage manhole overflowing near Vatva Industrial Area causing unhygienic conditions. Children playing nearby.",
+    "category": "Sewage & Drainage",
+    "department": "AMC",
+    "status": "open",
+    "priority": "critical",
+    "channel": "whatsapp",
+    "slaStatus": "warn",
+    "slaDaysLeft": 1,
+    "citizenId": "u5",
+    "citizenName": "Rajesh Patel",
+    "citizenPhone": "+91 98765 43210",
+    "citizenEmail": "citizen@gmail.com",
+    "location": "Vatva Industrial Area, Ahmedabad",
+    "ward": "Ward 22",
+    "district": "Ahmedabad",
+    "assignedTo": null,
+    "groupId": null,
+    "isGroupPrimary": false,
+    "timeline": [
+      {
+        "id": "tl-cg6-1",
+        "type": "created",
+        "title": "Grievance Filed",
+        "actor": "Rajesh Patel",
+        "actorRole": "citizen",
+        "timestamp": "2026-05-06T14:00:00Z",
+        "description": "Grievance submitted via whatsapp"
+      }
+    ],
+    "feedback": null,
+    "rating": null,
+    "createdAt": "2026-05-06T14:00:00Z",
+    "updatedAt": "2026-05-06T14:00:00Z",
     "resolvedAt": null
   }
 ]

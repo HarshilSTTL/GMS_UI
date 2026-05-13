@@ -1,0 +1,90 @@
+[
+  {
+    "id": "s1",
+    "title": "Janani Suraksha Yojana",
+    "description": "Cash assistance for pregnant women for institutional delivery. Covers ante-natal care, delivery, and post-natal care expenses.",
+    "category": "Health",
+    "department": "Health & Family Welfare",
+    "beneficiary": "Pregnant Women (BPL)",
+    "status": "active",
+    "link": "#",
+    "icon": "🏥"
+  },
+  {
+    "id": "s2",
+    "title": "Ayushman Bharat - PMJAY",
+    "description": "Health insurance cover of Rs. 5 lakhs per family per year for secondary and tertiary hospitalization.",
+    "category": "Health",
+    "department": "Health & Family Welfare",
+    "beneficiary": "All Families (SECC)",
+    "status": "active",
+    "link": "#",
+    "icon": "💚"
+  },
+  {
+    "id": "s3",
+    "title": "Swachh Bharat Mission (Urban)",
+    "description": "Promotes cleanliness, solid waste management, and sanitation in urban areas. Community toilet construction and waste segregation.",
+    "category": "Sanitation",
+    "department": "AMC / Urban Development",
+    "beneficiary": "All Urban Citizens",
+    "status": "active",
+    "link": "#",
+    "icon": "🧹"
+  },
+  {
+    "id": "s4",
+    "title": "PM Awas Yojana (Urban)",
+    "description": "Financial assistance for construction/purchase of pucca houses for urban poor including EWS, LIG, and MIG categories.",
+    "category": "Housing",
+    "department": "Housing & Urban Affairs",
+    "beneficiary": "EWS/LIG/MIG Families",
+    "status": "active",
+    "link": "#",
+    "icon": "🏠"
+  },
+  {
+    "id": "s5",
+    "title": "Jal Jeevan Mission",
+    "description": "Ensures functional household tap connection to every rural household. Provides safe and adequate drinking water.",
+    "category": "Water Supply",
+    "department": "Jal Shakti / GWSSB",
+    "beneficiary": "Rural Households",
+    "status": "active",
+    "link": "#",
+    "icon": "💧"
+  },
+  {
+    "id": "s6",
+    "title": "Digital Gujarat Portal",
+    "description": "Online platform for government certificates, ration card, income certificate, caste certificate, and other citizen services.",
+    "category": "Digital Services",
+    "department": "Revenue Department",
+    "beneficiary": "All Citizens",
+    "status": "active",
+    "link": "#",
+    "icon": "💻"
+  },
+  {
+    "id": "s7",
+    "title": "Ujjwala Yojana (Free LPG)",
+    "description": "Free LPG connection to BPL households. Reduces dependence on firewood and improves women's health.",
+    "category": "Energy",
+    "department": "Petroleum & Natural Gas",
+    "beneficiary": "BPL Families",
+    "status": "active",
+    "link": "#",
+    "icon": "🔥"
+  },
+  {
+    "id": "s8",
+    "title": "Kisan SAMPADA Yojana",
+    "description": "Food processing industry support including infrastructure, logistics, and capacity building for farmers.",
+    "category": "Agriculture",
+    "department": "Food Processing Industries",
+    "beneficiary": "Farmers & Agri-Entrepreneurs",
+    "status": "active",
+    "link": "#",
+    "icon": "🌾"
+  }
+]

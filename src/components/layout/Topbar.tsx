@@ -1,11 +1,10 @@
 'use client';
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Bell, Search, Menu, User as UserIcon, ChevronDown } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { cn } from '@/lib/utils';
 import { useAuthStore, useUIStore } from '@/stores';
-import { MOCK_NOTIFICATIONS } from '@/data';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -33,10 +32,16 @@ export function Topbar({ title, subtitle }: TopbarProps) {
   const { user, logout } = useAuthStore();
   const { setSidebarMobileOpen, searchQuery, setSearchQuery } = useUIStore();
   const [notifOpen, setNotifOpen] = useState(false);
+  const [notifications, setNotifications] = useState<any[]>([]);
 
-  const unreadCount = MOCK_NOTIFICATIONS.filter(n => !n.isRead).length;
+  useEffect(() => {
+    if (user?.id) {
+      fetch(`/api/notifications?userId=${user.id}`).then(r => r.json()).then(d => setNotifications((d.data || d).slice(0, 5)));
+    }
+  }, [user?.id]);
+
+  const unreadCount = notifications.filter(n => !n.isRead).length;
   const rolePill = ROLE_PILL[user?.role ?? ''];
-
   return (
     <header className="bg-white border-b border-[#DDE3EE] px-6 py-2.5 flex items-center gap-3 flex-shrink-0 z-30">
       {/* Mobile menu toggle */}
@@ -90,7 +95,7 @@ export function Topbar({ title, subtitle }: TopbarProps) {
             )}
           </div>
           <div className="max-h-80 overflow-y-auto">
-            {MOCK_NOTIFICATIONS.map(n => (
+            {notifications.map(n => (
               <div
                 key={n.id}
                 className={cn(

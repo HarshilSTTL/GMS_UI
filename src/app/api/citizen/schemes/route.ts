@@ -1,37 +1,29 @@
-import { NextResponse } from 'next/server';
-import fs from 'fs';
-import path from 'path';
+import { NextRequest, NextResponse } from 'next/server';
 
-const DATA_FILE = path.join(process.cwd(), 'src/data/citizen-schemes.json');
+import { readJson, writeJson, nextId } from '@/lib/db';
 
-function readData() {
-  const raw = fs.readFileSync(DATA_FILE, 'utf-8');
-  return JSON.parse(raw);
-}
-
-function writeData(data: unknown[]) {
-  fs.writeFileSync(DATA_FILE, JSON.stringify(data, null, 2));
-}
+// Data is now in data/schemes.json at project root
 
 export async function GET() {
-  return NextResponse.json(readData());
+  const data = readJson<any[]>('schemes.json');
+  return NextResponse.json(data);
 }
 
-export async function POST(req: Request) {
+export async function POST(req: NextRequest) {
   const body = await req.json();
-  const data = readData();
-  const newItem = { id: 's' + (data.length + 1), ...body };
+  const data = readJson<any[]>('schemes.json');
+  const newItem = { id: nextId(data, 's'), ...body };
   data.push(newItem);
-  writeData(data);
+  writeJson('schemes.json', data);
   return NextResponse.json(newItem, { status: 201 });
 }
 
-export async function PUT(req: Request) {
+export async function PUT(req: NextRequest) {
   const body = await req.json();
-  const data = readData();
-  const idx = data.findIndex((s: { id: string }) => s.id === body.id);
+  const data = readJson<any[]>('schemes.json');
+  const idx = data.findIndex((s: any) => s.id === body.id);
   if (idx === -1) return NextResponse.json({ error: 'Not found' }, { status: 404 });
   data[idx] = { ...data[idx], ...body };
-  writeData(data);
+  writeJson('schemes.json', data);
   return NextResponse.json(data[idx]);
 }

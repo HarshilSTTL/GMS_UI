@@ -38,7 +38,25 @@ export default function CitizenGrievances() {
   const [sortDir, setSortDir] = useState<SortDir>('desc');
 
   useEffect(() => {
-    fetch('/api/citizen/grievances').then(r => r.json()).then(d => { setGrievances(d); setLoading(false); });
+    const user = JSON.parse(localStorage.getItem('gms-auth') || '{}')?.state?.user;
+    if (user?.id) {
+      fetch(`/api/grievances/citizen/${user.id}`)
+        .then(r => r.json())
+        .then(d => {
+          const data = d.data || d;
+          const mapped = Array.isArray(data) ? data.map(g => ({
+            ...g,
+            submittedDate: g.createdAt || g.submittedDate,
+            officer: g.assignedTo?.name || g.officer || 'Unassigned',
+            officerDept: g.assignedTo?.department || g.officerDept || '',
+            status: g.status === 'open' ? 'pending' : g.status,
+          })) : [];
+          setGrievances(mapped);
+          setLoading(false);
+        });
+    } else {
+      setLoading(false);
+    }
   }, []);
 
   const filtered = grievances

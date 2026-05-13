@@ -5,12 +5,29 @@ import Link from 'next/link';
 import { ArrowLeft, Send, RotateCcw, AlertTriangle, CheckCircle, Link2, User } from 'lucide-react';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
-import { useComplaint, useUpdateComplaint } from '@/hooks/useComplaints';
-import { MOCK_TIMELINES, MOCK_COMM_LOGS } from '@/data/mock-timeline';
 import { StatusBadge, PriorityBadge, ChannelBadge, SLABadge } from '@/components/gms/StatusBadge';
-import type { TimelineEvent } from '@/types';
+import type { TimelineEntry } from '@/types/complaint';
 
-function TimelineItem({ event, isLast }: { event: TimelineEvent; isLast: boolean }) {
+function getTimelineIcon(type: string): { icon: string; bg: string } {
+  const icons: Record<string, { icon: string; bg: string }> = {
+    created: { icon: '📝', bg: '#FED7AA' },
+    assigned: { icon: '👤', bg: '#BFDBFE' },
+    status_change: { icon: '🔄', bg: '#C7D2FE' },
+    resolved: { icon: '✅', bg: '#BBEB7A' },
+    escalated: { icon: '⚠️', bg: '#FDBA74' },
+    note: { icon: '📌', bg: '#DDD6FE' },
+    forwarded: { icon: '📤', bg: '#F3E8FF' },
+    reassigned: { icon: '↔️', bg: '#D1D5DB' },
+    acknowledged: { icon: '👁️', bg: '#CFFAFE' },
+    transferred: { icon: '✈️', bg: '#FCC0FF' },
+    reopened: { icon: '🔓', bg: '#FECDD3' },
+    feedback: { icon: '⭐', bg: '#FEF3C7' },
+  };
+  return icons[type] || { icon: '•', bg: '#E5E7EB' };
+}
+
+function TimelineItem({ event, isLast }: { event: TimelineEntry; isLast: boolean }) {
+  const { icon, bg } = getTimelineIcon(event.type);
   return (
     <div className="flex gap-3 relative pb-4">
       {!isLast && (
@@ -18,9 +35,9 @@ function TimelineItem({ event, isLast }: { event: TimelineEvent; isLast: boolean
       )}
       <div
         className="w-7 h-7 rounded-full flex items-center justify-center text-[12px] flex-shrink-0 z-10 border-2 border-white"
-        style={{ background: event.iconBg }}
+        style={{ background: bg }}
       >
-        {event.icon}
+        {icon}
       </div>
       <div className="flex-1 pt-0.5">
         <p className="text-[12px] font-semibold text-[#0E1C2F]">{event.title}</p>
@@ -37,7 +54,7 @@ function TimelineItem({ event, isLast }: { event: TimelineEvent; isLast: boolean
   );
 }
 
-function CommLogItem({ log }: { log: (typeof MOCK_COMM_LOGS)[string][0] }) {
+function CommLogItem({ log }: { log: { id: string; title: string; message: string; channels: string[]; actor: string; timestamp: string; icon: string; iconBg: string } }) {
   return (
     <div className="flex gap-3 py-3 border-b border-[#DDE3EE] last:border-0">
       <div className="w-8 h-8 rounded-full flex items-center justify-center text-[14px] flex-shrink-0 mt-0.5" style={{ background: log.iconBg }}>
@@ -64,16 +81,16 @@ function CommLogItem({ log }: { log: (typeof MOCK_COMM_LOGS)[string][0] }) {
 export default function ComplaintDetailPage() {
   const { id } = useParams<{ id: string }>();
   const router = useRouter();
-  const { data: complaint, isLoading } = useComplaint(id as string);
-  const updateComplaint = useUpdateComplaint();
-  const timeline = MOCK_TIMELINES[id as string] ?? [];
-  const commLogs = MOCK_COMM_LOGS[id as string] ?? [];
-
-  const [remark, setRemark] = useState('');
-  const [notifyVia, setNotifyVia] = useState('SMS + Email');
-  const [newStatus, setNewStatus] = useState('');
+  const [complaint, setComplaint] = useState<any>(null);
+  const [isLoading, setIsLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<'timeline' | 'comms' | 'details'>('timeline');
-  const [isAcknowledged, setIsAcknowledged] = useState(false);
+
+  React.useEffect(() => {
+    fetch(`/api/grievances/${id}`).then(r => r.json()).then(d => { setComplaint(d.data || d); setIsLoading(false); });
+  }, [id]);
+
+  const timeline = complaint?.timeline || [];
+  const commLogs: any[] = [];
 
   if (isLoading) {
     return <div className="flex items-center justify-center h-64 text-[13px] text-[#7A8FA6]">Loading complaint…</div>;
@@ -89,22 +106,37 @@ export default function ComplaintDetailPage() {
     );
   }
 
+  const [remark, setRemark] = useState('');
+  const [notifyVia, setNotifyVia] = useState('SMS + Email');
+  const [newStatus, setNewStatus] = useState('');
+  const [isAcknowledged, setIsAcknowledged] = useState(false);
+
+  const user = JSON.parse(localStorage.getItem('gms-auth') || '{}')?.state?.user;
+
   function handleSendUpdate() {
     if (!remark.trim()) { toast.error('Please enter an update message.'); return; }
+    fetch(`/api/grievances/${id}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ action: 'send_update', actorId: user?.id, message: remark })
+    }).then(r => r.json()).then(d => { if (d.data) setComplaint(d.data); });
     toast.success('Update sent & citizen notified via ' + notifyVia);
     setRemark('');
   }
   async function handleResolve() {
-    await updateComplaint.mutateAsync({ id: complaint!.id, data: { status: 'resolved', resolvedAt: new Date().toISOString() } });
+    const res = await fetch(`/api/grievances/${id}`, { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ action: 'resolve', actorId: user?.id }) });
+    const d = await res.json(); if (d.data) setComplaint(d.data);
     toast.success(`GVM complaint ${complaint!.token} marked as resolved. CSAT survey sent to citizen.`);
   }
   async function handleEscalate() {
-    await updateComplaint.mutateAsync({ id: complaint!.id, data: { status: 'escalated' } });
+    const res = await fetch(`/api/grievances/${id}`, { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ action: 'escalate', actorId: user?.id }) });
+    const d = await res.json(); if (d.data) setComplaint(d.data);
     toast.warning(`Complaint ${complaint!.token} escalated to L2.`);
   }
   async function handleAcknowledge() {
     setIsAcknowledged(true);
-    await updateComplaint.mutateAsync({ id: complaint!.id, data: { status: 'acknowledged' } });
+    const res = await fetch(`/api/grievances/${id}`, { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ action: 'acknowledge', actorId: user?.id }) });
+    const d = await res.json(); if (d.data) setComplaint(d.data);
     toast.success('Case acknowledged. Citizen notified via SMS.');
   }
   function handleReassign() { router.push('/portal/reassign'); }
@@ -229,7 +261,7 @@ export default function ComplaintDetailPage() {
                   {timeline.length === 0 ? (
                     <p className="text-[12px] text-[#7A8FA6] text-center py-8">No timeline events yet.</p>
                   ) : (
-                    timeline.map((event, i) => (
+                    timeline.map((event: TimelineEntry, i: number) => (
                       <TimelineItem key={event.id} event={event} isLast={i === timeline.length - 1} />
                     ))
                   )}

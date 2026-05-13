@@ -43,10 +43,11 @@ export default function TrackComplaint() {
     try {
       setLoading(true);
       setError('');
-      const res = await fetch(`/api/complaints/track/${token.trim()}`);
+      const res = await fetch(`/api/grievances/track/${token.trim()}`);
       if (res.ok) {
-        const data = await res.json();
-        setComplaint(data);
+        const result = await res.json();
+        const data = result.data || result;
+        setComplaint({ ...data, lastUpdate: data.updatedAt || data.lastUpdate });
       } else {
         setError('Complaint not found. Please check the token and try again.');
         setComplaint(null);

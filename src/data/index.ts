@@ -1,4 +1,2 @@
-export * from './mock-users';
 export * from './mock-nav';
-export * from './mock-complaints';
-export * from './mock-notifications';
+export { OFFICER_KPI } from './kpi';

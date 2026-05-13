@@ -1,11 +1,13 @@
 export type ComplaintStatus =
   | 'open'
+  | 'pending'
   | 'in_progress'
   | 'under_review'
   | 'resolved'
   | 'escalated'
   | 'acknowledged'
-  | 'grouped';
+  | 'grouped'
+  | 'closed';
 
 export type ComplaintPriority = 'critical' | 'high' | 'medium' | 'low';
 
@@ -29,6 +31,16 @@ export interface Officer {
   workload: 'ok' | 'high' | 'full';
 }
 
+export interface TimelineEntry {
+  id: string;
+  type: 'created' | 'assigned' | 'status_change' | 'resolved' | 'escalated' | 'note' | 'forwarded' | 'reassigned' | 'acknowledged' | 'transferred' | 'reopened' | 'feedback';
+  title: string;
+  actor: string;
+  actorRole: 'citizen' | 'officer' | 'system';
+  timestamp: string;
+  description?: string;
+}
+
 export interface Complaint {
   id: string;
   token: string;
@@ -41,18 +53,22 @@ export interface Complaint {
   channel: ComplaintChannel;
   slaStatus: SLAStatus;
   slaDaysLeft: number;
+  citizenId: string;
   citizenName: string;
   citizenPhone: string;
   citizenEmail?: string;
   location: string;
   ward?: string;
   district: string;
-  assignedTo?: Officer;
+  assignedTo?: Officer | null;
+  groupId?: string | null;
+  isGroupPrimary?: boolean;
+  timeline: TimelineEntry[];
+  feedback?: string | null;
+  rating?: number | null;
   createdAt: string;
   updatedAt: string;
-  resolvedAt?: string;
-  groupId?: string;
-  isGroupPrimary?: boolean;
+  resolvedAt?: string | null;
 }
 
 export interface ComplaintGroup {
@@ -61,19 +77,6 @@ export interface ComplaintGroup {
   title: string;
   memberIds: string[];
   createdAt: string;
-}
-
-export interface TimelineEvent {
-  id: string;
-  type: 'created' | 'assigned' | 'updated' | 'escalated' | 'resolved' | 'note' | 'communication';
-  title: string;
-  description?: string;
-  actor: string;
-  actorInitials: string;
-  actorColor: string;
-  timestamp: string;
-  icon: string;
-  iconBg: string;
 }
 
 export interface KPIData {

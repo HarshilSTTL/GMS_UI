@@ -22,18 +22,22 @@ export default function CitizenNotifications() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch('/api/citizen/notifications').then(r => r.json()).then(d => { setNotifications(d); setLoading(false); });
+    const user = JSON.parse(localStorage.getItem('gms-auth') || '{}')?.state?.user;
+    if (user?.id) {
+      fetch(`/api/notifications?userId=${user.id}`).then(r => r.json()).then(d => { setNotifications(d.data || d); setLoading(false); });
+    } else { setLoading(false); }
   }, []);
 
   const unreadCount = notifications.filter(n => !n.isRead).length;
 
   async function markRead(id: string) {
-    await fetch('/api/citizen/notifications', { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id, isRead: true }) });
+    await fetch('/api/notifications', { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ notificationId: id }) });
     setNotifications(prev => prev.map(n => n.id === id ? { ...n, isRead: true } : n));
   }
 
   async function markAllRead() {
-    await fetch('/api/citizen/notifications', { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ markAllRead: true }) });
+    const user = JSON.parse(localStorage.getItem('gms-auth') || '{}')?.state?.user;
+    await fetch('/api/notifications', { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ markAllRead: true, userId: user?.id }) });
     setNotifications(prev => prev.map(n => ({ ...n, isRead: true })));
     toast.success('All notifications marked as read');
   }

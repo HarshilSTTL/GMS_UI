@@ -94,10 +94,11 @@ export default function FileComplaint() {
     setError('');
     setLoading(true);
     try {
-      const res = await fetch('/api/complaints', {
+      const res = await fetch('/api/grievances', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
+          citizenId: user?.id,
           title: `${form.categoryName} — ${form.location}`,
           description: form.description,
           category: form.categoryName,
@@ -120,8 +121,8 @@ export default function FileComplaint() {
       });
 
       if (res.ok) {
-        const data = await res.json();
-        setToken(data.token);
+        const result = await res.json();
+        setToken(result.data.token);
         setSubmitted(true);
       } else {
         setError('Failed to submit complaint. Please try again.');

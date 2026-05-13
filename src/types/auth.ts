@@ -4,6 +4,8 @@ export interface User {
   id: string;
   name: string;
   email: string;
+  phone?: string;
+  password?: string;
   role: UserRole;
   department: string;
   designation: string;
@@ -11,6 +13,18 @@ export interface User {
   initials: string;
   avatarColor: string;
   permissions: string[];
+  status?: string;
+  district?: string;
+  lastLogin?: string;
+  createdAt?: string;
+  // Citizen-specific fields
+  fatherName?: string;
+  aadhaar?: string;
+  taluka?: string;
+  city?: string;
+  pincode?: string;
+  address?: string;
+  ward?: string;
 }
 
 export interface AuthState {
