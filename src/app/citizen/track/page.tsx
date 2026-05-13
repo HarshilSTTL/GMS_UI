@@ -51,7 +51,7 @@ export default function TrackComplaint() {
       if (res.ok) {
         const result = await res.json();
         const data = result.data || result;
-        setComplaint({ ...data, lastUpdate: data.updatedAt || data.lastUpdate });
+        setGrievance(data);
       } else {
         setError('Grievance not found. Please check the token and try again.');
         setGrievance(null);
