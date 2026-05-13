@@ -1,11 +1,6 @@
 {
-  "env": {
-    "ANTHROPIC_AUTH_TOKEN": "6aa4f296f37e4f6e829bb02fe0b709e6.EzG18b5UvE1YpAxn",
-    "ANTHROPIC_BASE_URL": "https://api.z.ai/api/anthropic",
-    "API_TIMEOUT_MS": "3000000",
-    "ANTHROPIC_DEFAULT_SONNET_MODEL": "glm-5-turbo",
-    "ANTHROPIC_DEFAULT_OPUS_MODEL": "glm-5.1",
-    "CLAUDE_CODE_MAX_OUTPUT_TOKENS": "10000000"
+  "permissions": {
+    "allow": [],
+    "deny": []
   }
 }
- 

@@ -50,26 +50,64 @@ export default function GrievanceDetail({ params }: { params: Promise<{ id: stri
   const [modalStep, setModalStep] = useState(0);
 
   useEffect(() => {
-    fetch(`/api/citizen/grievances/${id}`).then(r => r.json()).then(d => { setG(d); setLoading(false); });
+    fetch(`/api/grievances/${id}`)
+      .then(r => r.json())
+      .then(d => {
+        const data = d.data || d;
+        const mapped = {
+          ...data,
+          submittedDate: data.createdAt || data.submittedDate,
+          officer: data.assignedTo?.name || data.officer || 'Unassigned',
+          officerDept: data.assignedTo?.department || data.officerDept || '',
+          status: data.status === 'open' ? 'pending' : data.status,
+        };
+        setG(mapped);
+        setLoading(false);
+      });
   }, [id]);
 
   async function handleAction() {
     if (!g) return;
+    const user = JSON.parse(localStorage.getItem('gms-auth') || '{}')?.state?.user;
     if (modal === 'reopen') {
       if (!reason) return toast.error('Please provide a reason');
-      const updated = { ...g, status: 'in_progress' as const, feedback: null, rating: null, updatedAt: new Date().toISOString() };
-      await fetch(`/api/citizen/grievances/${id}`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(updated) });
-      setG(updated); setModalStep(1); toast.success('Case reopened successfully');
+      const res = await fetch(`/api/grievances/${id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'reopen', actorId: user?.id, reopenReason: reason })
+      });
+      const result = await res.json();
+      if (result.data) {
+        const mapped = { ...result.data, submittedDate: result.data.createdAt, officer: result.data.assignedTo?.name || 'Unassigned', officerDept: result.data.assignedTo?.department || '', status: result.data.status === 'open' ? 'pending' : result.data.status };
+        setG(mapped);
+      }
+      setModalStep(1); toast.success('Case reopened successfully');
     } else if (modal === 'feedback') {
       if (!rating) return toast.error('Please select a rating');
-      const updated = { ...g, feedback: comment, rating, updatedAt: new Date().toISOString() };
-      await fetch(`/api/citizen/grievances/${id}`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(updated) });
-      setG(updated); setModalStep(1); toast.success('Feedback submitted');
+      const res = await fetch(`/api/grievances/${id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'feedback', actorId: user?.id, feedbackText: comment, rating })
+      });
+      const result = await res.json();
+      if (result.data) {
+        const mapped = { ...result.data, submittedDate: result.data.createdAt, officer: result.data.assignedTo?.name || 'Unassigned', officerDept: result.data.assignedTo?.department || '', status: result.data.status === 'open' ? 'pending' : result.data.status };
+        setG(mapped);
+      }
+      setModalStep(1); toast.success('Feedback submitted');
     } else if (modal === 'escalate') {
       if (!reason) return toast.error('Please select a reason');
-      const updated = { ...g, status: 'escalated' as const, updatedAt: new Date().toISOString() };
-      await fetch(`/api/citizen/grievances/${id}`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(updated) });
-      setG(updated); setModalStep(1); toast.success('Escalated successfully');
+      const res = await fetch(`/api/grievances/${id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'escalate', actorId: user?.id, escalationReason: reason })
+      });
+      const result = await res.json();
+      if (result.data) {
+        const mapped = { ...result.data, submittedDate: result.data.createdAt, officer: result.data.assignedTo?.name || 'Unassigned', officerDept: result.data.assignedTo?.department || '', status: result.data.status === 'open' ? 'pending' : result.data.status };
+        setG(mapped);
+      }
+      setModalStep(1); toast.success('Escalated successfully');
     } else if (modal === 'contact') {
       setModalStep(1); toast.success('Message sent to officer');
     }

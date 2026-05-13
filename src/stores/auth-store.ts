@@ -2,7 +2,6 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import { User, LoginCredentials } from '@/types';
-import { mockLogin, mockPhoneLogin } from '@/data';
 
 interface RegisterData {
   firstName: string; fatherName: string; lastName: string;
@@ -20,8 +19,9 @@ interface AuthStore {
   login: (credentials: LoginCredentials) => Promise<boolean>;
   loginWithPhone: (phone: string, otp: string) => Promise<boolean>;
   register: (data: RegisterData) => Promise<boolean>;
-  logout: () => void;
+  logout: () => Promise<void>;
   clearError: () => void;
+  checkSession: () => Promise<boolean>;
 }
 
 export const useAuthStore = create<AuthStore>()(
@@ -35,9 +35,17 @@ export const useAuthStore = create<AuthStore>()(
 
       login: async (credentials) => {
         set({ isLoading: true, error: null });
-        await new Promise(r => setTimeout(r, 600));
-        const result = mockLogin(credentials);
-        if (result) {
+        try {
+          const res = await fetch('/api/auth/login', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(credentials),
+          });
+          const result = await res.json();
+          if (result.error) {
+            set({ isLoading: false, error: result.error });
+            return false;
+          }
           set({
             user: result.user,
             token: result.token,
@@ -46,17 +54,25 @@ export const useAuthStore = create<AuthStore>()(
             error: null,
           });
           return true;
-        } else {
-          set({ isLoading: false, error: 'Invalid email or password.' });
+        } catch {
+          set({ isLoading: false, error: 'Login failed. Please try again.' });
           return false;
         }
       },
 
       loginWithPhone: async (phone, otp) => {
         set({ isLoading: true, error: null });
-        await new Promise(r => setTimeout(r, 600));
-        const result = mockPhoneLogin(phone, otp);
-        if (result) {
+        try {
+          const res = await fetch('/api/auth/phone-login', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ phone, otp }),
+          });
+          const result = await res.json();
+          if (result.error) {
+            set({ isLoading: false, error: result.error });
+            return false;
+          }
           set({
             user: result.user,
             token: result.token,
@@ -65,8 +81,8 @@ export const useAuthStore = create<AuthStore>()(
             error: null,
           });
           return true;
-        } else {
-          set({ isLoading: false, error: 'Invalid OTP. Please try again.' });
+        } catch {
+          set({ isLoading: false, error: 'Phone login failed. Please try again.' });
           return false;
         }
       },
@@ -74,7 +90,7 @@ export const useAuthStore = create<AuthStore>()(
       register: async (data) => {
         set({ isLoading: true, error: null });
         try {
-          const res = await fetch('/api/citizen/register', {
+          const res = await fetch('/api/auth/register', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(data),
@@ -98,11 +114,34 @@ export const useAuthStore = create<AuthStore>()(
         }
       },
 
-      logout: () => {
+      logout: async () => {
+        try {
+          await fetch('/api/auth/logout', { method: 'POST' });
+        } catch {}
         set({ user: null, token: null, isAuthenticated: false, error: null });
       },
 
       clearError: () => set({ error: null }),
+
+      checkSession: async () => {
+        try {
+          const res = await fetch('/api/auth/session');
+          if (res.ok) {
+            const result = await res.json();
+            set({
+              user: result.user,
+              token: result.token,
+              isAuthenticated: true,
+            });
+            return true;
+          }
+          set({ user: null, token: null, isAuthenticated: false });
+          return false;
+        } catch {
+          set({ user: null, token: null, isAuthenticated: false });
+          return false;
+        }
+      },
     }),
     {
       name: 'gms-auth',

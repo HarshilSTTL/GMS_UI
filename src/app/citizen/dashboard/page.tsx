@@ -27,14 +27,15 @@ export default function CitizenDashboard() {
   async function fetchDashboardData() {
     try {
       setLoading(true);
-      const res = await fetch(`/api/complaints/citizen/${user?.id}`);
+      const res = await fetch(`/api/grievances/citizen/${user?.id}`);
       if (res.ok) {
-        const complaints = await res.json();
+        const result = await res.json();
+        const complaints = result.data;
         const stats = {
           totalComplaints: complaints.length,
-          pendingComplaints: complaints.filter((c: any) => c.status === 'open' || c.status === 'pending').length,
+          pendingComplaints: complaints.filter((c: any) => ['open', 'pending', 'acknowledged'].includes(c.status)).length,
           resolvedComplaints: complaints.filter((c: any) => c.status === 'resolved').length,
-          inProgressComplaints: complaints.filter((c: any) => c.status === 'in_progress' || c.status === 'under_review').length,
+          inProgressComplaints: complaints.filter((c: any) => ['in_progress', 'under_review'].includes(c.status)).length,
         };
         setDashboard(stats);
       }

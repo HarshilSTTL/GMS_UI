@@ -40,9 +40,26 @@ export default function CitizenGrievances() {
   const [sortDir, setSortDir] = useState<SortDir>('desc');
 
   useEffect(() => {
-    const url = user ? `/api/citizen/grievances?citizenId=${user.id}` : '/api/citizen/grievances';
-    fetch(url).then(r => r.json()).then(d => { setGrievances(Array.isArray(d) ? d : []); setLoading(false); });
-  }, [user]);
+    const user = JSON.parse(localStorage.getItem('gms-auth') || '{}')?.state?.user;
+    if (user?.id) {
+      fetch(`/api/grievances/citizen/${user.id}`)
+        .then(r => r.json())
+        .then(d => {
+          const data = d.data || d;
+          const mapped = Array.isArray(data) ? data.map(g => ({
+            ...g,
+            submittedDate: g.createdAt || g.submittedDate,
+            officer: g.assignedTo?.name || g.officer || 'Unassigned',
+            officerDept: g.assignedTo?.department || g.officerDept || '',
+            status: g.status === 'open' ? 'pending' : g.status,
+          })) : [];
+          setGrievances(mapped);
+          setLoading(false);
+        });
+    } else {
+      setLoading(false);
+    }
+  }, []);
 
   const filtered = grievances
     .filter(g => filter === 'all' || g.status === filter)

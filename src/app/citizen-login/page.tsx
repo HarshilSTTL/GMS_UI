@@ -38,7 +38,7 @@ export default function CitizenLoginPage() {
     clearError();
     setVerifyError('');
     try {
-      const res = await fetch('/api/citizen/otp', {
+      const res = await fetch('/api/auth/otp', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ phone }),

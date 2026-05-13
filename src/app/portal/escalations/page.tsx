@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { AlertTriangle, X, ChevronDown } from 'lucide-react';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
-import { useComplaints, useUpdateComplaint } from '@/hooks/useComplaints';
+import { useComplaints } from '@/hooks/useComplaints';
 import { useOfficers } from '@/hooks/useOfficers';
 import { PriorityBadge, ChannelBadge, SLABadge, StatusBadge } from '@/components/gms/StatusBadge';
 import type { Complaint, Officer } from '@/types';
@@ -13,16 +13,47 @@ import type { Complaint, Officer } from '@/types';
 function TakeActionDialog({ complaint, onClose }: { complaint: Complaint; onClose: () => void }) {
   const [action, setAction] = useState('');
   const [note, setNote] = useState('');
+  const [loading, setLoading] = useState(false);
+  const { refetch } = useComplaints();
 
-  function handleSubmit() {
+  async function handleSubmit() {
     if (!action) { toast.error('Please select an action.'); return; }
-    const labels: Record<string, string> = {
-      resolve: `✅ ${complaint.token} resolved.`,
-      deescalate: `↩️ ${complaint.token} de-escalated to In Progress.`,
-      forward: `📨 ${complaint.token} forwarded to department head.`,
-    };
-    toast.success(labels[action] ?? 'Action recorded.');
-    onClose();
+
+    setLoading(true);
+    try {
+      const actionMap: Record<string, string> = {
+        resolve: 'resolve',
+        deescalate: 'de_escalate',
+        forward: 'forward',
+      };
+
+      const response = await fetch(`/api/complaints/${complaint.id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action: actionMap[action],
+          resolution: note || undefined,
+          reason: note || undefined,
+          toDepartment: action === 'forward' ? complaint.department : undefined,
+        }),
+      });
+
+      if (!response.ok) throw new Error('Action failed');
+
+      const labels: Record<string, string> = {
+        resolve: `✅ ${complaint.token} resolved.`,
+        deescalate: `↩️ ${complaint.token} de-escalated to In Progress.`,
+        forward: `📨 ${complaint.token} forwarded.`,
+      };
+
+      toast.success(labels[action] ?? 'Action recorded.');
+      refetch();
+      onClose();
+    } catch (error) {
+      toast.error('Failed to perform action');
+    } finally {
+      setLoading(false);
+    }
   }
 
   return (
@@ -66,8 +97,10 @@ function TakeActionDialog({ complaint, onClose }: { complaint: Complaint; onClos
             className="w-full px-3 py-2 text-[12px] border border-[#DDE3EE] rounded-[10px] focus:outline-none focus:border-blue-400 resize-none" />
         </div>
         <div className="px-5 pb-5 flex justify-end gap-2">
-          <button onClick={onClose} className="px-4 py-2 rounded-[8px] text-[12px] font-semibold border border-[#DDE3EE] text-[#3D5068] hover:bg-gray-50">Cancel</button>
-          <button onClick={handleSubmit} className="px-4 py-2 rounded-[8px] text-[12px] font-semibold bg-blue-600 text-white hover:bg-blue-700">Confirm Action</button>
+          <button onClick={onClose} disabled={loading} className="px-4 py-2 rounded-[8px] text-[12px] font-semibold border border-[#DDE3EE] text-[#3D5068] hover:bg-gray-50 disabled:opacity-50">Cancel</button>
+          <button onClick={handleSubmit} disabled={loading} className="px-4 py-2 rounded-[8px] text-[12px] font-semibold bg-blue-600 text-white hover:bg-blue-700 disabled:opacity-50">
+            {loading ? 'Processing...' : 'Confirm Action'}
+          </button>
         </div>
       </div>
     </div>
@@ -77,16 +110,37 @@ function TakeActionDialog({ complaint, onClose }: { complaint: Complaint; onClos
 /* ── Reassign Dialog ── */
 function ReassignDialog({ complaint, onClose }: { complaint: Complaint; onClose: () => void }) {
   const { data: officers = [] } = useOfficers();
-  const updateComplaint = useUpdateComplaint();
+  const { refetch } = useComplaints();
   const [officer, setOfficer] = useState('');
   const [reason, setReason] = useState('');
+  const [loading, setLoading] = useState(false);
 
   async function handleSubmit() {
     if (!officer) { toast.error('Please select an officer.'); return; }
-    const o = officers.find(o => o.id === officer)!;
-    await updateComplaint.mutateAsync({ id: complaint.id, data: { assignedTo: o } });
-    toast.success(`🔄 ${complaint.token} reassigned to ${o.name}.`);
-    onClose();
+
+    setLoading(true);
+    try {
+      const o = officers.find(o => o.id === officer)!;
+      const response = await fetch(`/api/complaints/${complaint.id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action: 'reassign',
+          newOfficerId: officer,
+          reason: reason || 'Reassigned',
+        }),
+      });
+
+      if (!response.ok) throw new Error('Reassign failed');
+
+      toast.success(`🔄 ${complaint.token} reassigned to ${o.name}.`);
+      refetch();
+      onClose();
+    } catch (error) {
+      toast.error('Failed to reassign');
+    } finally {
+      setLoading(false);
+    }
   }
 
   return (
@@ -126,8 +180,10 @@ function ReassignDialog({ complaint, onClose }: { complaint: Complaint; onClose:
             className="w-full px-3 py-2 text-[12px] border border-[#DDE3EE] rounded-[10px] focus:outline-none focus:border-blue-400 resize-none" />
         </div>
         <div className="px-5 pb-5 flex justify-end gap-2">
-          <button onClick={onClose} className="px-4 py-2 rounded-[8px] text-[12px] font-semibold border border-[#DDE3EE] text-[#3D5068] hover:bg-gray-50">Cancel</button>
-          <button onClick={handleSubmit} className="px-4 py-2 rounded-[8px] text-[12px] font-semibold bg-orange-500 text-white hover:bg-orange-600">Reassign</button>
+          <button onClick={onClose} disabled={loading} className="px-4 py-2 rounded-[8px] text-[12px] font-semibold border border-[#DDE3EE] text-[#3D5068] hover:bg-gray-50 disabled:opacity-50">Cancel</button>
+          <button onClick={handleSubmit} disabled={loading} className="px-4 py-2 rounded-[8px] text-[12px] font-semibold bg-orange-500 text-white hover:bg-orange-600 disabled:opacity-50">
+            {loading ? 'Processing...' : 'Reassign'}
+          </button>
         </div>
       </div>
     </div>

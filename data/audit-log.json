@@ -1,0 +1,16 @@
+[
+  {
+    "id": "audit-1778654885037",
+    "action": "ESCALATE",
+    "userId": "u5",
+    "details": "Grievance c1 escalated. Reason: Issue continues despite \"resolved\" status",
+    "timestamp": "2026-05-13T06:48:05.037Z"
+  },
+  {
+    "id": "audit-1778654930045",
+    "action": "ESCALATE",
+    "userId": "u5",
+    "details": "Grievance cg6 escalated. Reason: SLA breached — no response",
+    "timestamp": "2026-05-13T06:48:50.045Z"
+  }
+]

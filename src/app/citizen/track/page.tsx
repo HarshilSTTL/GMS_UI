@@ -47,16 +47,11 @@ export default function TrackComplaint() {
     try {
       setLoading(true);
       setError('');
-      // Search in citizen-grievances.json by token
-      const res = await fetch(`/api/citizen/grievances?token=${encodeURIComponent(token.trim())}`);
+      const res = await fetch(`/api/grievances/track/${token.trim()}`);
       if (res.ok) {
-        const data = await res.json();
-        if (data.error) {
-          setError('Grievance not found. Please check the token and try again.');
-          setGrievance(null);
-        } else {
-          setGrievance(data);
-        }
+        const result = await res.json();
+        const data = result.data || result;
+        setComplaint({ ...data, lastUpdate: data.updatedAt || data.lastUpdate });
       } else {
         setError('Grievance not found. Please check the token and try again.');
         setGrievance(null);
