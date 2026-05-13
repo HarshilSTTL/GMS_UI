@@ -20,7 +20,7 @@
     ],
     "status": "active",
     "district": "Ahmedabad",
-    "lastLogin": "2026-05-13T08:17:30.205Z",
+    "lastLogin": "2026-05-13T08:50:39.272Z",
     "createdAt": "2024-01-15T00:00:00Z"
   },
   {
@@ -290,5 +290,25 @@
     "aadhaar": "XXXX XXXX 5678",
     "createdAt": "2026-05-13T10:00:00Z",
     "lastLogin": "2026-05-13T10:00:00Z"
+  },
+  {
+    "id": "u14",
+    "name": "Citizen 8678",
+    "email": "6786578678@citizen.local",
+    "phone": "6786578678",
+    "password": "",
+    "role": "citizen",
+    "department": "N/A",
+    "designation": "Citizen",
+    "initials": "C8",
+    "avatarColor": "#0891B2",
+    "permissions": [
+      "complaints.submit",
+      "complaints.track"
+    ],
+    "status": "active",
+    "district": "",
+    "createdAt": "2026-05-13T08:48:45.376Z",
+    "lastLogin": "2026-05-13T08:48:45.393Z"
   }
 ]
