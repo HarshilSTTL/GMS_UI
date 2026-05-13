@@ -122,26 +122,6 @@ const CM_NAV: NavSection[] = [
   },
 ];
 
-const CITIZEN_NAV: NavSection[] = [
-  {
-    id: 'main',
-    label: 'Grievance Portal',
-    items: [
-      { id: 'dashboard',  label: 'Dashboard',      icon: 'LayoutDashboard', path: '/citizen/dashboard' },
-      { id: 'complaints', label: 'My Complaints',  icon: 'ClipboardList',   path: '/citizen/complaints' },
-      { id: 'file',       label: 'File Complaint', icon: 'FileText',        path: '/citizen/file-complaint' },
-      { id: 'track',      label: 'Track Status',   icon: 'Eye',             path: '/citizen/track' },
-    ],
-  },
-  {
-    id: 'account',
-    label: 'Account',
-    items: [
-      { id: 'settings', label: 'Settings', icon: 'Settings', path: '/citizen/settings' },
-    ],
-  },
-];
-
 export const NAV_CONFIG: Record<UserRole, NavSection[]> = {
   nodal_officer: OFFICER_NAV,
   clerk: CLERK_NAV,

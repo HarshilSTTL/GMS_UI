@@ -21,7 +21,6 @@ const ICON_MAP: Record<string, React.ElementType> = {
   ArrowUpRight, Users, AlertTriangle, BarChart2,
   Globe2, Building2, MapPin, Star, TrendingUp, Zap,
   AlertCircle, Shield, Radio, Settings, ScrollText,
-<<<<<<< Updated upstream
   MessageSquare, FileText, Eye,
   PlusCircle, Search, User, Bell,
   Building, HelpCircle,
