@@ -1,5 +1,16 @@
 import { User, LoginCredentials, LoginResponse } from '@/types';
 
+// Mock OTP store (in-memory, simulates SMS delivery)
+const MOCK_OTP_STORE: Record<string, string> = {};
+export function generateOTP(phone: string): string {
+  const otp = String(Math.floor(100000 + Math.random() * 900000));
+  MOCK_OTP_STORE[phone] = otp;
+  return otp;
+}
+export function verifyOTP(phone: string, otp: string): boolean {
+  return MOCK_OTP_STORE[phone] === otp;
+}
+
 export const MOCK_USERS: User[] = [
   {
     id: 'u1',
@@ -81,3 +92,43 @@ export const DEMO_ACCOUNTS = [
   { label: 'CM Dashboard', email: 'cm.office@gujarat.gov.in', password: 'cm123', color: '#C9A84C' },
   { label: 'Citizen Portal', email: 'citizen@gmail.com', password: 'citizen123', color: '#0891B2' },
 ];
+
+// Phone-to-user lookup for citizen OTP login
+const PHONE_USER_MAP: Record<string, string> = {
+  '9876543210': 'u5', // Rajesh Patel
+};
+
+export function mockPhoneLogin(phone: string, otp: string): LoginResponse | null {
+  if (!verifyOTP(phone, otp)) return null;
+  const userId = PHONE_USER_MAP[phone];
+  if (!userId) return null;
+  const user = MOCK_USERS.find(u => u.id === userId);
+  if (!user) return null;
+  return { user, token: `mock-token-${user.id}-${Date.now()}` };
+}
+
+// Register a new citizen (client-side only, no fs)
+export function mockRegisterCitizen(data: {
+  firstName: string; fatherName: string; lastName: string;
+  phone: string; email?: string; aadhaar?: string;
+  district?: string; taluka?: string; city?: string;
+  state?: string; pincode?: string; address?: string;
+}): LoginResponse {
+  const fullName = `${data.firstName} ${data.lastName}`.trim();
+  const initials = `${data.firstName?.charAt(0) || ''}${data.lastName?.charAt(0) || ''}`.toUpperCase();
+  const newId = `u${MOCK_USERS.length + 1}`;
+  const user: User = {
+    id: newId,
+    name: fullName,
+    email: data.email || `${data.phone}@citizen.local`,
+    role: 'citizen',
+    department: 'N/A',
+    designation: 'Citizen',
+    initials,
+    avatarColor: '#0891B2',
+    permissions: ['complaints.submit', 'complaints.track'],
+  };
+  MOCK_USERS.push(user);
+  PHONE_USER_MAP[data.phone] = newId;
+  return { user, token: `mock-token-${newId}-${Date.now()}` };
+}

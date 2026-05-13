@@ -31,7 +31,7 @@ export default function AdminNotificationsPage() {
   const [tab, setTab] = useState<'templates' | 'channels'>('templates');
   const [showModal, setShowModal] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
-  const [formData, setFormData] = useState({ name: '', event: '', channels: [], content: '', active: true });
+  const [formData, setFormData] = useState<{ name: string; event: string; channels: string[]; content: string; active: boolean }>({ name: '', event: '', channels: [], content: '', active: true });
 
   const handleEdit = (template: any) => {
     setEditingId(template.id);

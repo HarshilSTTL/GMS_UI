@@ -9,6 +9,7 @@ import {
   AlertCircle, Shield, Radio, Settings, ScrollText,
   MessageSquare, ChevronLeft, ChevronRight, LogOut,
   FileText, Eye,
+  PlusCircle, Search, User, Bell, Building, HelpCircle,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useAuthStore, useUIStore } from '@/stores';
@@ -20,7 +21,10 @@ const ICON_MAP: Record<string, React.ElementType> = {
   ArrowUpRight, Users, AlertTriangle, BarChart2,
   Globe2, Building2, MapPin, Star, TrendingUp, Zap,
   AlertCircle, Shield, Radio, Settings, ScrollText,
+<<<<<<< Updated upstream
   MessageSquare, FileText, Eye,
+  PlusCircle, Search, User, Bell,
+  Building, HelpCircle,
 };
 
 function NavIcon({ name }: { name: string }) {
@@ -79,6 +83,7 @@ function NavItemRow({ item, collapsed }: { item: NavItem; collapsed: boolean }) 
 export function Sidebar() {
   const { user, logout } = useAuthStore();
   const { sidebarCollapsed, toggleSidebarCollapsed, sidebarMobileOpen, setSidebarMobileOpen } = useUIStore();
+  const settingsPath = user?.role === 'citizen' ? '/citizen/profile' : '/portal/settings';
 
   if (!user) return null;
 
@@ -197,7 +202,7 @@ export function Sidebar() {
           'border-t border-white/[0.06] px-2.5 py-2 flex-shrink-0',
         )}>
           <Link
-            href="/portal/settings"
+            href={settingsPath}
             onClick={() => setSidebarMobileOpen(false)}
             className={cn(
               'flex items-center gap-2.5 w-full px-2.5 py-2 rounded-lg text-[12px]',

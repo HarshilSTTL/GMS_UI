@@ -1,0 +1,55 @@
+[
+  {
+    "id": "cn1",
+    "title": "Grievance Update",
+    "message": "Your grievance GJ-2026-05341 (Water Supply) status changed to In Progress. Officer Ravi Varma has been assigned.",
+    "timestamp": "2026-05-06T14:30:00Z",
+    "isRead": false,
+    "type": "status_update",
+    "grievanceId": "cg1"
+  },
+  {
+    "id": "cn2",
+    "title": "Officer Assigned",
+    "message": "Nikhil Joshi from DGVCL has been assigned to your grievance GJ-2026-05255 (Street Lights).",
+    "timestamp": "2026-05-05T11:00:00Z",
+    "isRead": false,
+    "type": "assignment",
+    "grievanceId": "cg4"
+  },
+  {
+    "id": "cn3",
+    "title": "Grievance Resolved",
+    "message": "Your grievance GJ-2026-04812 (Road Pothole) has been resolved. Please provide your feedback.",
+    "timestamp": "2026-04-28T16:45:00Z",
+    "isRead": true,
+    "type": "resolution",
+    "grievanceId": "cg2"
+  },
+  {
+    "id": "cn4",
+    "title": "SLA Breach Alert",
+    "message": "Your grievance GJ-2026-05100 (Birth Certificate) has breached SLA. The matter has been escalated to higher authority.",
+    "timestamp": "2026-05-07T07:00:00Z",
+    "isRead": false,
+    "type": "sla_breach",
+    "grievanceId": "cg5"
+  },
+  {
+    "id": "cn5",
+    "title": "New Grievance Acknowledged",
+    "message": "Your grievance GJ-2026-05398 (Sewage Overflow) has been received. Token: GJ-2026-05398.",
+    "timestamp": "2026-05-06T14:05:00Z",
+    "isRead": true,
+    "type": "acknowledgement",
+    "grievanceId": "cg6"
+  },
+  {
+    "id": "cn6",
+    "title": "System Update",
+    "message": "Swagat 3.0 Citizen Portal is now live! You can now track grievances, provide feedback, and access government schemes.",
+    "timestamp": "2026-05-01T10:00:00Z",
+    "isRead": true,
+    "type": "system"
+  }
+]

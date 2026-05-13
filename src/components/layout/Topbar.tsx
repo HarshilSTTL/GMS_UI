@@ -2,6 +2,7 @@
 import React, { useState } from 'react';
 import { Bell, Search, Menu, User as UserIcon, ChevronDown } from 'lucide-react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { cn } from '@/lib/utils';
 import { useAuthStore, useUIStore } from '@/stores';
 import { MOCK_NOTIFICATIONS } from '@/data';
@@ -24,10 +25,11 @@ const ROLE_PILL: Record<string, { label: string; className: string }> = {
   clerk: { label: 'Clerk — Revenue Dept.', className: 'bg-green-100 text-green-700' },
   admin: { label: 'System Administrator', className: 'bg-purple-100 text-purple-700' },
   cm: { label: 'CM View', className: 'bg-yellow-100 text-yellow-800' },
-  citizen: { label: 'Citizen Portal', className: 'bg-teal-100 text-teal-700' },
+  citizen: { label: 'Citizen Portal', className: 'bg-orange-100 text-orange-700' },
 };
 
 export function Topbar({ title, subtitle }: TopbarProps) {
+  const router = useRouter();
   const { user, logout } = useAuthStore();
   const { setSidebarMobileOpen, searchQuery, setSearchQuery } = useUIStore();
   const [notifOpen, setNotifOpen] = useState(false);
@@ -145,7 +147,7 @@ export function Topbar({ title, subtitle }: TopbarProps) {
           </DropdownMenuLabel>
           <DropdownMenuSeparator />
           <DropdownMenuItem className="text-[12px]" asChild>
-            <Link href="/portal/settings">
+            <Link href={user?.role === 'citizen' ? '/citizen/profile' : '/portal/settings'}>
               <UserIcon size={13} className="mr-2" /> My Profile
             </Link>
           </DropdownMenuItem>

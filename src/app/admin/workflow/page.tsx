@@ -96,7 +96,7 @@ export default function AdminWorkflowPage() {
   const { workflows, loading, addWorkflow, updateWorkflow, deleteWorkflow } = useWorkflows();
   const [showModal, setShowModal] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
-  const [formData, setFormData] = useState<FormData>({ name: '', category: '', active: true });
+  const [formData, setFormData] = useState<FormData>({ name: '', category: '', active: true, steps: [] });
 
   const handleEdit = (workflow: any) => {
     setEditingId(workflow.id);

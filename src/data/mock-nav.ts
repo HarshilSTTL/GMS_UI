@@ -82,6 +82,29 @@ const ADMIN_NAV: NavSection[] = [
   },
 ];
 
+const CITIZEN_NAV: NavSection[] = [
+  {
+    id: 'main',
+    label: 'Citizen Portal',
+    items: [
+      { id: 'dashboard', label: 'Dashboard', icon: 'LayoutDashboard', path: '/citizen' },
+      { id: 'grievances', label: 'My Grievances', icon: 'ClipboardList', path: '/citizen/grievances', badge: 6 },
+      { id: 'submit', label: 'Submit Grievance', icon: 'PlusCircle', path: '/citizen/submit' },
+      { id: 'track', label: 'Track Grievance', icon: 'Search', path: '/citizen/track' },
+    ],
+  },
+  {
+    id: 'personal',
+    label: 'My Account',
+    items: [
+      { id: 'profile', label: 'Profile', icon: 'User', path: '/citizen/profile' },
+      { id: 'notifications', label: 'Notifications', icon: 'Bell', path: '/citizen/notifications', badge: 3, badgeVariant: 'red' },
+      { id: 'schemes', label: 'Schemes & Services', icon: 'Building', path: '/citizen/schemes' },
+      { id: 'help', label: 'Need Assistance', icon: 'HelpCircle', path: '/citizen/help' },
+    ],
+  },
+];
+
 const CM_NAV: NavSection[] = [
   {
     id: 'views',
@@ -137,7 +160,7 @@ export function getDefaultPath(role: UserRole): string {
     clerk: '/portal/dashboard',
     admin: '/admin/overview',
     cm: '/cm/overview',
-    citizen: '/citizen/dashboard',
+    citizen: '/citizen',
   };
   return paths[role] ?? '/portal/dashboard';
 }

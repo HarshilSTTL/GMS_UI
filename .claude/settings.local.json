@@ -15,7 +15,9 @@
       "PowerShell(\\(Get-ChildItem \"E:\\\\GMS\\\\Local\\\\gms_ui\\\\Swagat 3.0 - Standalone \\(3\\).html\"\\).Length)",
       "Bash(ls -la \"E:\\\\GMS\\\\Local\\\\gms_ui\\\\\" | head -30)",
       "PowerShell(Get-ChildItem E:\\\\ -Directory | Where-Object {$_.Name -match \"GMS|gms\"})",
-      "Bash(git commit -m ' *)"
+      "Bash(git commit -m ' *)",
+      "Bash(cat:*)",
+      "Bash(powershell:*)"
     ]
   }
 }
