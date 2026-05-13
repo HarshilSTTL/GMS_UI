@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { generateSessionToken } from '@/lib/db';
 import { createSession } from '@/lib/session-store';
+import { verifyOTP } from '@/lib/otp-store';
 
 // Hardcoded demo users - NO file I/O
 const DEMO_USERS = [
@@ -17,18 +18,17 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Phone and OTP required' }, { status: 400 });
     }
 
-    // Accept any 6-digit OTP for demo
     if (!/^\d{6}$/.test(otp)) {
       return NextResponse.json({ error: 'Invalid OTP format' }, { status: 400 });
     }
 
-    // Accept demo OTP codes
-    if (otp !== '999999' && otp !== '123456' && otp !== '000000') {
-      // On Vercel, accept any code
-      if (process.env.VERCEL !== 'true') {
-        return NextResponse.json({ error: 'Invalid OTP' }, { status: 401 });
-      }
+    // Verify OTP
+    if (!verifyOTP(phone, otp)) {
+      console.log(`[PHONE-LOGIN] Invalid OTP for ${phone}: ${otp}`);
+      return NextResponse.json({ error: 'Invalid OTP' }, { status: 401 });
     }
+
+    console.log(`[PHONE-LOGIN] OTP verified for ${phone}`);
 
     // Find user by phone or auto-create
     let user = DEMO_USERS.find(u => u.phone === phone);

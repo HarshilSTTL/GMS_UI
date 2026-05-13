@@ -62,7 +62,10 @@ export default function CitizenLoginPage() {
     setVerifyError('');
     clearError();
     const ok = await loginWithPhone(phone, otpStr);
-    if (!ok) {
+    if (ok) {
+      // OTP verified successfully - redirect to citizen dashboard
+      router.replace('/citizen/dashboard');
+    } else {
       setVerifyError('Invalid OTP. Please try again.');
     }
   }
