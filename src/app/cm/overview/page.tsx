@@ -1,7 +1,8 @@
 'use client';
-import React from 'react';
+import React, { useRef, useEffect } from 'react';
 import { KPICard } from '@/components/gms/KPICard';
 import { KPIData } from '@/types';
+import Link from 'next/link';
 
 const CM_KPI: KPIData[] = [
   { label: 'Total Open', value: '18,492', trend: '▲ 847 from last week', trendType: 'down', accentColor: '#3A8FE8' },
@@ -14,27 +15,110 @@ const CM_KPI: KPIData[] = [
   { label: 'L3 Escalations', value: '83', trend: '▲ 22 this week', trendType: 'down', accentColor: '#F0A030' },
 ];
 
-const DEPT_PERFORMANCE = [
-  { name: 'GWSSB', sla: 82, csat: 3.8, total: 2840, color: '#3A8FE8' },
-  { name: 'AMC', sla: 74, csat: 3.4, total: 5120, color: '#28C880' },
-  { name: 'Revenue', sla: 91, csat: 4.1, total: 1890, color: '#F0A030' },
-  { name: 'DGVCL', sla: 88, csat: 4.0, total: 2340, color: '#C9A84C' },
-  { name: 'Roads & B', sla: 63, csat: 3.1, total: 3210, color: '#E84040' },
-  { name: 'Education', sla: 95, csat: 4.3, total: 980, color: '#00B4B4' },
+const DEPTS = [
+  { name: 'Health & Family Welfare', icon: '🏥', open: 2847, resolved: 3241, sla: 81, csat: 3.8, critical: 47, color: '#3A8FE8' },
+  { name: 'Education Department',    icon: '📚', open: 2341, resolved: 2890, sla: 84, csat: 3.9, critical: 28, color: '#28C880' },
+  { name: 'Revenue & Land Records',  icon: '🏡', open: 3120, resolved: 2780, sla: 72, csat: 3.4, critical: 62, color: '#F0A030' },
+  { name: 'Roads & Buildings (PWD)', icon: '🛣', open: 1890, resolved: 2100, sla: 76, csat: 3.5, critical: 31, color: '#C9A84C' },
+  { name: 'Water Supply & Sanitation',icon: '💧', open: 2210, resolved: 1980, sla: 69, csat: 3.2, critical: 54, color: '#00B4B4' },
+  { name: 'Agriculture Department',  icon: '🌾', open: 1540, resolved: 1720, sla: 88, csat: 4.1, critical: 12, color: '#639922' },
+  { name: 'Social Justice',          icon: '🤝', open: 1280, resolved: 1450, sla: 82, csat: 3.7, critical: 19, color: '#7F77DD' },
+  { name: 'Labour & Employment',     icon: '⚙', open: 980,  resolved: 1120, sla: 86, csat: 4.0, critical: 8,  color: '#D85A30' },
+  { name: 'Food & Civil Supplies',   icon: '🌽', open: 1420, resolved: 1380, sla: 74, csat: 3.3, critical: 38, color: '#E84040' },
+  { name: 'Home / Police Dept',      icon: '🛡', open: 870,  resolved: 920,  sla: 89, csat: 3.6, critical: 21, color: '#888780' },
 ];
+
+const CATS = [
+  { l: 'Revenue',    v: 3120, c: '#F0A030' },
+  { l: 'Health',     v: 2847, c: '#3A8FE8' },
+  { l: 'Water',      v: 2210, c: '#00B4B4' },
+  { l: 'Education',  v: 2341, c: '#28C880' },
+  { l: 'Roads',      v: 1890, c: '#C9A84C' },
+  { l: 'Food/PDS',   v: 1420, c: '#E84040' },
+  { l: 'Agriculture',v: 1540, c: '#639922' },
+  { l: 'Others',     v: 3124, c: '#7A8FA6' },
+];
+const TOTAL_CATS = CATS.reduce((s, c) => s + c.v, 0);
+
+const MONTHS = ['Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec','Jan','Feb','Mar'];
+const TREND_TOTALS = [14200,14800,15400,15900,16200,16800,17200,17600,17900,18100,18300,18492];
+
+const CRIT_DISTS = [
+  { name: 'Dahod',         div: 'East',        csat: 2.9, sla: 54, crit: 18 },
+  { name: 'Chhota Udaipur',div: 'East',        csat: 3.0, sla: 58, crit: 14 },
+  { name: 'Dang',          div: 'South',       csat: 3.1, sla: 61, crit: 12 },
+  { name: 'Mahisagar',     div: 'East',        csat: 3.1, sla: 63, crit: 10 },
+  { name: 'Narmada',       div: 'South',       csat: 3.2, sla: 64, crit: 9  },
+  { name: 'Surendranagar', div: 'Saurashtra',  csat: 3.2, sla: 65, crit: 22 },
+  { name: 'Panchmahal',    div: 'East',        csat: 3.2, sla: 67, crit: 11 },
+  { name: 'Banaskantha',   div: 'North',       csat: 3.3, sla: 68, crit: 19 },
+];
+
+function cc(v: number) { return v >= 4.0 ? '#16A34A' : v >= 3.5 ? '#D97706' : '#DC2626'; }
+function sc(v: number) { return v >= 85 ? '#16A34A' : v >= 75 ? '#D97706' : '#DC2626'; }
+
+// Simple SVG line chart
+function LineChart({ data, color = '#C9A84C' }: { data: number[]; color?: string }) {
+  const W = 400, H = 120, PAD = 8;
+  const min = Math.min(...data), max = Math.max(...data);
+  const pts = data.map((v, i) => {
+    const x = PAD + (i / (data.length - 1)) * (W - PAD * 2);
+    const y = H - PAD - ((v - min) / (max - min)) * (H - PAD * 2);
+    return `${x},${y}`;
+  }).join(' ');
+  const fillPts = `${PAD},${H - PAD} ${pts} ${W - PAD},${H - PAD}`;
+  return (
+    <svg viewBox={`0 0 ${W} ${H}`} className="w-full" style={{ height: 120 }} preserveAspectRatio="none">
+      <defs>
+        <linearGradient id="ovGrad" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stopColor={color} stopOpacity="0.18" />
+          <stop offset="100%" stopColor={color} stopOpacity="0" />
+        </linearGradient>
+      </defs>
+      <polygon points={fillPts} fill="url(#ovGrad)" />
+      <polyline points={pts} fill="none" stroke={color} strokeWidth="2" strokeLinejoin="round" />
+      {data.map((_, i) => {
+        const x = PAD + (i / (data.length - 1)) * (W - PAD * 2);
+        const y = H - PAD - ((_ - min) / (max - min)) * (H - PAD * 2);
+        return <circle key={i} cx={x} cy={y} r="3" fill={color} />;
+      })}
+    </svg>
+  );
+}
+
+// Donut chart via conic-gradient
+function DonutChart() {
+  let cumPct = 0;
+  const stops = CATS.map(cat => {
+    const pct = (cat.v / TOTAL_CATS) * 100;
+    const start = cumPct, end = cumPct + pct;
+    cumPct = end;
+    return `${cat.c} ${start.toFixed(1)}% ${end.toFixed(1)}%`;
+  });
+  const gradient = `conic-gradient(${stops.join(', ')})`;
+  return (
+    <div className="relative flex items-center justify-center" style={{ width: 160, height: 160 }}>
+      <div className="rounded-full" style={{ width: 160, height: 160, background: gradient }} />
+      <div className="absolute rounded-full bg-white flex flex-col items-center justify-center"
+        style={{ width: 80, height: 80 }}>
+        <span className="text-[11px] font-bold text-[#0E1C2F]">{(TOTAL_CATS / 1000).toFixed(0)}K</span>
+        <span className="text-[9px] text-[#7A8FA6]">Total</span>
+      </div>
+    </div>
+  );
+}
 
 export default function CMOverviewPage() {
   return (
     <div>
-      <div className="mb-5">
+      <div className="mb-4">
         <h1 className="text-[20px] font-bold text-[#0E1C2F]">Gujarat State Grievance Command Centre</h1>
         <p className="text-[12px] text-[#7A8FA6] mt-0.5">
           Hon'ble Chief Minister's Office · All Departments · 33 Districts · Integrated GMS Intelligence
         </p>
       </div>
 
-      {/* Live badge */}
-      <div className="flex items-center gap-2 mb-5">
+      <div className="flex items-center gap-2 mb-4">
         <span className="flex items-center gap-1.5 text-[11px] font-semibold text-green-700 bg-green-50 border border-green-200 px-3 py-1 rounded-full">
           <span className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse" />
           Live · Updated now
@@ -44,58 +128,92 @@ export default function CMOverviewPage() {
         </span>
       </div>
 
-      {/* State-wide KPI grid */}
       <p className="text-[10px] font-semibold text-[#7A8FA6] uppercase tracking-widest mb-3">
         State-wide grievance pulse — all departments · all 33 districts
       </p>
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6">
-        {CM_KPI.map((kpi, i) => (
-          <KPICard key={i} data={kpi} />
-        ))}
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-5">
+        {CM_KPI.map((kpi, i) => <KPICard key={i} data={kpi} />)}
       </div>
 
-      {/* Department performance */}
-      <div className="grid grid-cols-1 xl:grid-cols-2 gap-4">
+      {/* Row 1: Dept performance + Category pie */}
+      <div className="grid grid-cols-1 xl:grid-cols-2 gap-4 mb-4">
+        {/* Department performance */}
         <div className="bg-white border border-[#DDE3EE] rounded-[14px] overflow-hidden shadow-[0_1px_3px_rgba(14,28,47,0.08)]">
-          <div className="px-5 py-4 border-b border-[#DDE3EE] flex items-center justify-between">
+          <div className="px-5 py-3.5 border-b border-[#DDE3EE] flex items-center justify-between">
             <h2 className="text-[13px] font-bold text-[#0E1C2F]">Department Performance</h2>
-            <button className="text-[11px] text-blue-600 font-medium hover:underline">All depts →</button>
+            <Link href="/cm/departments" className="text-[11px] text-blue-600 font-medium hover:underline">All depts →</Link>
+          </div>
+          <div className="divide-y divide-[#F0F2F7]">
+            {DEPTS.map(d => {
+              const st = d.sla >= 85 && d.csat >= 4.0 ? 'Good' : d.sla < 75 || d.csat < 3.5 ? 'Alert' : 'Watch';
+              const stColor = st === 'Good' ? { bg: '#F0FDF4', text: '#16A34A' } : st === 'Alert' ? { bg: '#FEF2F2', text: '#DC2626' } : { bg: '#FFFBEB', text: '#D97706' };
+              return (
+                <div key={d.name} className="flex items-center gap-3 px-4 py-2.5">
+                  <div className="w-7 h-7 rounded-lg flex items-center justify-center text-[14px] flex-shrink-0" style={{ background: d.color + '22' }}>{d.icon}</div>
+                  <div className="flex-1 min-w-0">
+                    <div className="text-[11px] font-semibold text-[#0E1C2F] truncate">{d.name}</div>
+                    <div className="text-[10px] text-[#7A8FA6]">SLA: <span className="font-bold" style={{ color: sc(d.sla) }}>{d.sla}%</span> · {d.open.toLocaleString()} open</div>
+                  </div>
+                  <div className="text-[14px] font-bold mr-2" style={{ color: cc(d.csat) }}>{d.csat.toFixed(1)}</div>
+                  <span className="text-[9px] font-bold px-1.5 py-0.5 rounded-full flex-shrink-0" style={{ background: stColor.bg, color: stColor.text }}>{st}</span>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+
+        {/* Category donut + legend */}
+        <div className="bg-white border border-[#DDE3EE] rounded-[14px] overflow-hidden shadow-[0_1px_3px_rgba(14,28,47,0.08)]">
+          <div className="px-5 py-3.5 border-b border-[#DDE3EE]">
+            <h2 className="text-[13px] font-bold text-[#0E1C2F]">Complaint Category Breakdown</h2>
+          </div>
+          <div className="p-4 flex flex-col items-center gap-4">
+            <DonutChart />
+            <div className="grid grid-cols-2 gap-x-6 gap-y-1.5 w-full">
+              {CATS.map(cat => (
+                <div key={cat.l} className="flex items-center gap-2">
+                  <span className="w-2.5 h-2.5 rounded-full flex-shrink-0" style={{ background: cat.c }} />
+                  <span className="text-[11px] text-[#3D5068] flex-1">{cat.l}</span>
+                  <span className="text-[11px] font-semibold text-[#0E1C2F]">{Math.round(cat.v / TOTAL_CATS * 100)}%</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Row 2: Critical districts + Trend */}
+      <div className="grid grid-cols-1 xl:grid-cols-2 gap-4">
+        {/* Districts needing attention */}
+        <div className="bg-white border border-[#DDE3EE] rounded-[14px] overflow-hidden shadow-[0_1px_3px_rgba(14,28,47,0.08)]">
+          <div className="px-5 py-3.5 border-b border-[#DDE3EE] flex items-center justify-between">
+            <h2 className="text-[13px] font-bold text-[#0E1C2F]">Districts Needing Immediate Attention</h2>
+            <Link href="/cm/districts" className="text-[11px] text-blue-600 font-medium hover:underline">Full map →</Link>
           </div>
           <div className="overflow-x-auto">
-            <table className="w-full border-collapse text-[12px]">
+            <table className="w-full text-[12px] border-collapse">
               <thead className="bg-[#F8FAFD]">
                 <tr>
-                  <th className="px-4 py-2.5 text-left text-[10px] font-bold text-[#7A8FA6] uppercase tracking-wide border-b border-[#DDE3EE]">Dept</th>
-                  <th className="px-4 py-2.5 text-left text-[10px] font-bold text-[#7A8FA6] uppercase tracking-wide border-b border-[#DDE3EE]">SLA %</th>
-                  <th className="px-4 py-2.5 text-left text-[10px] font-bold text-[#7A8FA6] uppercase tracking-wide border-b border-[#DDE3EE]">CSAT</th>
-                  <th className="px-4 py-2.5 text-left text-[10px] font-bold text-[#7A8FA6] uppercase tracking-wide border-b border-[#DDE3EE]">Total</th>
+                  {['District', 'Division', 'CSAT', 'SLA', 'Critical', 'Flag'].map(h => (
+                    <th key={h} className="px-3 py-2 text-left text-[9px] font-bold text-[#7A8FA6] uppercase tracking-wide border-b border-[#DDE3EE]">{h}</th>
+                  ))}
                 </tr>
               </thead>
               <tbody>
-                {DEPT_PERFORMANCE.map((d, i) => {
-                  const slaColor = d.sla >= 85 ? '#16A34A' : d.sla >= 70 ? '#D97706' : '#DC2626';
-                  const csatColor = d.csat >= 4 ? '#16A34A' : d.csat >= 3.5 ? '#D97706' : '#DC2626';
+                {CRIT_DISTS.map((d, i) => {
+                  const urgent = d.csat < 3.1;
                   return (
-                    <tr key={d.name} className={i !== DEPT_PERFORMANCE.length - 1 ? 'border-b border-[#DDE3EE]' : ''}>
-                      <td className="px-4 py-3">
-                        <div className="flex items-center gap-2">
-                          <div className="w-2 h-2 rounded-full flex-shrink-0" style={{ background: d.color }} />
-                          <span className="font-semibold text-[#0E1C2F]">{d.name}</span>
-                        </div>
+                    <tr key={d.name} className={`border-l-2 ${urgent ? 'border-l-red-500' : 'border-l-amber-400'} ${i < CRIT_DISTS.length - 1 ? 'border-b border-[#F0F2F7]' : ''}`}>
+                      <td className="px-3 py-2 font-semibold text-[#0E1C2F]">{d.name}</td>
+                      <td className="px-3 py-2 text-[#7A8FA6] text-[10px]">{d.div}</td>
+                      <td className="px-3 py-2 font-bold" style={{ color: cc(d.csat) }}>{d.csat.toFixed(1)}</td>
+                      <td className="px-3 py-2">
+                        <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-full" style={{ background: d.sla >= 75 ? '#FFFBEB' : '#FEF2F2', color: d.sla >= 75 ? '#D97706' : '#DC2626' }}>{d.sla}%</span>
                       </td>
-                      <td className="px-4 py-3">
-                        <div className="flex items-center gap-2">
-                          <div className="flex-1 h-1.5 bg-gray-100 rounded-full overflow-hidden w-16">
-                            <div className="h-full rounded-full" style={{ width: `${d.sla}%`, background: slaColor }} />
-                          </div>
-                          <span className="text-[11px] font-bold" style={{ color: slaColor }}>{d.sla}%</span>
-                        </div>
+                      <td className="px-3 py-2 font-bold text-red-600">{d.crit}</td>
+                      <td className="px-3 py-2">
+                        <span className="text-[9px] font-bold px-1.5 py-0.5 rounded-full" style={{ background: urgent ? '#FEF2F2' : '#FFFBEB', color: urgent ? '#DC2626' : '#D97706' }}>{urgent ? 'URGENT' : 'WATCH'}</span>
                       </td>
-                      <td className="px-4 py-3">
-                        <span className="text-[13px] font-bold" style={{ color: csatColor }}>{d.csat}</span>
-                        <span className="text-[10px] text-[#7A8FA6]">/5</span>
-                      </td>
-                      <td className="px-4 py-3 text-[#3D5068] font-medium">{d.total.toLocaleString()}</td>
                     </tr>
                   );
                 })}
@@ -104,30 +222,32 @@ export default function CMOverviewPage() {
           </div>
         </div>
 
-        {/* Critical alerts */}
+        {/* 12-month trend */}
         <div className="bg-white border border-[#DDE3EE] rounded-[14px] overflow-hidden shadow-[0_1px_3px_rgba(14,28,47,0.08)]">
-          <div className="px-5 py-4 border-b border-[#DDE3EE]">
-            <h2 className="text-[13px] font-bold text-[#0E1C2F]">Districts Needing Immediate Attention</h2>
+          <div className="px-5 py-3.5 border-b border-[#DDE3EE]">
+            <h2 className="text-[13px] font-bold text-[#0E1C2F]">12-Month State Complaint Trend</h2>
           </div>
-          <div className="p-4 space-y-2">
-            {[
-              { district: 'Rajkot', open: 2840, sla: 61, flag: 'red' },
-              { district: 'Surat (East)', open: 1920, sla: 68, flag: 'red' },
-              { district: 'Vadodara Rural', open: 1540, sla: 71, flag: 'amber' },
-              { district: 'Mehsana', open: 1120, sla: 74, flag: 'amber' },
-              { district: 'Gandhinagar', open: 890, sla: 79, flag: 'amber' },
-            ].map(d => (
-              <div key={d.district} className={`flex items-center gap-3 px-3 py-2.5 rounded-lg border ${d.flag === 'red' ? 'bg-red-50/60 border-red-100' : 'bg-amber-50/60 border-amber-100'}`}>
-                <span className={`text-[12px] ${d.flag === 'red' ? 'text-red-500' : 'text-amber-500'}`}>
-                  {d.flag === 'red' ? '🔴' : '🟡'}
-                </span>
-                <span className="flex-1 text-[12px] font-semibold text-[#0E1C2F]">{d.district}</span>
-                <span className="text-[11px] text-[#3D5068]">{d.open.toLocaleString()} open</span>
-                <span className={`text-[11px] font-bold px-2 py-0.5 rounded-full ${d.flag === 'red' ? 'bg-red-100 text-red-700' : 'bg-amber-100 text-amber-700'}`}>
-                  {d.sla}% SLA
-                </span>
+          <div className="p-4">
+            <LineChart data={TREND_TOTALS} color="#C9A84C" />
+            <div className="flex justify-between mt-1 px-1">
+              {MONTHS.map((m, i) => (
+                <span key={i} className="text-[8px] text-[#7A8FA6]">{m}</span>
+              ))}
+            </div>
+            <div className="flex items-center gap-4 mt-3 pt-3 border-t border-[#F0F2F7]">
+              <div>
+                <p className="text-[10px] text-[#7A8FA6]">Apr baseline</p>
+                <p className="text-[13px] font-bold text-[#0E1C2F]">14,200</p>
               </div>
-            ))}
+              <div>
+                <p className="text-[10px] text-[#7A8FA6]">Current (Mar)</p>
+                <p className="text-[13px] font-bold text-red-600">18,492</p>
+              </div>
+              <div>
+                <p className="text-[10px] text-[#7A8FA6]">YoY change</p>
+                <p className="text-[13px] font-bold text-red-600">▲ 30%</p>
+              </div>
+            </div>
           </div>
         </div>
       </div>

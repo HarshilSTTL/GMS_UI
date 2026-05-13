@@ -42,10 +42,10 @@ export default function CitizenComplaints() {
   async function fetchComplaints() {
     try {
       setLoading(true);
-      const res = await fetch(`/api/complaints/citizen/${user?.id}`);
+      const res = await fetch(`/api/grievances/citizen/${user?.id}`);
       if (res.ok) {
-        const data = await res.json();
-        setComplaints(data);
+        const json = await res.json();
+        setComplaints(json.data ?? json);
       }
     } catch (error) {
       console.error('Error fetching complaints:', error);

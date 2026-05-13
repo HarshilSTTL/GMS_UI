@@ -1,14 +1,16 @@
 'use client';
 import React, { useState, useEffect } from 'react';
-import { ChevronLeft, AlertCircle, CheckCircle, Check } from 'lucide-react';
+import { ChevronLeft, AlertCircle, CheckCircle, Check, ClipboardList } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useAuthStore } from '@/stores';
 import { cn } from '@/lib/utils';
+import { GmsIcon } from '@/components/ui/GmsIcon';
 
 interface Category {
   id: string;
   code: string;
   icon: string;
+  iconName?: string;
   name: string;
   description: string;
   department: string;
@@ -232,7 +234,11 @@ export default function FileComplaint() {
                         : 'border-[#E5E7EB] hover:border-[#FF8C42] hover:bg-[#FFF8F0]/40'
                     )}
                   >
-                    <span className="text-[22px] mb-2 block">{cat.icon || '📋'}</span>
+                    <div className="mb-2 flex items-center justify-center w-9 h-9 rounded-xl bg-[#F4F2EE]">
+                      {cat.iconName
+                        ? <GmsIcon name={cat.iconName} size={20} className="text-[#FF8C42]" />
+                        : <ClipboardList size={20} className="text-[#FF8C42]" />}
+                    </div>
                     <p className="text-[12px] font-semibold text-[#0F1A2E] leading-tight">{cat.name}</p>
                     <p className="text-[10px] text-[#7A8FA6] mt-0.5">{cat.department}</p>
                   </button>

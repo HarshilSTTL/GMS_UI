@@ -53,10 +53,10 @@ export default function ComplaintDetail() {
   async function fetchComplaint(complaintId: string) {
     try {
       setLoading(true);
-      const res = await fetch(`/api/complaints/${complaintId}`);
+      const res = await fetch(`/api/grievances/${complaintId}`);
       if (res.ok) {
-        const data = await res.json();
-        setComplaint(data);
+        const json = await res.json();
+        setComplaint(json.data ?? json);
       } else {
         setNotFound(true);
       }

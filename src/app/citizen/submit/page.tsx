@@ -4,20 +4,21 @@ import { useRouter } from 'next/navigation';
 import { ArrowLeft, CheckCircle, MapPin, FileText, User } from 'lucide-react';
 import { toast } from 'sonner';
 import { useAuthStore } from '@/stores';
+import { GmsIcon } from '@/components/ui/GmsIcon';
 
 const CATEGORIES = [
-  { icon: '💧', label: 'Water Supply', dept: 'GWSSB' },
-  { icon: '🛣️', label: 'Roads & Infrastructure', dept: 'Roads & Buildings' },
-  { icon: '⚡', label: 'Electricity & Lighting', dept: 'DGVCL' },
-  { icon: '🗑️', label: 'Sanitation', dept: 'AMC' },
-  { icon: '🏛️', label: 'Documents & Certificates', dept: 'Revenue Department' },
-  { icon: '🏥', label: 'Health', dept: 'Health & Family Welfare' },
-  { icon: '📚', label: 'Education', dept: 'Education Department' },
-  { icon: '🚰', label: 'Sewage & Drainage', dept: 'AMC' },
-  { icon: '🏚️', label: 'Encroachment', dept: 'AMC' },
-  { icon: '🏗️', label: 'Property Tax', dept: 'Revenue Department' },
-  { icon: '🚌', label: 'Public Transport', dept: 'AMC' },
-  { icon: '➕', label: 'Other', dept: 'General' },
+  { iconName: 'Droplet', label: 'Water Supply', dept: 'GWSSB' },
+  { iconName: 'Route', label: 'Roads & Infrastructure', dept: 'Roads & Buildings' },
+  { iconName: 'Zap', label: 'Electricity & Lighting', dept: 'DGVCL' },
+  { iconName: 'Trash2', label: 'Sanitation', dept: 'AMC' },
+  { iconName: 'Landmark', label: 'Documents & Certificates', dept: 'Revenue Department' },
+  { iconName: 'Hospital', label: 'Health', dept: 'Health & Family Welfare' },
+  { iconName: 'GraduationCap', label: 'Education', dept: 'Education Department' },
+  { iconName: 'Waves', label: 'Sewage & Drainage', dept: 'AMC' },
+  { iconName: 'Building2', label: 'Encroachment', dept: 'AMC' },
+  { iconName: 'Building', label: 'Property Tax', dept: 'Revenue Department' },
+  { iconName: 'Bus', label: 'Public Transport', dept: 'AMC' },
+  { iconName: 'Plus', label: 'Other', dept: 'General' },
 ];
 
 const PRIORITIES = [
@@ -44,13 +45,27 @@ export default function SubmitGrievance() {
   async function handleSubmit() {
     setSubmitting(true);
     try {
-      const res = await fetch('/api/citizen/grievances', {
+      const res = await fetch('/api/grievances', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ ...form, citizenId: user?.id || '' }),
+        body: JSON.stringify({
+          citizenId: user?.id || '',
+          citizenName: user?.name || 'Citizen',
+          citizenPhone: user?.phone || '',
+          citizenEmail: user?.email || null,
+          title: form.title,
+          description: form.description,
+          category: form.category,
+          department: form.department,
+          priority: form.priority,
+          channel: form.channel,
+          location: form.location,
+          ward: form.ward,
+          district: form.district,
+        }),
       });
       const data = await res.json();
-      toast.success(`Grievance filed! Token: ${data.token}`);
+      toast.success(`Grievance filed! Token: ${data.data?.token}`);
       router.push('/citizen/grievances');
     } catch {
       toast.error('Failed to submit grievance');
@@ -98,7 +113,9 @@ export default function SubmitGrievance() {
             {CATEGORIES.map(cat => (
               <button key={cat.label} onClick={() => { updateForm('category', cat.label); updateForm('department', cat.dept); }}
                 className={`p-3 rounded-[12px] border-2 flex items-center gap-2.5 text-left transition-all ${form.category === cat.label ? 'border-[#F4811F] bg-orange-50' : 'border-[#DDE3EE] hover:border-orange-200'}`}>
-                <span className="text-xl">{cat.icon}</span>
+                <div className={`w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 ${form.category === cat.label ? 'bg-[#F4811F]/10' : 'bg-[#F0F2F7]'}`}>
+                  <GmsIcon name={cat.iconName} size={16} className={form.category === cat.label ? 'text-[#F4811F]' : 'text-[#3D5068]'} />
+                </div>
                 <div>
                   <p className="text-[12px] font-semibold text-[#0E1C2F]">{cat.label}</p>
                   <p className="text-[9px] text-[#7A8FA6]">{cat.dept}</p>
