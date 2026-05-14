@@ -1,7 +1,7 @@
 'use client';
 import React, { useState } from 'react';
 import { Search, AlertCircle, CheckCircle, Clock } from 'lucide-react';
-import { getSessionGrievanceByToken } from '@/lib/session-grievances';
+import { findLocalGrievanceByToken } from '@/lib/local-store';
 import { cn } from '@/lib/utils';
 
 interface Complaint {
@@ -45,10 +45,10 @@ export default function TrackComplaint() {
       setLoading(true);
       setError('');
 
-      // Check session storage first (handles Vercel read-only filesystem)
-      const sessionMatch = getSessionGrievanceByToken(token.trim());
-      if (sessionMatch) {
-        setComplaint({ ...sessionMatch, lastUpdate: sessionMatch.updatedAt } as any);
+      // Check localStorage first (always works, even on Vercel)
+      const localMatch = findLocalGrievanceByToken(token.trim());
+      if (localMatch) {
+        setComplaint({ ...localMatch, lastUpdate: localMatch.updatedAt } as any);
         setLoading(false);
         return;
       }

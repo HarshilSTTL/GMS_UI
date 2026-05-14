@@ -3,7 +3,7 @@ import { useState, useEffect } from 'react';
 import { FileText, Clock, CheckCircle, AlertTriangle, Plus, Search, ArrowRight, Zap, BarChart2, Bot } from 'lucide-react';
 import Link from 'next/link';
 import { useAuthStore } from '@/stores';
-import { mergeWithSession } from '@/lib/session-grievances';
+import { getLocalGrievancesByUser } from '@/lib/local-store';
 
 interface Grievance {
   id: string; token: string; title: string; category: string; status: string;
@@ -42,6 +42,10 @@ export default function CitizenDashboard() {
   useEffect(() => {
     if (!user) return;
     const citizenId = user.id;
+    // Show local grievances immediately
+    const localItems = getLocalGrievancesByUser(citizenId);
+    setGrievances(localItems);
+
     Promise.all([
       fetch(`/api/citizen/grievances?citizenId=${citizenId}`).then(r => r.json()),
       fetch(`/api/citizen/notifications?citizenId=${citizenId}`).then(r => r.json()),
@@ -52,7 +56,10 @@ export default function CitizenDashboard() {
         officer: item.assignedTo?.name || item.officer || 'Unassigned',
         status: item.status === 'open' ? 'pending' : item.status,
       })) : [];
-      setGrievances(mergeWithSession(fromServer, citizenId));
+      const serverIds = new Set(fromServer.map((x: any) => x.id));
+      const serverTokens = new Set(fromServer.map((x: any) => x.token));
+      const onlyLocal = localItems.filter(g => !serverIds.has(g.id) && !serverTokens.has(g.token));
+      setGrievances([...onlyLocal, ...fromServer]);
       setNotifications(Array.isArray(n) ? n : []);
       setLoading(false);
     }).catch(() => setLoading(false));

@@ -1,7 +1,7 @@
 'use client';
 import { useState, useEffect } from 'react';
 import { FileText, Search, Filter, Plus, ChevronUp, ChevronDown, ArrowUpDown } from 'lucide-react';
-import { mergeWithSession } from '@/lib/session-grievances';
+import { getLocalGrievancesByUser } from '@/lib/local-store';
 import Link from 'next/link';
 
 interface Grievance {
@@ -40,25 +40,32 @@ export default function CitizenGrievances() {
 
   useEffect(() => {
     const user = JSON.parse(localStorage.getItem('gms-auth') || '{}')?.state?.user;
-    if (user?.id) {
-      fetch(`/api/grievances/citizen/${user.id}`)
-        .then(r => r.json())
-        .then(d => {
-          const data = d.data || d;
-          const fromServer = Array.isArray(data) ? data.map(g => ({
-            ...g,
-            submittedDate: g.createdAt || g.submittedDate,
-            officer: g.assignedTo?.name || g.officer || 'Unassigned',
-            officerDept: g.assignedTo?.department || g.officerDept || '',
-            status: g.status === 'open' ? 'pending' : g.status,
-          })) : [];
-          const merged = mergeWithSession(fromServer, user.id);
-          setGrievances(merged);
-          setLoading(false);
-        });
-    } else {
-      setLoading(false);
-    }
+    if (!user?.id) { setLoading(false); return; }
+
+    // Local grievances are always shown immediately
+    const localItems = getLocalGrievancesByUser(user.id);
+    setGrievances(localItems);
+
+    // Merge with server data in background
+    fetch(`/api/grievances/citizen/${user.id}`)
+      .then(r => r.json())
+      .then(d => {
+        const data = d.data || d;
+        const fromServer = Array.isArray(data) ? data.map((g: any) => ({
+          ...g,
+          submittedDate: g.createdAt || g.submittedDate,
+          officer: g.assignedTo?.name || g.officer || 'Unassigned',
+          officerDept: g.assignedTo?.department || g.officerDept || '',
+          status: g.status === 'open' ? 'pending' : g.status,
+        })) : [];
+        // Merge: keep local items not in server, then server items
+        const serverIds = new Set(fromServer.map((g: any) => g.id));
+        const serverTokens = new Set(fromServer.map((g: any) => g.token));
+        const onlyLocal = localItems.filter(g => !serverIds.has(g.id) && !serverTokens.has(g.token));
+        setGrievances([...onlyLocal, ...fromServer]);
+      })
+      .catch(() => {})
+      .finally(() => setLoading(false));
   }, []);
 
   const filtered = grievances
