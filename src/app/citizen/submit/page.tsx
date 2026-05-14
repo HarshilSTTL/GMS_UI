@@ -1,12 +1,17 @@
 'use client';
 import { useState, useRef, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
-import { ArrowLeft, CheckCircle, MapPin, FileText } from 'lucide-react';
+import {
+  ArrowLeft, ArrowRight, CheckCircle, ChevronDown,
+  Mic, MicOff, Navigation, Bot, X, Send,
+  Hospital, Droplet, Route, Building2, Leaf,
+  Printer, ClipboardList,
+} from 'lucide-react';
 import { toast } from 'sonner';
 import { useAuthStore } from '@/stores';
 import { addLocalGrievance } from '@/lib/local-store';
 
-// ── Domain & sub-category data ──────────────────────────────────────────────
+// ── Data ─────────────────────────────────────────────────────────────────────
 const DOMAINS = [
   {
     id: 'HEALTH', code: 'HFW', label: 'Health & Medical', labelGu: 'આરોગ્ય અને તબીબી',
@@ -93,19 +98,22 @@ const TALUKAS: Record<string, string[]> = {
   Kutch: ['Bhuj', 'Anjar', 'Gandhidham', 'Mundra', 'Nakhatrana', 'Rapar', 'Abdasa', 'Lakhpat'],
   Mehsana: ['Mehsana', 'Kheralu', 'Sidhpur', 'Unjha', 'Vadnagar', 'Vijapur', 'Visanagar', 'Becharaji'],
   Anand: ['Anand', 'Anklav', 'Borsad', 'Khambhat', 'Petlad', 'Sojitra', 'Tarapur', 'Umreth'],
-  Jamnagar: ['Jamnagar City', 'Dhrol', 'Jamjodhpur', 'Jodia', 'Jodiya', 'Kalavad', 'Lalpur', 'Okhamandal'],
+  Jamnagar: ['Jamnagar City', 'Dhrol', 'Jamjodhpur', 'Jodia', 'Kalavad', 'Lalpur', 'Okhamandal'],
 };
 
-function getWards(district: string, taluka: string): string[] {
-  return ['Ward 1', 'Ward 2', 'Ward 3', 'Ward 4', 'Ward 5', 'Ward 6', 'Ward 7', 'Ward 8',
-    'Panchayat Area', 'Town Area', 'Municipal Area', 'Rural Area'];
-}
+const WARDS = ['Ward 1', 'Ward 2', 'Ward 3', 'Ward 4', 'Ward 5', 'Ward 6', 'Ward 7', 'Ward 8',
+  'Panchayat Area', 'Town Area', 'Municipal Area', 'Rural Area'];
 
-// ── AI Chatbot ───────────────────────────────────────────────────────────────
+const STEPS = ['Category', 'Sub-type', 'Details', 'Review'];
+
+type Domain = typeof DOMAINS[0];
+type Sub = Domain['subs'][0];
+
+// ── AI Chatbot ────────────────────────────────────────────────────────────────
 function AIChatbot() {
   const [open, setOpen] = useState(false);
   const [messages, setMessages] = useState([
-    { role: 'bot', text: 'Hello! I\'m your GMS assistant. How can I help you file your grievance today?' }
+    { role: 'bot', text: "Hello! I'm your GMS assistant. How can I help you file your grievance today?" },
   ]);
   const [input, setInput] = useState('');
 
@@ -117,7 +125,7 @@ function AIChatbot() {
     setTimeout(() => {
       setMessages(m => [...m, {
         role: 'bot',
-        text: 'I understand your concern. Please fill in the form to submit your grievance. Our team will respond within the SLA period.'
+        text: 'I understand your concern. Please fill in the form to submit your grievance. Our team will respond within the SLA period.',
       }]);
     }, 800);
   }
@@ -133,7 +141,8 @@ function AIChatbot() {
       </button>
 
       {open && (
-        <div className="fixed bottom-24 right-6 w-80 rounded-[16px] shadow-2xl z-50 overflow-hidden flex flex-col" style={{ height: 380, background: '#fff', border: '1px solid #E5E7EB' }}>
+        <div className="fixed bottom-24 right-6 w-80 rounded-[16px] shadow-2xl z-50 overflow-hidden flex flex-col"
+          style={{ height: 380, background: '#fff', border: '1px solid #E5E7EB' }}>
           <div className="px-4 py-3 flex items-center gap-2" style={{ background: '#7C3AED' }}>
             <Bot size={18} className="text-white" />
             <span className="text-[13px] font-bold text-white">GMS Assistant</span>
@@ -166,37 +175,31 @@ function AIChatbot() {
   );
 }
 
-// ── Main Page ────────────────────────────────────────────────────────────────
+// ── Main Page ─────────────────────────────────────────────────────────────────
 export default function SubmitGrievance() {
   const router = useRouter();
   const { user } = useAuthStore();
+
   const [step, setStep] = useState(1);
-  const [submitted, setSubmitted] = useState<{ token: string; id: string } | null>(null);
-  const [form, setForm] = useState({
-    title: '', description: '', district: '', taluka: '', ward: '', specificLocation: '',
-  });
+  const [domain, setDomain] = useState<Domain | null>(null);
+  const [sub, setSub] = useState<Sub | null>(null);
+  const [form, setForm] = useState({ title: '', description: '', district: '', taluka: '', ward: '', specificLocation: '' });
+  const [result, setResult] = useState<{ token: string; id: string } | null>(null);
   const [listening, setListening] = useState(false);
   const [detecting, setDetecting] = useState(false);
   const [submitting, setSubmitting] = useState(false);
-  const [result, setResult] = useState<{ token: string; id: string } | null>(null);
   const recogRef = useRef<any>(null);
 
   function update(field: string, value: string) {
+    if (field === 'district') { setForm(f => ({ ...f, district: value, taluka: '', ward: '' })); return; }
+    if (field === 'taluka') { setForm(f => ({ ...f, taluka: value, ward: '' })); return; }
     setForm(f => ({ ...f, [field]: value }));
-    if (field === 'district') setForm(f => ({ ...f, district: value, taluka: '', ward: '' }));
-    if (field === 'taluka') setForm(f => ({ ...f, taluka: value, ward: '' }));
   }
 
-  // Voice mic
   const toggleVoice = useCallback(() => {
-    if (listening) {
-      recogRef.current?.stop();
-      setListening(false);
-      return;
-    }
-    const SpeechRecognitionAPI = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
-    if (!SpeechRecognitionAPI) {
-      // Simulate for demo
+    if (listening) { recogRef.current?.stop(); setListening(false); return; }
+    const SpeechAPI = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+    if (!SpeechAPI) {
       setListening(true);
       setTimeout(() => {
         setForm(f => ({ ...f, description: f.description + (f.description ? ' ' : '') + 'Water supply has been disrupted for the past 3 days in our area.' }));
@@ -204,7 +207,7 @@ export default function SubmitGrievance() {
       }, 2000);
       return;
     }
-    const recog = new SpeechRecognitionAPI();
+    const recog = new SpeechAPI();
     recog.lang = 'gu-IN';
     recog.continuous = false;
     recog.interimResults = false;
@@ -218,7 +221,6 @@ export default function SubmitGrievance() {
     setListening(true);
   }, [listening]);
 
-  // GPS detect
   function detectLocation() {
     setDetecting(true);
     if (!navigator.geolocation) {
@@ -240,30 +242,31 @@ export default function SubmitGrievance() {
   }
 
   async function handleSubmit() {
+    if (!domain || !sub) return;
     setSubmitting(true);
     try {
       const now = new Date().toISOString();
       const token = `GJ-${new Date().getFullYear()}-${Math.floor(10000 + Math.random() * 90000)}`;
       const id = `local-${Date.now()}`;
+      const location = [form.specificLocation, form.ward, form.taluka, form.district].filter(Boolean).join(', ');
 
       const grievance = {
-        id,
-        token,
+        id, token,
         title: form.title,
         description: form.description,
-        category: form.category,
-        department: form.department,
+        category: sub.label,
+        department: domain.code,
         status: 'pending',
-        priority: form.priority,
-        channel: form.channel,
+        priority: sub.priority,
+        channel: 'web',
         slaStatus: 'ok',
-        slaDaysLeft: 7,
+        slaDaysLeft: sub.sla,
         citizenId: user?.id || '',
         citizenName: user?.name || 'Citizen',
         citizenPhone: '',
         citizenEmail: user?.email || '',
-        location: form.location,
-        ward: form.ward || '',
+        location,
+        ward: form.ward,
         district: form.district,
         assignedTo: null,
         groupId: null,
@@ -273,31 +276,22 @@ export default function SubmitGrievance() {
         submittedDate: now,
         resolvedAt: null,
         officer: 'Unassigned',
-        officerDept: form.department,
-        timeline: [{
-          id: `tl-${id}-1`,
-          type: 'created',
-          title: 'Grievance Filed',
-          actor: user?.name || 'Citizen',
-          actorRole: 'citizen',
-          timestamp: now,
-          description: `Filed via web. Token: ${token}`,
-        }],
+        officerDept: domain.code,
+        timeline: [{ id: `tl-${id}-1`, type: 'created', title: 'Grievance Filed', actor: user?.name || 'Citizen', actorRole: 'citizen', timestamp: now, description: `Filed via web. Token: ${token}` }],
         feedback: null,
         rating: null,
       };
 
-      // Save locally first — guaranteed to work on Vercel
       addLocalGrievance(grievance);
 
-      // Also try to persist on server (best-effort)
       fetch('/api/citizen/grievances', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(grievance),
       }).catch(() => {});
 
-      setSubmitted({ token, id });
+      setResult({ token, id });
+      setStep(5);
     } catch {
       toast.error('Failed to submit grievance. Please try again.');
     } finally {
@@ -305,48 +299,20 @@ export default function SubmitGrievance() {
     }
   }
 
-  // Success screen
-  if (submitted) {
-    return (
-      <div className="max-w-lg mx-auto">
-        <div className="bg-white rounded-[14px] p-8 shadow-[0_1px_3px_rgba(14,28,47,0.08),0_4px_16px_rgba(14,28,47,0.06)] text-center">
-          <div className="w-16 h-16 rounded-full bg-green-100 flex items-center justify-center mx-auto mb-4">
-            <CheckCircle size={32} className="text-green-600" />
-          </div>
-          <h2 className="text-[18px] font-bold text-[#0E1C2F] mb-1">Grievance Submitted!</h2>
-          <p className="text-[12px] text-[#7A8FA6] mb-5">Your grievance has been filed successfully.</p>
-
-          <div className="bg-[#F0F7FF] border border-blue-100 rounded-[12px] p-4 mb-6">
-            <p className="text-[10px] text-[#7A8FA6] font-semibold uppercase tracking-wide mb-1">Your Grievance Token</p>
-            <p className="text-[22px] font-bold text-[#1A56C4] tracking-widest font-mono">{submitted.token}</p>
-            <p className="text-[10px] text-[#7A8FA6] mt-1">Use this token to track your grievance status</p>
-          </div>
-
-          <div className="space-y-2">
-            <button
-              onClick={() => router.push('/citizen/grievances')}
-              className="w-full py-2.5 rounded-[10px] text-[13px] font-semibold bg-[#F4811F] text-white"
-            >
-              View My Grievances
-            </button>
-            <button
-              onClick={() => router.push('/citizen/track')}
-              className="w-full py-2.5 rounded-[10px] text-[13px] font-semibold border border-[#DDE3EE] text-[#3D5068]"
-            >
-              Track This Grievance
-            </button>
-          </div>
-        </div>
-      </div>
-    );
+  function resetForm() {
+    setStep(1); setDomain(null); setSub(null);
+    setForm({ title: '', description: '', district: '', taluka: '', ward: '', specificLocation: '' });
+    setResult(null);
   }
 
   return (
     <div className="max-w-2xl mx-auto pb-20">
       {/* Header */}
       <div className="flex items-center gap-3 mb-4">
-        <button onClick={() => step > 1 && step < 5 ? setStep(s => s - 1) : router.push('/citizen')}
-          className="w-8 h-8 rounded-lg bg-[#F0F2F7] flex items-center justify-center hover:bg-[#DDE3EE] transition-colors">
+        <button
+          onClick={() => step > 1 && step < 5 ? setStep(s => s - 1) : router.push('/citizen')}
+          className="w-8 h-8 rounded-lg bg-[#F0F2F7] flex items-center justify-center hover:bg-[#DDE3EE] transition-colors"
+        >
           <ArrowLeft size={16} className="text-[#3D5068]" />
         </button>
         <div>
@@ -358,20 +324,27 @@ export default function SubmitGrievance() {
       {/* Step bar */}
       {step < 5 && (
         <div className="flex items-center mb-5">
-          {STEPS.slice(0, 4).map((label, idx) => (
+          {STEPS.map((label, idx) => (
             <div key={idx} className="flex items-center flex-1">
-              <div className={`w-7 h-7 rounded-full flex items-center justify-center text-[11px] font-bold flex-shrink-0 transition-all ${step > idx + 1 ? 'bg-[#16A34A] text-white' : step === idx + 1 ? 'text-white' : 'bg-[#DDE3EE] text-[#7A8FA6]'}`}
-                style={step === idx + 1 ? { background: '#F4811F' } : {}}>
+              <div
+                className="w-7 h-7 rounded-full flex items-center justify-center text-[11px] font-bold flex-shrink-0 transition-all"
+                style={{
+                  background: step > idx + 1 ? '#16A34A' : step === idx + 1 ? '#F4811F' : '#DDE3EE',
+                  color: step >= idx + 1 ? '#fff' : '#7A8FA6',
+                }}
+              >
                 {step > idx + 1 ? <CheckCircle size={14} /> : idx + 1}
               </div>
               <span className="hidden sm:block text-[10px] font-medium ml-1 mr-2 text-[#7A8FA6]">{label}</span>
-              {idx < 3 && <div className={`flex-1 h-0.5 mr-1 ${step > idx + 1 ? 'bg-[#16A34A]' : 'bg-[#DDE3EE]'}`} />}
+              {idx < STEPS.length - 1 && (
+                <div className={`flex-1 h-0.5 mr-1 ${step > idx + 1 ? 'bg-[#16A34A]' : 'bg-[#DDE3EE]'}`} />
+              )}
             </div>
           ))}
         </div>
       )}
 
-      {/* Step 1 */}
+      {/* ── Step 1: Domain ── */}
       {step === 1 && (
         <div className="bg-white rounded-[14px] p-5 shadow-[0_1px_3px_rgba(14,28,47,0.08),0_4px_16px_rgba(14,28,47,0.06)]">
           <h2 className="text-[14px] font-bold text-[#0E1C2F] mb-1">Select Category</h2>
@@ -399,95 +372,18 @@ export default function SubmitGrievance() {
             })}
           </div>
           <div className="flex justify-end mt-4">
-            <button onClick={() => { if (!form.category) return toast.error('Please select a category'); setStep(2); }} className="px-6 py-2.5 rounded-[10px] text-[12px] font-semibold bg-[#F4811F] text-white">Next</button>
-          </div>
-        </div>
-      )}
-
-      {/* Step 2 */}
-      {step === 2 && (
-        <div className="bg-white rounded-[14px] p-5 shadow-[0_1px_3px_rgba(14,28,47,0.08),0_4px_16px_rgba(14,28,47,0.06)]">
-          <h2 className="text-[14px] font-bold text-[#0E1C2F] mb-1">Grievance Details</h2>
-          <p className="text-[11px] text-[#7A8FA6] mb-4">Describe your issue in detail</p>
-          <div className="space-y-3">
-            <div>
-              <label className="block text-[11px] font-semibold text-[#3D5068] mb-1">Title *</label>
-              <input value={form.title} onChange={e => updateForm('title', e.target.value)} placeholder="Brief title for your grievance" className="w-full px-3 py-2.5 border-2 border-[#DDE3EE] rounded-[10px] text-[12px] outline-none focus:border-[#F4811F]" />
-            </div>
-            <div>
-              <label className="block text-[11px] font-semibold text-[#3D5068] mb-1">Description *</label>
-              <textarea value={form.description} onChange={e => updateForm('description', e.target.value)} rows={4} placeholder="Explain the issue in detail..." className="w-full px-3 py-2.5 border-2 border-[#DDE3EE] rounded-[10px] text-[12px] outline-none focus:border-[#F4811F] resize-none" />
-            </div>
-            <div>
-              <label className="block text-[11px] font-semibold text-[#3D5068] mb-1">Location / Address *</label>
-              <input value={form.location} onChange={e => updateForm('location', e.target.value)} placeholder="Ward, Street, Landmark, District..." className="w-full px-3 py-2.5 border-2 border-[#DDE3EE] rounded-[10px] text-[12px] outline-none focus:border-[#F4811F]" />
-            </div>
-            <div className="grid grid-cols-2 gap-3">
-              <div>
-                <label className="block text-[11px] font-semibold text-[#3D5068] mb-1">District *</label>
-                <input value={form.district} onChange={e => updateForm('district', e.target.value)} placeholder="e.g. Ahmedabad" className="w-full px-3 py-2.5 border-2 border-[#DDE3EE] rounded-[10px] text-[12px] outline-none focus:border-[#F4811F]" />
-              </div>
-              <div>
-                <label className="block text-[11px] font-semibold text-[#3D5068] mb-1">Ward</label>
-                <input value={form.ward} onChange={e => updateForm('ward', e.target.value)} placeholder="e.g. Ward 7" className="w-full px-3 py-2.5 border-2 border-[#DDE3EE] rounded-[10px] text-[12px] outline-none focus:border-[#F4811F]" />
-              </div>
-            </div>
-            <div>
-              <label className="block text-[11px] font-semibold text-[#3D5068] mb-1">Priority *</label>
-              <div className="grid grid-cols-2 gap-2">
-                {PRIORITIES.map(p => (
-                  <button key={p.value} onClick={() => updateForm('priority', p.value)}
-                    className={`p-2.5 rounded-[10px] border-2 text-left flex items-center gap-2 transition-all ${form.priority === p.value ? 'border-current' : 'border-[#DDE3EE]'}`}
-                    style={form.priority === p.value ? { borderColor: p.color, background: p.color + '10' } : {}}>
-                    <div className="w-2 h-2 rounded-full" style={{ background: p.color }} />
-                    <div>
-                      <p className="text-[11px] font-semibold" style={{ color: p.color }}>{p.label}</p>
-                      <p className="text-[9px] text-[#7A8FA6]">{p.desc}</p>
-                    </div>
-                  </button>
-                ))}
-              </div>
-            </div>
-          </div>
-          <div className="flex gap-2 mt-4">
-            <button onClick={() => setStep(1)} className="flex-1 py-2.5 rounded-[10px] text-[12px] font-semibold border border-[#DDE3EE] text-[#3D5068]">Back</button>
-            <button onClick={() => { if (!form.title || !form.description || !form.location || !form.district) return toast.error('Please fill all required fields'); setStep(3); }} className="flex-1 py-2.5 rounded-[10px] text-[12px] font-semibold bg-[#F4811F] text-white">Next</button>
-          </div>
-        </div>
-      )}
-
-      {/* Step 3 */}
-      {step === 3 && (
-        <div className="bg-white rounded-[14px] p-5 shadow-[0_1px_3px_rgba(14,28,47,0.08),0_4px_16px_rgba(14,28,47,0.06)]">
-          <h2 className="text-[14px] font-bold text-[#0E1C2F] mb-1">Review & Submit</h2>
-          <p className="text-[11px] text-[#7A8FA6] mb-4">Verify your grievance details before submitting</p>
-          <div className="space-y-2 mb-4">
-            {[
-              { label: 'Category', value: form.category },
-              { label: 'Title', value: form.title },
-              { label: 'Description', value: form.description },
-              { label: 'Location', value: form.location },
-              { label: 'District', value: form.district },
-              { label: 'Ward', value: form.ward || '—' },
-              { label: 'Priority', value: form.priority.charAt(0).toUpperCase() + form.priority.slice(1) },
-              { label: 'Department', value: form.department },
-            ].map(item => (
-              <div key={item.label} className="flex justify-between py-1.5 border-b border-[#F0F2F7] last:border-0">
-                <span className="text-[11px] text-[#7A8FA6]">{item.label}</span>
-                <span className="text-[11px] font-semibold text-[#0E1C2F] text-right max-w-[60%]">{item.value}</span>
-              </div>
-            ))}
-          </div>
-          <div className="flex gap-2">
-            <button onClick={() => setStep(2)} className="flex-1 py-2.5 rounded-[10px] text-[12px] font-semibold border border-[#DDE3EE] text-[#3D5068]">Back</button>
-            <button onClick={handleSubmit} disabled={submitting} className="flex-1 py-2.5 rounded-[10px] text-[12px] font-bold bg-green-600 text-white disabled:opacity-60 flex items-center justify-center gap-2">
-              {submitting ? <><span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />Submitting...</> : 'Submit Grievance'}
+            <button
+              onClick={() => { if (!domain) return toast.error('Please select a category'); setStep(2); }}
+              className="px-6 py-2.5 rounded-[10px] text-[12px] font-semibold text-white flex items-center gap-2"
+              style={{ background: '#F4811F' }}
+            >
+              Next <ArrowRight size={14} />
             </button>
           </div>
         </div>
       )}
 
-      {/* ── STEP 2: Sub-category ─────────────────────────────────────────── */}
+      {/* ── Step 2: Sub-category ── */}
       {step === 2 && domain && (
         <div className="bg-white rounded-[14px] p-5 shadow-[0_1px_3px_rgba(14,28,47,0.08),0_4px_16px_rgba(14,28,47,0.06)]">
           <div className="flex items-center gap-2 mb-1">
@@ -522,16 +418,18 @@ export default function SubmitGrievance() {
           </div>
           <div className="flex gap-2 mt-4">
             <button onClick={() => setStep(1)} className="flex-1 py-2.5 rounded-[10px] text-[12px] font-semibold border border-[#DDE3EE] text-[#3D5068] bg-white">Back</button>
-            <button onClick={() => { if (!sub) return toast.error('Please select a sub-category'); setStep(3); }}
+            <button
+              onClick={() => { if (!sub) return toast.error('Please select a sub-category'); setStep(3); }}
               className="flex-1 flex items-center justify-center gap-2 py-2.5 rounded-[10px] text-[12px] font-semibold text-white"
-              style={{ background: '#F4811F' }}>
+              style={{ background: '#F4811F' }}
+            >
               Next <ArrowRight size={14} />
             </button>
           </div>
         </div>
       )}
 
-      {/* ── STEP 3: Issue Details ─────────────────────────────────────────── */}
+      {/* ── Step 3: Issue Details ── */}
       {step === 3 && (
         <div className="bg-white rounded-[14px] p-5 shadow-[0_1px_3px_rgba(14,28,47,0.08),0_4px_16px_rgba(14,28,47,0.06)]">
           <h2 className="text-[14px] font-bold text-[#0E1C2F] mb-1">Issue Details</h2>
@@ -539,7 +437,9 @@ export default function SubmitGrievance() {
           <div className="space-y-4">
             {/* Title */}
             <div>
-              <label className="block text-[11px] font-semibold text-[#3D5068] mb-1">Title * <span className="text-[#7A8FA6] font-normal">({form.title.length}/80)</span></label>
+              <label className="block text-[11px] font-semibold text-[#3D5068] mb-1">
+                Title * <span className="text-[#7A8FA6] font-normal">({form.title.length}/80)</span>
+              </label>
               <input
                 value={form.title}
                 onChange={e => e.target.value.length <= 80 && update('title', e.target.value)}
@@ -562,21 +462,27 @@ export default function SubmitGrievance() {
                 value={form.description}
                 onChange={e => update('description', e.target.value)}
                 rows={4}
-                placeholder="Explain the issue in detail. When did it start? Who is affected? What is the impact?"
+                placeholder="Explain the issue in detail. When did it start? Who is affected?"
                 className="w-full px-3 py-2.5 border-2 border-[#DDE3EE] rounded-[10px] text-[12px] outline-none focus:border-[#F4811F] resize-none"
                 style={listening ? { borderColor: '#DC2626', background: '#FFF5F5' } : {}}
               />
-              {listening && <p className="text-[10px] text-[#DC2626] mt-0.5 flex items-center gap-1"><span className="inline-block w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse" /> Listening... speak now (gu/en)</p>}
+              {listening && (
+                <p className="text-[10px] text-[#DC2626] mt-0.5 flex items-center gap-1">
+                  <span className="inline-block w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse" />
+                  Listening... speak now (gu/en)
+                </p>
+              )}
             </div>
 
-            {/* GPS + Location */}
+            {/* Location */}
             <div>
               <div className="flex items-center justify-between mb-2">
                 <label className="block text-[11px] font-semibold text-[#3D5068]">Location *</label>
                 <button onClick={detectLocation} disabled={detecting}
                   className="flex items-center gap-1.5 px-3 py-1 rounded-[8px] text-[10px] font-semibold transition-all"
                   style={{ background: '#E0F7FA', color: '#0891B2' }}>
-                  {detecting ? <><span className="w-3 h-3 border border-teal-500 border-t-transparent rounded-full animate-spin" /> Detecting...</>
+                  {detecting
+                    ? <><span className="w-3 h-3 border border-teal-500 border-t-transparent rounded-full animate-spin" /> Detecting...</>
                     : <><Navigation size={11} /> Detect GPS</>}
                 </button>
               </div>
@@ -584,9 +490,7 @@ export default function SubmitGrievance() {
                 <div>
                   <label className="block text-[10px] font-semibold text-[#3D5068] mb-1">District *</label>
                   <div className="relative">
-                    <select
-                      value={form.district}
-                      onChange={e => { setForm(f => ({ ...f, district: e.target.value, taluka: '', ward: '' })); }}
+                    <select value={form.district} onChange={e => update('district', e.target.value)}
                       className="w-full px-3 py-2 border-2 border-[#DDE3EE] rounded-[10px] text-[11px] outline-none focus:border-[#F4811F] appearance-none bg-white">
                       <option value="">Select District</option>
                       {GUJARAT_DISTRICTS.map(d => <option key={d} value={d}>{d}</option>)}
@@ -597,10 +501,7 @@ export default function SubmitGrievance() {
                 <div>
                   <label className="block text-[10px] font-semibold text-[#3D5068] mb-1">Taluka</label>
                   <div className="relative">
-                    <select
-                      value={form.taluka}
-                      onChange={e => { setForm(f => ({ ...f, taluka: e.target.value, ward: '' })); }}
-                      disabled={!form.district}
+                    <select value={form.taluka} onChange={e => update('taluka', e.target.value)} disabled={!form.district}
                       className="w-full px-3 py-2 border-2 border-[#DDE3EE] rounded-[10px] text-[11px] outline-none focus:border-[#F4811F] appearance-none bg-white disabled:opacity-50">
                       <option value="">Select Taluka</option>
                       {(TALUKAS[form.district] || []).map(t => <option key={t} value={t}>{t}</option>)}
@@ -613,13 +514,10 @@ export default function SubmitGrievance() {
                 <div>
                   <label className="block text-[10px] font-semibold text-[#3D5068] mb-1">Ward / Village</label>
                   <div className="relative">
-                    <select
-                      value={form.ward}
-                      onChange={e => update('ward', e.target.value)}
-                      disabled={!form.taluka}
+                    <select value={form.ward} onChange={e => update('ward', e.target.value)} disabled={!form.district}
                       className="w-full px-3 py-2 border-2 border-[#DDE3EE] rounded-[10px] text-[11px] outline-none focus:border-[#F4811F] appearance-none bg-white disabled:opacity-50">
                       <option value="">Select Ward</option>
-                      {getWards(form.district, form.taluka).map(w => <option key={w} value={w}>{w}</option>)}
+                      {WARDS.map(w => <option key={w} value={w}>{w}</option>)}
                     </select>
                     <ChevronDown size={12} className="absolute right-3 top-1/2 -translate-y-1/2 text-[#7A8FA6] pointer-events-none" />
                   </div>
@@ -647,91 +545,88 @@ export default function SubmitGrievance() {
                 setStep(4);
               }}
               className="flex-1 flex items-center justify-center gap-2 py-2.5 rounded-[10px] text-[12px] font-semibold text-white"
-              style={{ background: '#F4811F' }}>
+              style={{ background: '#F4811F' }}
+            >
               Review <ArrowRight size={14} />
             </button>
           </div>
         </div>
       )}
 
-      {/* ── STEP 4: Review & Submit ───────────────────────────────────────── */}
+      {/* ── Step 4: Review & Submit ── */}
       {step === 4 && domain && sub && (
-        <div className="space-y-4">
-          <div className="bg-white rounded-[14px] p-5 shadow-[0_1px_3px_rgba(14,28,47,0.08),0_4px_16px_rgba(14,28,47,0.06)]">
-            <h2 className="text-[14px] font-bold text-[#0E1C2F] mb-1">Review & Submit</h2>
-            <p className="text-[11px] text-[#7A8FA6] mb-4">સમીક્ષા — Verify details before submitting</p>
+        <div className="bg-white rounded-[14px] p-5 shadow-[0_1px_3px_rgba(14,28,47,0.08),0_4px_16px_rgba(14,28,47,0.06)]">
+          <h2 className="text-[14px] font-bold text-[#0E1C2F] mb-1">Review & Submit</h2>
+          <p className="text-[11px] text-[#7A8FA6] mb-4">સમીક્ષા — Verify details before submitting</p>
 
-            {/* Draft card */}
-            <div className="rounded-[12px] p-4 mb-4" style={{ border: '2px dashed #DDE3EE', background: '#FAFBFC' }}>
-              {/* Tags row */}
-              <div className="flex flex-wrap gap-1.5 mb-3">
-                <span className="flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-bold text-white" style={{ background: domain.color }}>
-                  <domain.icon size={10} /> {domain.label}
-                </span>
-                <span className="px-2.5 py-1 rounded-full text-[10px] font-bold" style={{ background: PRIORITY_BG[sub.priority], color: PRIORITY_COLORS[sub.priority] }}>
-                  {sub.priority.toUpperCase()}
-                </span>
-                <span className="px-2.5 py-1 rounded-full text-[10px] font-semibold bg-[#F0F2F7] text-[#3D5068]">
-                  SLA: {sub.sla} days
-                </span>
-              </div>
-
-              <p className="text-[13px] font-bold text-[#0E1C2F] mb-1">{form.title}</p>
-              <p className="text-[11px] text-[#3D5068] mb-3 leading-relaxed">{form.description}</p>
-
-              <div className="space-y-1.5 pt-3 border-t border-[#DDE3EE]">
-                {[
-                  { label: 'Sub-Category', value: sub.label },
-                  { label: 'Department', value: domain.code },
-                  { label: 'District', value: form.district },
-                  { label: 'Taluka', value: form.taluka || '—' },
-                  { label: 'Ward', value: form.ward || '—' },
-                  { label: 'Location', value: form.specificLocation || '—' },
-                  { label: 'Channel', value: 'Web Portal' },
-                ].map(item => (
-                  <div key={item.label} className="flex justify-between">
-                    <span className="text-[10px] text-[#7A8FA6]">{item.label}</span>
-                    <span className="text-[10px] font-semibold text-[#0E1C2F]">{item.value}</span>
-                  </div>
-                ))}
-              </div>
+          <div className="rounded-[12px] p-4 mb-4" style={{ border: '2px dashed #DDE3EE', background: '#FAFBFC' }}>
+            <div className="flex flex-wrap gap-1.5 mb-3">
+              <span className="flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-bold text-white" style={{ background: domain.color }}>
+                <domain.icon size={10} /> {domain.label}
+              </span>
+              <span className="px-2.5 py-1 rounded-full text-[10px] font-bold"
+                style={{ background: PRIORITY_BG[sub.priority], color: PRIORITY_COLORS[sub.priority] }}>
+                {sub.priority.toUpperCase()}
+              </span>
+              <span className="px-2.5 py-1 rounded-full text-[10px] font-semibold bg-[#F0F2F7] text-[#3D5068]">
+                SLA: {sub.sla} days
+              </span>
             </div>
 
-            <div className="rounded-[10px] p-3 text-[11px] mb-4" style={{ background: '#E0F7FA', color: '#0891B2' }}>
-              📩 You will receive an SMS confirmation with your grievance token. Use it to track status anytime.
-            </div>
+            <p className="text-[13px] font-bold text-[#0E1C2F] mb-1">{form.title}</p>
+            <p className="text-[11px] text-[#3D5068] mb-3 leading-relaxed">{form.description}</p>
 
-            <div className="flex gap-2">
-              <button onClick={() => setStep(3)} className="flex-1 py-2.5 rounded-[10px] text-[12px] font-semibold border border-[#DDE3EE] text-[#3D5068] bg-white">Back</button>
-              <button onClick={handleSubmit} disabled={submitting}
-                className="flex-1 flex items-center justify-center gap-2 py-2.5 rounded-[10px] text-[12px] font-bold text-white disabled:opacity-60"
-                style={{ background: '#16A34A' }}>
-                {submitting
-                  ? <><span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" /> Submitting...</>
-                  : <><Send size={14} /> Submit Grievance</>}
-              </button>
+            <div className="space-y-1.5 pt-3 border-t border-[#DDE3EE]">
+              {[
+                { label: 'Sub-Category', value: sub.label },
+                { label: 'Department', value: domain.code },
+                { label: 'District', value: form.district || '—' },
+                { label: 'Taluka', value: form.taluka || '—' },
+                { label: 'Ward', value: form.ward || '—' },
+                { label: 'Location', value: form.specificLocation || '—' },
+                { label: 'Channel', value: 'Web Portal' },
+              ].map(item => (
+                <div key={item.label} className="flex justify-between">
+                  <span className="text-[10px] text-[#7A8FA6]">{item.label}</span>
+                  <span className="text-[10px] font-semibold text-[#0E1C2F]">{item.value}</span>
+                </div>
+              ))}
             </div>
+          </div>
+
+          <div className="rounded-[10px] p-3 text-[11px] mb-4" style={{ background: '#E0F7FA', color: '#0891B2' }}>
+            📩 You will receive an SMS confirmation with your grievance token. Use it to track status anytime.
+          </div>
+
+          <div className="flex gap-2">
+            <button onClick={() => setStep(3)} className="flex-1 py-2.5 rounded-[10px] text-[12px] font-semibold border border-[#DDE3EE] text-[#3D5068] bg-white">Back</button>
+            <button onClick={handleSubmit} disabled={submitting}
+              className="flex-1 flex items-center justify-center gap-2 py-2.5 rounded-[10px] text-[12px] font-bold text-white disabled:opacity-60"
+              style={{ background: '#16A34A' }}>
+              {submitting
+                ? <><span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" /> Submitting...</>
+                : <><Send size={14} /> Submit Grievance</>}
+            </button>
           </div>
         </div>
       )}
 
-      {/* ── STEP 5: Success ───────────────────────────────────────────────── */}
+      {/* ── Step 5: Success ── */}
       {step === 5 && result && domain && sub && (
         <div className="space-y-4">
-          {/* Hero */}
           <div className="rounded-[16px] p-6 text-center text-white" style={{ background: 'linear-gradient(135deg, #16A34A 0%, #15803D 100%)' }}>
             <div className="w-16 h-16 rounded-full bg-white/20 flex items-center justify-center mx-auto mb-3">
               <CheckCircle size={36} className="text-white" />
             </div>
             <h2 className="text-[18px] font-black mb-1">Grievance Filed!</h2>
             <p className="text-[12px] text-green-100 mb-4">ફરિયાદ સફળતાપૂર્વક નોંધવામાં આવી</p>
-            <div className="inline-block px-5 py-2 rounded-[10px] text-[13px] font-black tracking-widest" style={{ border: '2px dashed #FFF', background: 'rgba(255,255,255,0.15)' }}>
+            <div className="inline-block px-5 py-2 rounded-[10px] text-[13px] font-black tracking-widest"
+              style={{ border: '2px dashed #FFF', background: 'rgba(255,255,255,0.15)' }}>
               {result.token}
             </div>
             <p className="text-[10px] text-green-100 mt-2">Your grievance token — save it for tracking</p>
           </div>
 
-          {/* Status pills */}
           <div className="grid grid-cols-3 gap-2">
             {[
               { label: 'Status', value: 'Pending', color: '#D97706', bg: '#FEF3C7' },
@@ -745,7 +640,6 @@ export default function SubmitGrievance() {
             ))}
           </div>
 
-          {/* Detail rows */}
           <div className="bg-white rounded-[14px] p-4 shadow-[0_1px_3px_rgba(14,28,47,0.08),0_4px_16px_rgba(14,28,47,0.06)]">
             <h3 className="text-[12px] font-bold text-[#0E1C2F] mb-3">Complaint Details</h3>
             <div className="space-y-2">
@@ -766,7 +660,6 @@ export default function SubmitGrievance() {
             </div>
           </div>
 
-          {/* What happens next */}
           <div className="rounded-[12px] p-4" style={{ background: '#E0F7FA', border: '1px solid #B2EBF2' }}>
             <h3 className="text-[12px] font-bold mb-2" style={{ color: '#0891B2' }}>What happens next?</h3>
             <div className="space-y-2">
@@ -784,18 +677,18 @@ export default function SubmitGrievance() {
             </div>
           </div>
 
-          {/* Action buttons */}
           <div className="flex gap-2">
-            <button onClick={() => window.print()} className="flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-[10px] text-[12px] font-semibold border border-[#DDE3EE] text-[#3D5068] bg-white">
+            <button onClick={() => window.print()}
+              className="flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-[10px] text-[12px] font-semibold border border-[#DDE3EE] text-[#3D5068] bg-white">
               <Printer size={14} /> Receipt
             </button>
-            <button onClick={() => router.push('/citizen/complaints')}
+            <button onClick={() => router.push('/citizen/grievances')}
               className="flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-[10px] text-[12px] font-bold text-white"
               style={{ background: '#1A3260' }}>
               <ClipboardList size={14} /> My Grievances
             </button>
           </div>
-          <button onClick={() => { setStep(1); setDomain(null); setSub(null); setForm({ title: '', description: '', district: '', taluka: '', ward: '', specificLocation: '' }); setResult(null); }}
+          <button onClick={resetForm}
             className="w-full py-2.5 rounded-[10px] text-[12px] font-semibold border border-[#DDE3EE] text-[#3D5068] bg-white">
             Submit Another Grievance
           </button>
