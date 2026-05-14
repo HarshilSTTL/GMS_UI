@@ -19,8 +19,13 @@ export function readJson<T>(filename: string): T {
 }
 
 export function writeJson<T>(filename: string, data: T): void {
-  const file = path.join(DATA_DIR, filename);
-  fs.writeFileSync(file, JSON.stringify(data, null, 2), 'utf-8');
+  try {
+    const file = path.join(DATA_DIR, filename);
+    fs.writeFileSync(file, JSON.stringify(data, null, 2), 'utf-8');
+  } catch (error) {
+    // Vercel read-only filesystem — write silently ignored, data lives in memory for this request
+    console.warn(`writeJson: could not persist ${filename}:`, error);
+  }
 }
 
 export function nextId(items: { id: string }[], prefix: string): string {

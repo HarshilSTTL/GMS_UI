@@ -266,7 +266,8 @@ export default function SubmitGrievance() {
         }),
       });
       const data = await res.json();
-      setResult({ token: data.data?.token || 'GRV-' + Date.now(), id: data.data?.id || '' });
+      const fallbackToken = `GJ-${new Date().getFullYear()}-${Math.floor(10000 + Math.random() * 90000)}`;
+      setResult({ token: data.data?.token || fallbackToken, id: data.data?.id || '' });
       setStep(5);
     } catch {
       toast.error('Failed to submit grievance');
