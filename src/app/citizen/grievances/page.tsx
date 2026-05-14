@@ -1,6 +1,7 @@
 'use client';
 import { useState, useEffect } from 'react';
 import { FileText, Search, Filter, Plus, ChevronUp, ChevronDown, ArrowUpDown } from 'lucide-react';
+import { mergeWithSession } from '@/lib/session-grievances';
 import Link from 'next/link';
 
 interface Grievance {
@@ -44,14 +45,15 @@ export default function CitizenGrievances() {
         .then(r => r.json())
         .then(d => {
           const data = d.data || d;
-          const mapped = Array.isArray(data) ? data.map(g => ({
+          const fromServer = Array.isArray(data) ? data.map(g => ({
             ...g,
             submittedDate: g.createdAt || g.submittedDate,
             officer: g.assignedTo?.name || g.officer || 'Unassigned',
             officerDept: g.assignedTo?.department || g.officerDept || '',
             status: g.status === 'open' ? 'pending' : g.status,
           })) : [];
-          setGrievances(mapped);
+          const merged = mergeWithSession(fromServer, user.id);
+          setGrievances(merged);
           setLoading(false);
         });
     } else {

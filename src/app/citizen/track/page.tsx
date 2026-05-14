@@ -1,6 +1,7 @@
 'use client';
 import React, { useState } from 'react';
 import { Search, AlertCircle, CheckCircle, Clock } from 'lucide-react';
+import { getSessionGrievanceByToken } from '@/lib/session-grievances';
 import { cn } from '@/lib/utils';
 
 interface Complaint {
@@ -43,6 +44,15 @@ export default function TrackComplaint() {
     try {
       setLoading(true);
       setError('');
+
+      // Check session storage first (handles Vercel read-only filesystem)
+      const sessionMatch = getSessionGrievanceByToken(token.trim());
+      if (sessionMatch) {
+        setComplaint({ ...sessionMatch, lastUpdate: sessionMatch.updatedAt } as any);
+        setLoading(false);
+        return;
+      }
+
       const res = await fetch(`/api/grievances/track/${token.trim()}`);
       if (res.ok) {
         const result = await res.json();

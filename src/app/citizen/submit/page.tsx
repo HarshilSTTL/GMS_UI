@@ -4,6 +4,7 @@ import { useRouter } from 'next/navigation';
 import { ArrowLeft, CheckCircle, MapPin, FileText, User } from 'lucide-react';
 import { toast } from 'sonner';
 import { useAuthStore } from '@/stores';
+import { saveSessionGrievance } from '@/lib/session-grievances';
 
 const CATEGORIES = [
   { icon: '💧', label: 'Water Supply', dept: 'GWSSB' },
@@ -56,7 +57,15 @@ export default function SubmitGrievance() {
         }),
       });
       const data = await res.json();
-      toast.success(`Grievance filed! Token: ${data.token}`);
+      const grievance = data.data || data;
+      saveSessionGrievance({
+        ...grievance,
+        submittedDate: grievance.createdAt,
+        officer: 'Unassigned',
+        officerDept: form.department,
+        status: grievance.status === 'open' ? 'pending' : grievance.status,
+      });
+      toast.success(`Grievance filed! Token: ${grievance.token}`);
       router.push('/citizen/grievances');
     } catch {
       toast.error('Failed to submit grievance');

@@ -2,12 +2,14 @@
 import { useState, useEffect } from 'react';
 import { FileText, Clock, CheckCircle, AlertTriangle, Plus, Search, ArrowRight, Zap, BarChart2, Bot } from 'lucide-react';
 import Link from 'next/link';
-import { toast } from 'sonner';
+import { useAuthStore } from '@/stores';
+import { mergeWithSession } from '@/lib/session-grievances';
 
 interface Grievance {
   id: string; token: string; title: string; category: string; status: string;
   priority: string; channel: string; slaStatus: string; slaDaysLeft: number;
   location: string; officer: string; submittedDate: string; updatedAt: string;
+  citizenId?: string;
 }
 
 interface Notification {
@@ -16,6 +18,7 @@ interface Notification {
 
 const STATUS_CONFIG: Record<string, { label: string; color: string; bg: string }> = {
   pending: { label: 'Pending', color: '#D97706', bg: '#FFFBEB' },
+  open: { label: 'Pending', color: '#D97706', bg: '#FFFBEB' },
   in_progress: { label: 'In Progress', color: '#1A56C4', bg: '#EBF2FF' },
   resolved: { label: 'Resolved', color: '#16A34A', bg: '#F0FDF4' },
   escalated: { label: 'Escalated', color: '#DC2626', bg: '#FEF2F2' },
@@ -31,35 +34,48 @@ const PRIORITY_CONFIG: Record<string, { label: string; color: string }> = {
 };
 
 export default function CitizenDashboard() {
+  const { user } = useAuthStore();
   const [grievances, setGrievances] = useState<Grievance[]>([]);
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    if (!user) return;
+    const citizenId = user.id;
     Promise.all([
-      fetch('/api/citizen/grievances').then(r => r.json()),
-      fetch('/api/citizen/notifications').then(r => r.json()),
+      fetch(`/api/citizen/grievances?citizenId=${citizenId}`).then(r => r.json()),
+      fetch(`/api/citizen/notifications?citizenId=${citizenId}`).then(r => r.json()),
     ]).then(([g, n]) => {
-      setGrievances(g);
-      setNotifications(n);
+      const fromServer = Array.isArray(g) ? g.map((item: any) => ({
+        ...item,
+        submittedDate: item.createdAt || item.submittedDate,
+        officer: item.assignedTo?.name || item.officer || 'Unassigned',
+        status: item.status === 'open' ? 'pending' : item.status,
+      })) : [];
+      setGrievances(mergeWithSession(fromServer, citizenId));
+      setNotifications(Array.isArray(n) ? n : []);
       setLoading(false);
-    });
-  }, []);
+    }).catch(() => setLoading(false));
+  }, [user]);
 
   const total = grievances.length;
-  const active = grievances.filter(g => g.status === 'pending' || g.status === 'in_progress' || g.status === 'acknowledged' || g.status === 'under_review').length;
+  const active = grievances.filter(g => ['pending', 'open', 'in_progress', 'acknowledged', 'under_review'].includes(g.status)).length;
   const resolved = grievances.filter(g => g.status === 'resolved').length;
   const escalated = grievances.filter(g => g.status === 'escalated').length;
   const unreadNotifs = notifications.filter(n => !n.isRead).length;
 
-  const recent = [...grievances].sort((a, b) => new Date(b.submittedDate).getTime() - new Date(a.submittedDate).getTime()).slice(0, 4);
+  const recent = [...grievances]
+    .sort((a, b) => new Date(b.submittedDate).getTime() - new Date(a.submittedDate).getTime())
+    .slice(0, 4);
 
   const stats = [
-    { label: 'Total Filed', value: total, icon: FileText, accent: '#1A56C4', bg: '#EBF2FF' },
-    { label: 'Active', value: active, icon: Clock, accent: '#D97706', bg: '#FFFBEB' },
-    { label: 'Resolved', value: resolved, icon: CheckCircle, accent: '#16A34A', bg: '#F0FDF4' },
-    { label: 'Escalated', value: escalated, icon: AlertTriangle, accent: '#DC2626', bg: '#FEF2F2' },
+    { label: 'Total Filed', value: total, icon: FileText, accent: '#1A56C4', bg: '#EBF2FF', href: '/citizen/grievances' },
+    { label: 'Active', value: active, icon: Clock, accent: '#D97706', bg: '#FFFBEB', href: '/citizen/grievances?filter=active' },
+    { label: 'Resolved', value: resolved, icon: CheckCircle, accent: '#16A34A', bg: '#F0FDF4', href: '/citizen/grievances?filter=resolved' },
+    { label: 'Escalated', value: escalated, icon: AlertTriangle, accent: '#DC2626', bg: '#FEF2F2', href: '/citizen/grievances?filter=escalated' },
   ];
+
+  const displayName = user?.name?.split(' ')[0] || 'Citizen';
 
   if (loading) {
     return (
@@ -75,7 +91,7 @@ export default function CitizenDashboard() {
       <div className="rounded-[14px] p-5 text-white" style={{ background: 'linear-gradient(135deg, #0F1A2E, #1A3260)' }}>
         <div className="flex items-start justify-between">
           <div>
-            <h1 className="text-[18px] font-bold mb-1">Welcome back, Rajesh</h1>
+            <h1 className="text-[18px] font-bold mb-1">Welcome back, {displayName}</h1>
             <p className="text-[12px] text-blue-200">
               You have <span className="font-bold text-yellow-300">{active} active</span> and{' '}
               <span className="font-bold text-green-300">{unreadNotifs} new</span> notifications.
@@ -96,15 +112,16 @@ export default function CitizenDashboard() {
       {/* Stats Grid */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
         {stats.map(s => (
-          <div key={s.label} className="bg-white rounded-[14px] p-4 shadow-[0_1px_3px_rgba(14,28,47,0.08),0_4px_16px_rgba(14,28,47,0.06)]">
+          <Link key={s.label} href={s.href} className="group bg-white rounded-[14px] p-4 shadow-[0_1px_3px_rgba(14,28,47,0.08),0_4px_16px_rgba(14,28,47,0.06)] hover:shadow-[0_4px_16px_rgba(14,28,47,0.14)] transition-all block">
             <div className="flex items-center justify-between mb-3">
               <div className="w-9 h-9 rounded-lg flex items-center justify-center" style={{ background: s.bg }}>
                 <s.icon size={18} style={{ color: s.accent }} />
               </div>
+              <ArrowRight size={13} className="text-[#C8D0DE] opacity-0 group-hover:opacity-100 transition-opacity" />
             </div>
             <div className="text-[22px] font-bold text-[#0E1C2F]">{s.value}</div>
             <div className="text-[11px] text-[#7A8FA6] mt-0.5">{s.label}</div>
-          </div>
+          </Link>
         ))}
       </div>
 
