@@ -3,11 +3,13 @@ import { useState, useEffect } from 'react';
 import { FileText, Clock, CheckCircle, AlertTriangle, Plus, Search, ArrowRight, Zap, BarChart2, Bot } from 'lucide-react';
 import Link from 'next/link';
 import { useAuthStore } from '@/stores';
+import { getLocalGrievancesByUser } from '@/lib/local-store';
 
 interface Grievance {
   id: string; token: string; title: string; category: string; status: string;
   priority: string; channel: string; slaStatus: string; slaDaysLeft: number;
   location: string; officer: string; submittedDate: string; updatedAt: string;
+  citizenId?: string;
 }
 
 interface Notification {
@@ -16,6 +18,7 @@ interface Notification {
 
 const STATUS_CONFIG: Record<string, { label: string; color: string; bg: string }> = {
   pending: { label: 'Pending', color: '#D97706', bg: '#FFFBEB' },
+  open: { label: 'Pending', color: '#D97706', bg: '#FFFBEB' },
   in_progress: { label: 'In Progress', color: '#1A56C4', bg: '#EBF2FF' },
   resolved: { label: 'Resolved', color: '#16A34A', bg: '#F0FDF4' },
   escalated: { label: 'Escalated', color: '#DC2626', bg: '#FEF2F2' },
@@ -39,23 +42,38 @@ export default function CitizenDashboard() {
   useEffect(() => {
     if (!user) return;
     const citizenId = user.id;
+    // Show local grievances immediately
+    const localItems = getLocalGrievancesByUser(citizenId);
+    setGrievances(localItems);
+
     Promise.all([
       fetch(`/api/citizen/grievances?citizenId=${citizenId}`).then(r => r.json()),
       fetch(`/api/citizen/notifications?citizenId=${citizenId}`).then(r => r.json()),
     ]).then(([g, n]) => {
-      setGrievances(Array.isArray(g) ? g : []);
+      const fromServer = Array.isArray(g) ? g.map((item: any) => ({
+        ...item,
+        submittedDate: item.createdAt || item.submittedDate,
+        officer: item.assignedTo?.name || item.officer || 'Unassigned',
+        status: item.status === 'open' ? 'pending' : item.status,
+      })) : [];
+      const serverIds = new Set(fromServer.map((x: any) => x.id));
+      const serverTokens = new Set(fromServer.map((x: any) => x.token));
+      const onlyLocal = localItems.filter(g => !serverIds.has(g.id) && !serverTokens.has(g.token));
+      setGrievances([...onlyLocal, ...fromServer]);
       setNotifications(Array.isArray(n) ? n : []);
       setLoading(false);
-    });
+    }).catch(() => setLoading(false));
   }, [user]);
 
   const total = grievances.length;
-  const active = grievances.filter(g => g.status === 'pending' || g.status === 'in_progress' || g.status === 'acknowledged' || g.status === 'under_review').length;
+  const active = grievances.filter(g => ['pending', 'open', 'in_progress', 'acknowledged', 'under_review'].includes(g.status)).length;
   const resolved = grievances.filter(g => g.status === 'resolved').length;
   const escalated = grievances.filter(g => g.status === 'escalated').length;
   const unreadNotifs = notifications.filter(n => !n.isRead).length;
 
-  const recent = [...grievances].sort((a, b) => new Date(b.submittedDate).getTime() - new Date(a.submittedDate).getTime()).slice(0, 4);
+  const recent = [...grievances]
+    .sort((a, b) => new Date(b.submittedDate).getTime() - new Date(a.submittedDate).getTime())
+    .slice(0, 4);
 
   const stats = [
     { label: 'Total Filed', value: total, icon: FileText, accent: '#1A56C4', bg: '#EBF2FF', href: '/citizen/grievances' },
@@ -101,7 +119,7 @@ export default function CitizenDashboard() {
       {/* Stats Grid */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
         {stats.map(s => (
-          <Link key={s.label} href={s.href} className="group bg-white rounded-[14px] p-4 shadow-[0_1px_3px_rgba(14,28,47,0.08),0_4px_16px_rgba(14,28,47,0.06)] hover:shadow-[0_4px_16px_rgba(14,28,47,0.14)] hover:border hover:border-[#C8D0DE] transition-all block">
+          <Link key={s.label} href={s.href} className="group bg-white rounded-[14px] p-4 shadow-[0_1px_3px_rgba(14,28,47,0.08),0_4px_16px_rgba(14,28,47,0.06)] hover:shadow-[0_4px_16px_rgba(14,28,47,0.14)] transition-all block">
             <div className="flex items-center justify-between mb-3">
               <div className="w-9 h-9 rounded-lg flex items-center justify-center" style={{ background: s.bg }}>
                 <s.icon size={18} style={{ color: s.accent }} />

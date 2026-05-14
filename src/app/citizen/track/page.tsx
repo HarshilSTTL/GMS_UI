@@ -1,6 +1,7 @@
 'use client';
 import React, { useState } from 'react';
 import { Search, AlertCircle, CheckCircle, Clock } from 'lucide-react';
+import { findLocalGrievanceByToken } from '@/lib/local-store';
 import { cn } from '@/lib/utils';
 
 interface Grievance {
@@ -47,6 +48,15 @@ export default function TrackComplaint() {
     try {
       setLoading(true);
       setError('');
+
+      // Check localStorage first (always works, even on Vercel)
+      const localMatch = findLocalGrievanceByToken(token.trim());
+      if (localMatch) {
+        setComplaint({ ...localMatch, lastUpdate: localMatch.updatedAt } as any);
+        setLoading(false);
+        return;
+      }
+
       const res = await fetch(`/api/grievances/track/${token.trim()}`);
       if (res.ok) {
         const result = await res.json();
