@@ -75,7 +75,7 @@
     "title": "Grievance Escalated",
     "message": "Your grievance GVM-2025-05341 has been escalated to higher authority.",
     "timestamp": "2026-05-13T06:48:05.027Z",
-    "isRead": false,
+    "isRead": true,
     "type": "sla_breach",
     "grievanceId": "c1"
   },
