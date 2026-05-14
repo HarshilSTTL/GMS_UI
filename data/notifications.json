@@ -88,5 +88,65 @@
     "isRead": false,
     "type": "sla_breach",
     "grievanceId": "cg6"
+  },
+  {
+    "id": "n10",
+    "userId": "u5",
+    "title": "Grievance Filed",
+    "message": "Your grievance GJ-2026-97328 has been filed successfully. Category: Health & Medical — Ambulance Service.",
+    "timestamp": "2026-05-14T04:29:48.326Z",
+    "isRead": false,
+    "type": "acknowledgement",
+    "grievanceId": "c22"
+  },
+  {
+    "id": "n11",
+    "userId": "u5",
+    "title": "Grievance Filed",
+    "message": "Your grievance GJ-2026-15845 has been filed successfully. Category: Health & Medical — Ambulance Service.",
+    "timestamp": "2026-05-14T04:31:07.482Z",
+    "isRead": false,
+    "type": "acknowledgement",
+    "grievanceId": "c23"
+  },
+  {
+    "id": "n12",
+    "userId": "u5",
+    "title": "Grievance Filed",
+    "message": "Your grievance GJ-2026-56251 has been filed successfully. Category: Health & Medical — Medicine Shortage.",
+    "timestamp": "2026-05-14T04:33:16.438Z",
+    "isRead": false,
+    "type": "acknowledgement",
+    "grievanceId": "c24"
+  },
+  {
+    "id": "n13",
+    "userId": "u5",
+    "title": "Grievance Filed",
+    "message": "Your grievance GJ-2026-94235 has been filed successfully. Category: Agriculture — MNREGA / Labour Issue.",
+    "timestamp": "2026-05-14T04:33:44.251Z",
+    "isRead": false,
+    "type": "acknowledgement",
+    "grievanceId": "c25"
+  },
+  {
+    "id": "n14",
+    "userId": "u5",
+    "title": "Grievance Filed",
+    "message": "Your grievance GJ-2026-82344 has been filed successfully. Category: Roads & Transport — Divider / Footpath Issue.",
+    "timestamp": "2026-05-14T04:34:54.070Z",
+    "isRead": false,
+    "type": "acknowledgement",
+    "grievanceId": "c26"
+  },
+  {
+    "id": "n15",
+    "userId": "u5",
+    "title": "Grievance Filed",
+    "message": "Your grievance GJ-2026-48365 has been filed successfully. Category: Health & Medical — PHC/Dispensary Issue.",
+    "timestamp": "2026-05-14T04:35:33.316Z",
+    "isRead": false,
+    "type": "acknowledgement",
+    "grievanceId": "c27"
   }
 ]
