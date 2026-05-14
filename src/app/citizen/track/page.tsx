@@ -52,7 +52,7 @@ export default function TrackComplaint() {
       // Check localStorage first (always works, even on Vercel)
       const localMatch = findLocalGrievanceByToken(token.trim());
       if (localMatch) {
-        setComplaint({ ...localMatch, lastUpdate: localMatch.updatedAt } as any);
+        setGrievance({ ...localMatch, submittedDate: localMatch.createdAt || localMatch.submittedDate } as Grievance);
         setLoading(false);
         return;
       }
