@@ -85,4 +85,5 @@ export interface KPIData {
   trend?: string;
   trendType?: 'up' | 'down' | 'warn' | 'neutral';
   accentColor: string;
+  href?: string;
 }

@@ -58,10 +58,10 @@ export default function CitizenDashboard() {
   const recent = [...grievances].sort((a, b) => new Date(b.submittedDate).getTime() - new Date(a.submittedDate).getTime()).slice(0, 4);
 
   const stats = [
-    { label: 'Total Filed', value: total, icon: FileText, accent: '#1A56C4', bg: '#EBF2FF' },
-    { label: 'Active', value: active, icon: Clock, accent: '#D97706', bg: '#FFFBEB' },
-    { label: 'Resolved', value: resolved, icon: CheckCircle, accent: '#16A34A', bg: '#F0FDF4' },
-    { label: 'Escalated', value: escalated, icon: AlertTriangle, accent: '#DC2626', bg: '#FEF2F2' },
+    { label: 'Total Filed', value: total, icon: FileText, accent: '#1A56C4', bg: '#EBF2FF', href: '/citizen/grievances' },
+    { label: 'Active', value: active, icon: Clock, accent: '#D97706', bg: '#FFFBEB', href: '/citizen/grievances?filter=active' },
+    { label: 'Resolved', value: resolved, icon: CheckCircle, accent: '#16A34A', bg: '#F0FDF4', href: '/citizen/grievances?filter=resolved' },
+    { label: 'Escalated', value: escalated, icon: AlertTriangle, accent: '#DC2626', bg: '#FEF2F2', href: '/citizen/grievances?filter=escalated' },
   ];
 
   const displayName = user?.name?.split(' ')[0] || 'Citizen';
@@ -101,15 +101,16 @@ export default function CitizenDashboard() {
       {/* Stats Grid */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
         {stats.map(s => (
-          <div key={s.label} className="bg-white rounded-[14px] p-4 shadow-[0_1px_3px_rgba(14,28,47,0.08),0_4px_16px_rgba(14,28,47,0.06)]">
+          <Link key={s.label} href={s.href} className="group bg-white rounded-[14px] p-4 shadow-[0_1px_3px_rgba(14,28,47,0.08),0_4px_16px_rgba(14,28,47,0.06)] hover:shadow-[0_4px_16px_rgba(14,28,47,0.14)] hover:border hover:border-[#C8D0DE] transition-all block">
             <div className="flex items-center justify-between mb-3">
               <div className="w-9 h-9 rounded-lg flex items-center justify-center" style={{ background: s.bg }}>
                 <s.icon size={18} style={{ color: s.accent }} />
               </div>
+              <ArrowRight size={13} className="text-[#C8D0DE] opacity-0 group-hover:opacity-100 transition-opacity" />
             </div>
             <div className="text-[22px] font-bold text-[#0E1C2F]">{s.value}</div>
             <div className="text-[11px] text-[#7A8FA6] mt-0.5">{s.label}</div>
-          </div>
+          </Link>
         ))}
       </div>
 

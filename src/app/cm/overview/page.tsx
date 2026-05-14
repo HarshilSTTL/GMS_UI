@@ -5,14 +5,14 @@ import { KPIData } from '@/types';
 import Link from 'next/link';
 
 const CM_KPI: KPIData[] = [
-  { label: 'Total Open', value: '18,492', trend: '▲ 847 from last week', trendType: 'down', accentColor: '#3A8FE8' },
-  { label: 'Resolved This Month', value: '24,187', trend: '▲ 12% vs last month', trendType: 'up', accentColor: '#28C880' },
-  { label: 'State SLA %', value: '78%', trend: 'Target 85% · Gap −7%', trendType: 'warn', accentColor: '#F0A030' },
-  { label: 'Critical Open', value: '312', trend: '▲ 47 unresolved >3d', trendType: 'down', accentColor: '#E84040' },
-  { label: 'State CSAT', value: '3.6', trend: 'Target 4.0 · 9 depts below', trendType: 'warn', accentColor: '#C9A84C' },
-  { label: 'Auto-classify Rate', value: '91%', trend: '▲ 3% this quarter', trendType: 'up', accentColor: '#00B4B4' },
-  { label: 'Districts CSAT <3.5', value: '11', trend: 'Needs CM directive', trendType: 'down', accentColor: '#E84040' },
-  { label: 'L3 Escalations', value: '83', trend: '▲ 22 this week', trendType: 'down', accentColor: '#F0A030' },
+  { label: 'Total Open', value: '18,492', trend: '▲ 847 from last week', trendType: 'down', accentColor: '#3A8FE8', href: '/cm/districts' },
+  { label: 'Resolved This Month', value: '24,187', trend: '▲ 12% vs last month', trendType: 'up', accentColor: '#28C880', href: '/cm/departments' },
+  { label: 'State SLA %', value: '78%', trend: 'Target 85% · Gap −7%', trendType: 'warn', accentColor: '#F0A030', href: '/cm/departments' },
+  { label: 'Critical Open', value: '312', trend: '▲ 47 unresolved >3d', trendType: 'down', accentColor: '#E84040', href: '/cm/districts' },
+  { label: 'State CSAT', value: '3.6', trend: 'Target 4.0 · 9 depts below', trendType: 'warn', accentColor: '#C9A84C', href: '/cm/overview' },
+  { label: 'Auto-classify Rate', value: '91%', trend: '▲ 3% this quarter', trendType: 'up', accentColor: '#00B4B4', href: '/cm/trends' },
+  { label: 'Districts CSAT <3.5', value: '11', trend: 'Needs CM directive', trendType: 'down', accentColor: '#E84040', href: '/cm/districts' },
+  { label: 'L3 Escalations', value: '83', trend: '▲ 22 this week', trendType: 'down', accentColor: '#F0A030', href: '/cm/departments' },
 ];
 
 const DEPTS = [
