@@ -197,47 +197,132 @@ export default function SubmitGrievance() {
   }
 
   const toggleVoice = useCallback(() => {
-    if (listening) { recogRef.current?.stop(); setListening(false); return; }
-    const SpeechAPI = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
-    if (!SpeechAPI) {
-      setListening(true);
-      setTimeout(() => {
-        setForm(f => ({ ...f, description: f.description + (f.description ? ' ' : '') + 'Water supply has been disrupted for the past 3 days in our area.' }));
-        setListening(false);
-      }, 2000);
+    // Stop if already listening
+    if (listening) {
+      if (recogRef.current) recogRef.current._shouldRestart = false;
+      recogRef.current?.stop();
+      setListening(false);
       return;
     }
+
+    const SpeechAPI = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+    if (!SpeechAPI) {
+      toast.error('Voice input is not supported in this browser. Please use Chrome.');
+      return;
+    }
+
     const recog = new SpeechAPI();
-    recog.lang = 'gu-IN';
-    recog.continuous = false;
-    recog.interimResults = false;
+    recog.lang = 'gu-IN';           // Gujarati primary
+    recog.continuous = true;         // Keep listening until user stops
+    recog.interimResults = true;     // Show words as they are spoken
+
+    let finalTranscript = '';
+
     recog.onresult = (e: any) => {
-      const text = e.results[0][0].transcript;
-      setForm(f => ({ ...f, description: f.description + (f.description ? ' ' : '') + text }));
+      let interim = '';
+      for (let i = e.resultIndex; i < e.results.length; i++) {
+        const t = e.results[i][0].transcript;
+        if (e.results[i].isFinal) {
+          finalTranscript += t + ' ';
+        } else {
+          interim += t;
+        }
+      }
+      // Update field with final + interim text appended to existing description
+      setForm(f => ({
+        ...f,
+        description: (f.description + ' ' + finalTranscript + interim).trim(),
+      }));
     };
-    recog.onend = () => setListening(false);
-    recog.start();
+
+    recog.onerror = (e: any) => {
+      if (e.error === 'not-allowed') {
+        toast.error('Microphone permission denied. Please allow microphone access.');
+      } else if (e.error === 'no-speech') {
+        toast.error('No speech detected. Please try again.');
+      }
+      setListening(false);
+    };
+
+    recog.onend = () => {
+      // Auto-restart if still in listening mode (handles Chrome's 60s limit)
+      if (recogRef.current?._shouldRestart) {
+        try { recog.start(); } catch { setListening(false); }
+      } else {
+        setListening(false);
+      }
+    };
+
+    recog._shouldRestart = true;
     recogRef.current = recog;
+    recog.start();
     setListening(true);
+    toast.success('Listening... Speak in Gujarati or English');
   }, [listening]);
 
-  function detectLocation() {
+  async function detectLocation() {
     setDetecting(true);
+
     if (!navigator.geolocation) {
-      setForm(f => ({ ...f, district: 'Ahmedabad', taluka: 'Ahmedabad City', ward: 'Ward 3', specificLocation: 'Auto-detected location' }));
+      toast.error('GPS not supported in this browser.');
       setDetecting(false);
       return;
     }
+
     navigator.geolocation.getCurrentPosition(
-      () => {
-        setForm(f => ({ ...f, district: 'Ahmedabad', taluka: 'Ahmedabad City', ward: 'Ward 3', specificLocation: 'GPS detected location' }));
+      async (position) => {
+        const { latitude, longitude } = position.coords;
+        try {
+          // Use OpenStreetMap Nominatim — free, no API key needed
+          const res = await fetch(
+            `https://nominatim.openstreetmap.org/reverse?lat=${latitude}&lon=${longitude}&format=json&addressdetails=1`,
+            { headers: { 'Accept-Language': 'en' } }
+          );
+          const data = await res.json();
+          const addr = data.address || {};
+
+          // Extract location parts from Nominatim response
+          const district = addr.state_district || addr.county || addr.district || '';
+          const taluka   = addr.suburb || addr.town || addr.city_district || addr.village || '';
+          const ward     = addr.neighbourhood || addr.quarter || '';
+          const specific = [addr.road, addr.neighbourhood, addr.suburb].filter(Boolean).join(', ');
+
+          // Try to match district to our Gujarat districts list
+          const matched = GUJARAT_DISTRICTS.find(d =>
+            district.toLowerCase().includes(d.toLowerCase()) ||
+            d.toLowerCase().includes(district.toLowerCase())
+          ) || district;
+
+          setForm(f => ({
+            ...f,
+            district: matched || f.district,
+            taluka: taluka || f.taluka,
+            ward: ward || f.ward,
+            specificLocation: specific || `${latitude.toFixed(4)}, ${longitude.toFixed(4)}`,
+          }));
+
+          toast.success('Location detected successfully!');
+        } catch {
+          // Fallback: just fill coordinates if reverse geocoding fails
+          setForm(f => ({
+            ...f,
+            specificLocation: `GPS: ${latitude.toFixed(5)}, ${longitude.toFixed(5)}`,
+          }));
+          toast.success('GPS coordinates captured!');
+        }
         setDetecting(false);
-        toast.success('Location detected!');
       },
-      () => {
-        setForm(f => ({ ...f, district: 'Ahmedabad', taluka: 'Ahmedabad City', ward: 'Ward 3', specificLocation: 'Demo location (GPS denied)' }));
+      (err) => {
         setDetecting(false);
-      }
+        if (err.code === err.PERMISSION_DENIED) {
+          toast.error('Location permission denied. Please allow location access in your browser.');
+        } else if (err.code === err.POSITION_UNAVAILABLE) {
+          toast.error('Location unavailable. Please fill manually.');
+        } else {
+          toast.error('Could not detect location. Please fill manually.');
+        }
+      },
+      { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
     );
   }
 
