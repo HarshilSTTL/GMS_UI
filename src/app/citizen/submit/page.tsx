@@ -188,7 +188,14 @@ export default function SubmitGrievance() {
   const [listening, setListening] = useState(false);
   const [detecting, setDetecting] = useState(false);
   const [submitting, setSubmitting] = useState(false);
+  const [lang, setLang] = useState<'en-IN' | 'gu-IN' | 'hi-IN'>('en-IN');
   const recogRef = useRef<any>(null);
+
+  const LANGUAGES = [
+    { code: 'en-IN' as const, label: 'English',  flag: '🇬🇧' },
+    { code: 'gu-IN' as const, label: 'ગુજરાતી', flag: '🇮🇳' },
+    { code: 'hi-IN' as const, label: 'हिन्दी',   flag: '🇮🇳' },
+  ];
 
   function update(field: string, value: string) {
     if (field === 'district') { setForm(f => ({ ...f, district: value, taluka: '', ward: '' })); return; }
@@ -212,7 +219,7 @@ export default function SubmitGrievance() {
     }
 
     const recog = new SpeechAPI();
-    recog.lang = 'gu-IN';           // Gujarati primary
+    recog.lang = lang;               // Uses selected language
     recog.continuous = true;         // Keep listening until user stops
     recog.interimResults = true;     // Show words as they are spoken
 
@@ -257,8 +264,9 @@ export default function SubmitGrievance() {
     recogRef.current = recog;
     recog.start();
     setListening(true);
-    toast.success('Listening... Speak in Gujarati or English');
-  }, [listening]);
+    const langLabel = LANGUAGES.find(l => l.code === lang)?.label || 'English';
+    toast.success(`Listening... Speak in ${langLabel}`);
+  }, [listening, lang, LANGUAGES]);
 
   async function detectLocation() {
     setDetecting(true);
@@ -403,6 +411,22 @@ export default function SubmitGrievance() {
         <div>
           <h1 className="text-[16px] font-bold text-[#0E1C2F]">Submit Grievance</h1>
           <p className="text-[11px] text-[#7A8FA6]">ફરિયાદ નોંધો — File a complaint in 5 steps</p>
+        </div>
+
+        {/* Language Selector */}
+        <div className="ml-auto flex items-center gap-1.5 bg-white border border-[#DDE3EE] rounded-[10px] p-1">
+          {LANGUAGES.map(l => (
+            <button
+              key={l.code}
+              onClick={() => { if (listening) { if (recogRef.current) recogRef.current._shouldRestart = false; recogRef.current?.stop(); setListening(false); } setLang(l.code); }}
+              className="flex items-center gap-1 px-2.5 py-1 rounded-[8px] text-[11px] font-semibold transition-all"
+              style={lang === l.code
+                ? { background: '#F4811F', color: '#fff' }
+                : { color: '#7A8FA6' }}
+            >
+              {l.flag} {l.label}
+            </button>
+          ))}
         </div>
       </div>
 
