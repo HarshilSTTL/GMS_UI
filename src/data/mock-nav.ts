@@ -31,6 +31,7 @@ const OFFICER_NAV: NavSection[] = [
     id: 'account',
     label: 'Account',
     items: [
+      { id: 'profile', label: 'My Profile', icon: 'User', path: '/portal/profile' },
       { id: 'settings', label: 'Profile & Settings', icon: 'Settings', path: '/portal/settings' },
     ],
   },
@@ -58,6 +59,7 @@ const CLERK_NAV: NavSection[] = [
     id: 'account',
     label: 'Account',
     items: [
+      { id: 'profile', label: 'My Profile', icon: 'User', path: '/portal/profile' },
       { id: 'settings', label: 'Profile & Settings', icon: 'Settings', path: '/portal/settings' },
     ],
   },
@@ -98,6 +100,7 @@ const ADMIN_NAV: NavSection[] = [
     id: 'account',
     label: 'Account',
     items: [
+      { id: 'profile', label: 'My Profile', icon: 'User', path: '/admin/profile' },
       { id: 'settings', label: 'Profile & Settings', icon: 'Settings', path: '/admin/settings' },
     ],
   },
@@ -145,6 +148,7 @@ const CM_NAV: NavSection[] = [
     id: 'account',
     label: 'Account',
     items: [
+      { id: 'profile', label: 'My Profile', icon: 'User', path: '/cm/profile' },
       { id: 'settings', label: 'Profile & Settings', icon: 'Settings', path: '/cm/settings' },
     ],
   },
@@ -166,6 +170,7 @@ const SECRETARY_NAV: NavSection[] = [
     id: 'account',
     label: 'Account',
     items: [
+      { id: 'profile', label: 'My Profile', icon: 'User', path: '/secretary/profile' },
       { id: 'settings', label: 'Profile & Settings', icon: 'Settings', path: '/secretary/settings' },
     ],
   },
