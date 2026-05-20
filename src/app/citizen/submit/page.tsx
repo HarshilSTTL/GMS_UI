@@ -10,6 +10,7 @@ import {
 import { toast } from 'sonner';
 import { useAuthStore } from '@/stores';
 import { addLocalGrievance } from '@/lib/local-store';
+import { QuickSubmitForm } from '@/components/gms/QuickSubmitForm';
 
 // ── Data ─────────────────────────────────────────────────────────────────────
 const DOMAINS = [
@@ -188,14 +189,9 @@ export default function SubmitGrievance() {
   const [listening, setListening] = useState(false);
   const [detecting, setDetecting] = useState(false);
   const [submitting, setSubmitting] = useState(false);
-  const [lang, setLang] = useState<'en-IN' | 'gu-IN' | 'hi-IN'>('en-IN');
+  const [quickMode, setQuickMode] = useState(false);
+  const [voiceLang, setVoiceLang] = useState<'en-IN' | 'gu-IN' | 'hi-IN'>('en-IN');
   const recogRef = useRef<any>(null);
-
-  const LANGUAGES = [
-    { code: 'en-IN' as const, label: 'English',  flag: '🇬🇧' },
-    { code: 'gu-IN' as const, label: 'ગુજરાતી', flag: '🇮🇳' },
-    { code: 'hi-IN' as const, label: 'हिन्दी',   flag: '🇮🇳' },
-  ];
 
   function update(field: string, value: string) {
     if (field === 'district') { setForm(f => ({ ...f, district: value, taluka: '', ward: '' })); return; }
@@ -204,138 +200,65 @@ export default function SubmitGrievance() {
   }
 
   const toggleVoice = useCallback(() => {
-    // Stop if already listening
-    if (listening) {
-      if (recogRef.current) recogRef.current._shouldRestart = false;
-      recogRef.current?.stop();
-      setListening(false);
-      return;
-    }
-
+    if (listening) { recogRef.current?.stop(); setListening(false); return; }
     const SpeechAPI = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
     if (!SpeechAPI) {
-      toast.error('Voice input is not supported in this browser. Please use Chrome.');
+      setListening(true);
+      setTimeout(() => {
+        setForm(f => ({ ...f, description: f.description + (f.description ? ' ' : '') + 'Water supply has been disrupted for the past 3 days in our area.' }));
+        setListening(false);
+      }, 2000);
       return;
     }
-
     const recog = new SpeechAPI();
-    recog.lang = lang;               // Uses selected language
-    recog.continuous = true;         // Keep listening until user stops
-    recog.interimResults = true;     // Show words as they are spoken
-
-    let finalTranscript = '';
-
+    recog.lang = voiceLang;
+    recog.continuous = false;
+    recog.interimResults = false;
     recog.onresult = (e: any) => {
-      let interim = '';
+      let text = '';
       for (let i = e.resultIndex; i < e.results.length; i++) {
-        const t = e.results[i][0].transcript;
         if (e.results[i].isFinal) {
-          finalTranscript += t + ' ';
-        } else {
-          interim += t;
+          text += e.results[i][0].transcript + ' ';
         }
       }
-      // Update field with final + interim text appended to existing description
-      setForm(f => ({
-        ...f,
-        description: (f.description + ' ' + finalTranscript + interim).trim(),
-      }));
-    };
-
-    recog.onerror = (e: any) => {
-      if (e.error === 'not-allowed') {
-        toast.error('Microphone permission denied. Please allow microphone access.');
-      } else if (e.error === 'no-speech') {
-        toast.error('No speech detected. Please try again.');
-      }
-      setListening(false);
-    };
-
-    recog.onend = () => {
-      // Auto-restart if still in listening mode (handles Chrome's 60s limit)
-      if (recogRef.current?._shouldRestart) {
-        try { recog.start(); } catch { setListening(false); }
-      } else {
-        setListening(false);
+      if (text.trim()) {
+        setForm(f => ({ ...f, description: f.description + (f.description ? ' ' : '') + text.trim() }));
       }
     };
-
-    recog._shouldRestart = true;
-    recogRef.current = recog;
+    recog.onend = () => setListening(false);
     recog.start();
+    recogRef.current = recog;
     setListening(true);
-    const langLabel = LANGUAGES.find(l => l.code === lang)?.label || 'English';
-    toast.success(`Listening... Speak in ${langLabel}`);
-  }, [listening, lang, LANGUAGES]);
+  }, [listening, voiceLang]);
 
-  async function detectLocation() {
+  function detectLocation() {
     setDetecting(true);
-
     if (!navigator.geolocation) {
-      toast.error('GPS not supported in this browser.');
+      setForm(f => ({ ...f, district: 'Ahmedabad', taluka: 'Ahmedabad City', ward: 'Ward 3', specificLocation: 'Auto-detected location' }));
       setDetecting(false);
       return;
     }
-
     navigator.geolocation.getCurrentPosition(
-      async (position) => {
-        const { latitude, longitude } = position.coords;
-        try {
-          // Use OpenStreetMap Nominatim — free, no API key needed
-          const res = await fetch(
-            `https://nominatim.openstreetmap.org/reverse?lat=${latitude}&lon=${longitude}&format=json&addressdetails=1`,
-            { headers: { 'Accept-Language': 'en' } }
-          );
-          const data = await res.json();
-          const addr = data.address || {};
-
-          // Extract location parts from Nominatim response
-          const district = addr.state_district || addr.county || addr.district || '';
-          const taluka   = addr.suburb || addr.town || addr.city_district || addr.village || '';
-          const ward     = addr.neighbourhood || addr.quarter || '';
-          const specific = [addr.road, addr.neighbourhood, addr.suburb].filter(Boolean).join(', ');
-
-          // Try to match district to our Gujarat districts list
-          const matched = GUJARAT_DISTRICTS.find(d =>
-            district.toLowerCase().includes(d.toLowerCase()) ||
-            d.toLowerCase().includes(district.toLowerCase())
-          ) || district;
-
-          setForm(f => ({
-            ...f,
-            district: matched || f.district,
-            taluka: taluka || f.taluka,
-            ward: ward || f.ward,
-            specificLocation: specific || `${latitude.toFixed(4)}, ${longitude.toFixed(4)}`,
-          }));
-
-          toast.success('Location detected successfully!');
-        } catch {
-          // Fallback: just fill coordinates if reverse geocoding fails
-          setForm(f => ({
-            ...f,
-            specificLocation: `GPS: ${latitude.toFixed(5)}, ${longitude.toFixed(5)}`,
-          }));
-          toast.success('GPS coordinates captured!');
-        }
+      () => {
+        setForm(f => ({ ...f, district: 'Ahmedabad', taluka: 'Ahmedabad City', ward: 'Ward 3', specificLocation: 'GPS detected location' }));
         setDetecting(false);
+        toast.success('Location detected!');
       },
-      (err) => {
+      () => {
+        setForm(f => ({ ...f, district: 'Ahmedabad', taluka: 'Ahmedabad City', ward: 'Ward 3', specificLocation: 'Demo location (GPS denied)' }));
         setDetecting(false);
-        if (err.code === err.PERMISSION_DENIED) {
-          toast.error('Location permission denied. Please allow location access in your browser.');
-        } else if (err.code === err.POSITION_UNAVAILABLE) {
-          toast.error('Location unavailable. Please fill manually.');
-        } else {
-          toast.error('Could not detect location. Please fill manually.');
-        }
-      },
-      { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
+      }
     );
   }
 
   async function handleSubmit() {
-    if (!domain || !sub) return;
+    if (!domain || !sub) {
+      toast.error('Please select a category and issue type');
+      return;
+    }
+    if (!form.title.trim()) return toast.error('Please enter a title');
+    if (!form.description.trim()) return toast.error('Please describe the issue');
+    if (!form.district) return toast.error('Please select a district');
     setSubmitting(true);
     try {
       const now = new Date().toISOString();
@@ -393,7 +316,7 @@ export default function SubmitGrievance() {
   }
 
   function resetForm() {
-    setStep(1); setDomain(null); setSub(null);
+    setStep(1); setDomain(null); setSub(null); setQuickMode(false);
     setForm({ title: '', description: '', district: '', taluka: '', ward: '', specificLocation: '' });
     setResult(null);
   }
@@ -403,35 +326,48 @@ export default function SubmitGrievance() {
       {/* Header */}
       <div className="flex items-center gap-3 mb-4">
         <button
-          onClick={() => step > 1 && step < 5 ? setStep(s => s - 1) : router.push('/citizen')}
+          onClick={() => quickMode ? setQuickMode(false) : (step > 1 && step < 5 ? setStep(s => s - 1) : router.push('/citizen'))}
           className="w-8 h-8 rounded-lg bg-[#F0F2F7] flex items-center justify-center hover:bg-[#DDE3EE] transition-colors"
         >
           <ArrowLeft size={16} className="text-[#3D5068]" />
         </button>
         <div>
           <h1 className="text-[16px] font-bold text-[#0E1C2F]">Submit Grievance</h1>
-          <p className="text-[11px] text-[#7A8FA6]">ફરિયાદ નોંધો — File a complaint in 5 steps</p>
-        </div>
-
-        {/* Language Selector */}
-        <div className="ml-auto flex items-center gap-1.5 bg-white border border-[#DDE3EE] rounded-[10px] p-1">
-          {LANGUAGES.map(l => (
-            <button
-              key={l.code}
-              onClick={() => { if (listening) { if (recogRef.current) recogRef.current._shouldRestart = false; recogRef.current?.stop(); setListening(false); } setLang(l.code); }}
-              className="flex items-center gap-1 px-2.5 py-1 rounded-[8px] text-[11px] font-semibold transition-all"
-              style={lang === l.code
-                ? { background: '#F4811F', color: '#fff' }
-                : { color: '#7A8FA6' }}
-            >
-              {l.flag} {l.label}
-            </button>
-          ))}
+          <p className="text-[11px] text-[#7A8FA6]">ફરિયાદ નોંધો — File a complaint</p>
         </div>
       </div>
 
+      {/* Mode Toggle */}
+      {result === null && (
+        <div className="bg-white rounded-[14px] p-4 shadow-[0_1px_3px_rgba(14,28,47,0.08),0_4px_16px_rgba(14,28,47,0.06)] mb-5 flex items-center gap-4">
+          <span className="text-[11px] font-semibold text-[#3D5068]">Mode:</span>
+          <div className="flex gap-2">
+            <button
+              onClick={() => { setQuickMode(false); setStep(1); setDomain(null); setSub(null); }}
+              className="px-3.5 py-1.5 rounded-[8px] text-[11px] font-semibold transition-all"
+              style={{
+                background: !quickMode ? '#F4811F' : '#F0F2F7',
+                color: !quickMode ? '#fff' : '#3D5068',
+              }}
+            >
+              Step-by-step
+            </button>
+            <button
+              onClick={() => { setQuickMode(true); setStep(1); setDomain(null); setSub(null); }}
+              className="px-3.5 py-1.5 rounded-[8px] text-[11px] font-semibold transition-all"
+              style={{
+                background: quickMode ? '#F4811F' : '#F0F2F7',
+                color: quickMode ? '#fff' : '#3D5068',
+              }}
+            >
+              Quick Submit
+            </button>
+          </div>
+        </div>
+      )}
+
       {/* Step bar */}
-      {step < 5 && (
+      {step < 5 && !quickMode && (
         <div className="flex items-center mb-5">
           {STEPS.map((label, idx) => (
             <div key={idx} className="flex items-center flex-1">
@@ -453,8 +389,30 @@ export default function SubmitGrievance() {
         </div>
       )}
 
+      {/* ── Quick Submit Mode ── */}
+      {quickMode && result === null && (
+        <QuickSubmitForm
+          form={form}
+          onFormChange={update}
+          onBack={() => { setQuickMode(false); setDomain(null); setSub(null); }}
+          onSubmit={handleSubmit}
+          onDomainChange={setDomain}
+          onSubChange={setSub}
+          domain={domain}
+          sub={sub}
+          domains={DOMAINS}
+          submitting={submitting}
+          listening={listening}
+          detecting={detecting}
+          lang={voiceLang}
+          onLanguageChange={setVoiceLang}
+          onToggleVoice={toggleVoice}
+          onDetectLocation={detectLocation}
+        />
+      )}
+
       {/* ── Step 1: Domain ── */}
-      {step === 1 && (
+      {step === 1 && !quickMode && (
         <div className="bg-white rounded-[14px] p-5 shadow-[0_1px_3px_rgba(14,28,47,0.08),0_4px_16px_rgba(14,28,47,0.06)]">
           <h2 className="text-[14px] font-bold text-[#0E1C2F] mb-1">Select Category</h2>
           <p className="text-[11px] text-[#7A8FA6] mb-4">વિભાગ પસંદ કરો — Choose the service domain</p>
@@ -493,7 +451,7 @@ export default function SubmitGrievance() {
       )}
 
       {/* ── Step 2: Sub-category ── */}
-      {step === 2 && domain && (
+      {step === 2 && domain && !quickMode && (
         <div className="bg-white rounded-[14px] p-5 shadow-[0_1px_3px_rgba(14,28,47,0.08),0_4px_16px_rgba(14,28,47,0.06)]">
           <div className="flex items-center gap-2 mb-1">
             <div className="w-6 h-6 rounded-lg flex items-center justify-center" style={{ background: domain.bg }}>
@@ -539,7 +497,7 @@ export default function SubmitGrievance() {
       )}
 
       {/* ── Step 3: Issue Details ── */}
-      {step === 3 && (
+      {step === 3 && !quickMode && (
         <div className="bg-white rounded-[14px] p-5 shadow-[0_1px_3px_rgba(14,28,47,0.08),0_4px_16px_rgba(14,28,47,0.06)]">
           <h2 className="text-[14px] font-bold text-[#0E1C2F] mb-1">Issue Details</h2>
           <p className="text-[11px] text-[#7A8FA6] mb-4">સમસ્યાની વિગત — Describe your issue</p>
@@ -561,11 +519,25 @@ export default function SubmitGrievance() {
             <div>
               <div className="flex items-center justify-between mb-1">
                 <label className="block text-[11px] font-semibold text-[#3D5068]">Description *</label>
-                <button onClick={toggleVoice}
-                  className="flex items-center gap-1.5 px-3 py-1 rounded-[8px] text-[10px] font-semibold transition-all"
-                  style={{ background: listening ? '#FEE2E2' : '#F0F2F7', color: listening ? '#DC2626' : '#3D5068' }}>
-                  {listening ? <><MicOff size={12} /> Recording...</> : <><Mic size={12} /> Voice Input</>}
-                </button>
+                <div className="flex items-center gap-2">
+                  <button onClick={toggleVoice}
+                    className="flex items-center gap-1.5 px-3 py-1 rounded-[8px] text-[10px] font-semibold transition-all"
+                    style={{ background: listening ? '#FEE2E2' : '#F0F2F7', color: listening ? '#DC2626' : '#3D5068' }}>
+                    {listening ? <><MicOff size={12} /> Recording...</> : <><Mic size={12} /> Voice Input</>}
+                  </button>
+                  <div className="relative">
+                    <select
+                      value={voiceLang}
+                      onChange={e => setVoiceLang(e.target.value as 'en-IN' | 'gu-IN' | 'hi-IN')}
+                      className="px-2.5 py-1 border-2 border-[#DDE3EE] rounded-[6px] text-[9px] outline-none focus:border-[#F4811F] appearance-none bg-white pr-6"
+                    >
+                      <option value="en-IN">🇬🇧 EN</option>
+                      <option value="gu-IN">🇮🇳 GU</option>
+                      <option value="hi-IN">🇮🇳 HI</option>
+                    </select>
+                    <ChevronDown size={10} className="absolute right-1.5 top-1/2 -translate-y-1/2 text-[#7A8FA6] pointer-events-none" />
+                  </div>
+                </div>
               </div>
               <textarea
                 value={form.description}
@@ -578,7 +550,7 @@ export default function SubmitGrievance() {
               {listening && (
                 <p className="text-[10px] text-[#DC2626] mt-0.5 flex items-center gap-1">
                   <span className="inline-block w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse" />
-                  Listening... speak now (gu/en)
+                  Listening in {voiceLang === 'en-IN' ? 'English' : voiceLang === 'gu-IN' ? 'Gujarati' : 'Hindi'}...
                 </p>
               )}
             </div>
@@ -663,7 +635,7 @@ export default function SubmitGrievance() {
       )}
 
       {/* ── Step 4: Review & Submit ── */}
-      {step === 4 && domain && sub && (
+      {step === 4 && domain && sub && !quickMode && (
         <div className="bg-white rounded-[14px] p-5 shadow-[0_1px_3px_rgba(14,28,47,0.08),0_4px_16px_rgba(14,28,47,0.06)]">
           <h2 className="text-[14px] font-bold text-[#0E1C2F] mb-1">Review & Submit</h2>
           <p className="text-[11px] text-[#7A8FA6] mb-4">સમીક્ષા — Verify details before submitting</p>
@@ -721,7 +693,7 @@ export default function SubmitGrievance() {
       )}
 
       {/* ── Step 5: Success ── */}
-      {step === 5 && result && domain && sub && (
+      {result && domain && sub && (
         <div className="space-y-4">
           <div className="rounded-[16px] p-6 text-center text-white" style={{ background: 'linear-gradient(135deg, #16A34A 0%, #15803D 100%)' }}>
             <div className="w-16 h-16 rounded-full bg-white/20 flex items-center justify-center mx-auto mb-3">

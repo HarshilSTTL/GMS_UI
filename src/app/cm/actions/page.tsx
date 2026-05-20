@@ -2,6 +2,7 @@
 import React, { useState } from 'react';
 import { Zap } from 'lucide-react';
 import { toast } from 'sonner';
+import { DirectiveModal } from '@/components/cm/DirectiveModal';
 
 type ActionType = 'all' | 'critical' | 'sla' | 'csat';
 
@@ -81,12 +82,23 @@ const TAB_LABELS: { key: ActionType; label: string }[] = [
 export default function CMActionsPage() {
   const [tab, setTab] = useState<ActionType>('all');
   const [taken, setTaken] = useState<string[]>([]);
+  const [modalOpen, setModalOpen] = useState(false);
+  const [selectedAction, setSelectedAction] = useState<typeof ACTIONS[0] | null>(null);
 
   const visible = tab === 'all' ? ACTIONS : ACTIONS.filter(a => a.type === tab);
 
-  function handleDirective(id: string) {
-    setTaken(prev => [...prev, id]);
-    toast.success('CM Directive drafted and dispatched');
+  function openDirectiveModal(action: typeof ACTIONS[0]) {
+    setSelectedAction(action);
+    setModalOpen(true);
+  }
+
+  function handleDispatchDirective(editedContent: string) {
+    if (selectedAction) {
+      setTaken(prev => [...prev, selectedAction.id]);
+      toast.success('CM Directive drafted and dispatched');
+      setModalOpen(false);
+      setSelectedAction(null);
+    }
   }
 
   return (
@@ -156,7 +168,7 @@ export default function CMActionsPage() {
                     {isDone ? (
                       <span className="text-[11px] font-semibold text-green-600 bg-green-50 px-3 py-1.5 rounded-lg border border-green-200">✓ Directive issued</span>
                     ) : (
-                      <button onClick={() => handleDirective(action.id)}
+                      <button onClick={() => openDirectiveModal(action)}
                         className="text-[11px] font-semibold text-blue-600 hover:underline">
                         Draft CM Directive →
                       </button>
@@ -168,6 +180,17 @@ export default function CMActionsPage() {
           );
         })}
       </div>
+
+      <DirectiveModal
+        isOpen={modalOpen}
+        title={selectedAction?.title || ''}
+        content={selectedAction?.directive || ''}
+        onClose={() => {
+          setModalOpen(false);
+          setSelectedAction(null);
+        }}
+        onDispatch={handleDispatchDirective}
+      />
     </div>
   );
 }
