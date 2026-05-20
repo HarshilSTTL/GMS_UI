@@ -241,43 +241,8 @@ export default function LoginPage() {
             </div>
           </div>
 
-          {/* Demo Feature Previews */}
-          <div className="mt-5">
-            <div className="flex items-center gap-2 mb-3">
-              <div className="flex-1 h-px bg-[#E2E8F0]" />
-              <span className="text-[10px] font-semibold text-[#B0BBD0] uppercase tracking-wider">Live Feature Demos</span>
-              <div className="flex-1 h-px bg-[#E2E8F0]" />
-            </div>
-            <div className="grid grid-cols-2 gap-2.5">
-              <button
-                onClick={() => window.open('/api/static?file=Swagat%203.0%20Mobile%20-%20Merged%20(2).html', '_blank')}
-                className="group flex items-center gap-3 bg-white rounded-xl px-3.5 py-3 text-left border border-[#E2E8F0] hover:border-blue-300 hover:shadow-md transition-all duration-200"
-              >
-                <div className="w-9 h-9 rounded-xl flex items-center justify-center text-[18px] flex-shrink-0 shadow-sm bg-blue-50 border border-blue-100">
-                  📱
-                </div>
-                <div className="min-w-0">
-                  <p className="text-[11px] font-bold text-blue-600 leading-none mb-0.5">Swagat 3.0</p>
-                  <p className="text-[9.5px] text-[#7A8FA6] leading-tight">Mobile citizen app</p>
-                </div>
-              </button>
-              <button
-                onClick={() => window.open('/api/static?file=CitizenVoice_WhatsApp_v1.html', '_blank')}
-                className="group flex items-center gap-3 bg-white rounded-xl px-3.5 py-3 text-left border border-[#E2E8F0] hover:border-green-300 hover:shadow-md transition-all duration-200"
-              >
-                <div className="w-9 h-9 rounded-xl flex items-center justify-center text-[18px] flex-shrink-0 shadow-sm bg-green-50 border border-green-100">
-                  💬
-                </div>
-                <div className="min-w-0">
-                  <p className="text-[11px] font-bold text-green-600 leading-none mb-0.5">CitizenVoice</p>
-                  <p className="text-[9.5px] text-[#7A8FA6] leading-tight">WhatsApp grievance bot</p>
-                </div>
-              </button>
-            </div>
-          </div>
-
           {/* Footer Links */}
-          <div className="mt-5 flex items-center justify-center gap-4 text-[11px]">
+          <div className="mt-6 flex items-center justify-center gap-4 text-[11px]">
             <Link href="/citizen-login" className="text-[#7A8FA6] hover:text-[#0E1C2F] font-medium transition-colors">
               Citizen? Login here
             </Link>

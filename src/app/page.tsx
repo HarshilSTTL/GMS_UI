@@ -56,14 +56,31 @@ export default function RootPage() {
             <a href="#" className="text-[12px] font-medium text-[#0E1C2F]">Home</a>
             <a href="#about" className="text-[12px] font-medium text-[#7A8FA6] hover:text-[#0E1C2F] transition-colors">About</a>
             <a href="#services" className="text-[12px] font-medium text-[#7A8FA6] hover:text-[#0E1C2F] transition-colors">Services</a>
-            <a href="#track" className="text-[12px] font-medium text-[#7A8FA6] hover:text-[#0E1C2F] transition-colors">Track Complaint</a>
+            <a href="#track" className="text-[12px] font-medium text-[#7A8FA6] hover:text-[#0E1C2F] transition-colors">Track</a>
           </div>
           <div className="flex items-center gap-2">
+            {/* WhatsApp Integration Demo */}
+            <Link
+              href="/citizen-voice"
+              className="hidden sm:inline-flex items-center gap-1.5 text-[11px] font-semibold px-3 py-1.5 rounded-lg transition-all border"
+              style={{ background: '#25D36615', borderColor: '#25D36640', color: '#128C7E' }}
+              onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = '#25D36625'; }}
+              onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = '#25D36615'; }}
+            >
+              <span className="text-[13px]">💬</span> WhatsApp Bot
+            </Link>
+            {/* Mobile App Demo */}
+            <Link
+              href="/swagat"
+              className="hidden sm:inline-flex items-center gap-1.5 text-[11px] font-semibold px-3 py-1.5 rounded-lg transition-all border"
+              style={{ background: '#1A56C415', borderColor: '#1A56C440', color: '#1A56C4' }}
+              onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = '#1A56C425'; }}
+              onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = '#1A56C415'; }}
+            >
+              <span className="text-[13px]">📱</span> Mobile App
+            </Link>
             <Link href="/login" className="text-[12px] font-semibold text-[#3D5068] hover:text-[#0E1C2F] px-3 py-1.5 rounded-lg hover:bg-[#F0F2F7] transition-colors">
               Officer Login
-            </Link>
-            <Link href="/citizen-register" className="hidden sm:inline-flex text-[12px] font-semibold text-[#F4811F] border border-[#F4811F] px-3 py-1.5 rounded-lg hover:bg-[#FFF5EE] transition-colors">
-              Register
             </Link>
             <Link href="/citizen-login" className="text-[12px] font-semibold text-white bg-[#F4811F] hover:bg-[#E0721A] px-4 py-1.5 rounded-lg transition-colors">
               Citizen Login
@@ -366,26 +383,22 @@ export default function RootPage() {
               </div>
             </div>
           </div>
-          {/* Reference Materials */}
+          {/* Demo Features */}
           <div className="border-t border-white/10 pt-6 mb-6">
-            <h4 className="text-[11px] font-bold text-white uppercase tracking-wider mb-4">Reference Materials</h4>
+            <h4 className="text-[11px] font-bold text-white uppercase tracking-wider mb-4">Live Demos</h4>
             <div className="flex flex-wrap gap-4">
-              <a
-                href="/Swagat 3.0 Mobile - Merged (2).html"
-                target="_blank"
-                rel="noopener noreferrer"
+              <Link
+                href="/swagat"
                 className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-white/10 hover:bg-white/20 text-blue-200 hover:text-white text-[11px] font-medium transition-colors border border-white/10"
               >
-                📱 Swagat 3.0 Mobile
-              </a>
-              <a
-                href="/CitizenVoice_WhatsApp_v1.html"
-                target="_blank"
-                rel="noopener noreferrer"
+                📱 Swagat 3.0 Mobile App
+              </Link>
+              <Link
+                href="/citizen-voice"
                 className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-white/10 hover:bg-white/20 text-blue-200 hover:text-white text-[11px] font-medium transition-colors border border-white/10"
               >
-                💬 CitizenVoice WhatsApp
-              </a>
+                💬 CitizenVoice WhatsApp Bot
+              </Link>
             </div>
           </div>
           {/* Bottom bar */}
