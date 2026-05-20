@@ -27,6 +27,13 @@ const OFFICER_NAV: NavSection[] = [
       { id: 'sla_reports', label: 'SLA Reports', icon: 'BarChart2', path: '/portal/reports' },
     ],
   },
+  {
+    id: 'account',
+    label: 'Account',
+    items: [
+      { id: 'settings', label: 'Profile & Settings', icon: 'Settings', path: '/portal/settings' },
+    ],
+  },
 ];
 
 const CLERK_NAV: NavSection[] = [
@@ -45,6 +52,13 @@ const CLERK_NAV: NavSection[] = [
     label: 'Reports',
     items: [
       { id: 'sla_reports', label: 'SLA Reports', icon: 'BarChart2', path: '/portal/reports' },
+    ],
+  },
+  {
+    id: 'account',
+    label: 'Account',
+    items: [
+      { id: 'settings', label: 'Profile & Settings', icon: 'Settings', path: '/portal/settings' },
     ],
   },
 ];
@@ -78,6 +92,13 @@ const ADMIN_NAV: NavSection[] = [
       { id: 'ai', label: 'AI Configuration', icon: 'Zap', path: '/admin/ai-config' },
       { id: 'master', label: 'Master Data', icon: 'Globe2', path: '/admin/master' },
       { id: 'audit', label: 'Audit Logs', icon: 'ScrollText', path: '/admin/audit' },
+    ],
+  },
+  {
+    id: 'account',
+    label: 'Account',
+    items: [
+      { id: 'settings', label: 'Profile & Settings', icon: 'Settings', path: '/admin/settings' },
     ],
   },
 ];
@@ -120,6 +141,13 @@ const CM_NAV: NavSection[] = [
       { id: 'breached', label: 'SLA Breached', icon: 'AlertTriangle', path: '/cm/breached' },
     ],
   },
+  {
+    id: 'account',
+    label: 'Account',
+    items: [
+      { id: 'settings', label: 'Profile & Settings', icon: 'Settings', path: '/cm/settings' },
+    ],
+  },
 ];
 
 const SECRETARY_NAV: NavSection[] = [
@@ -132,6 +160,13 @@ const SECRETARY_NAV: NavSection[] = [
       { id: 'sop', label: 'SOP Performance', icon: 'FileText', path: '/secretary/sop' },
       { id: 'trends', label: 'Trends & Patterns', icon: 'TrendingUp', path: '/secretary/trends' },
       { id: 'escalation', label: 'Escalation Radar', icon: 'AlertTriangle', path: '/secretary/escalation', badge: 15, badgeVariant: 'red' },
+    ],
+  },
+  {
+    id: 'account',
+    label: 'Account',
+    items: [
+      { id: 'settings', label: 'Profile & Settings', icon: 'Settings', path: '/secretary/settings' },
     ],
   },
 ];

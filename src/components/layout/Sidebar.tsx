@@ -82,7 +82,15 @@ function NavItemRow({ item, collapsed }: { item: NavItem; collapsed: boolean }) 
 export function Sidebar() {
   const { user, logout } = useAuthStore();
   const { sidebarCollapsed, toggleSidebarCollapsed, sidebarMobileOpen, setSidebarMobileOpen } = useUIStore();
-  const settingsPath = user?.role === 'citizen' ? '/citizen/profile' : '/portal/settings';
+  const SETTINGS_PATHS: Record<string, string> = {
+    citizen: '/citizen/profile',
+    nodal_officer: '/portal/settings',
+    clerk: '/portal/settings',
+    admin: '/admin/settings',
+    cm: '/cm/settings',
+    health_secretary: '/secretary/settings',
+  };
+  const settingsPath = SETTINGS_PATHS[user?.role ?? ''] ?? '/portal/settings';
 
   if (!user) return null;
 
