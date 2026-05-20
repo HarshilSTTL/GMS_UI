@@ -109,86 +109,68 @@ export default function ComplaintDetailPage() {
   const [remark, setRemark] = useState('');
   const [notifyVia, setNotifyVia] = useState('SMS + Email');
   const [newStatus, setNewStatus] = useState('');
-  const [isAcknowledged, setIsAcknowledged] = useState(false);
+  const [acting, setActing] = useState(false);
 
   const user = JSON.parse(localStorage.getItem('gms-auth') || '{}')?.state?.user;
+
+  async function patchAction(action: string, extra: Record<string, any> = {}) {
+    setActing(true);
+    try {
+      const res = await fetch(`/api/grievances/${id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action, actorId: user?.id, ...extra }),
+      });
+      const d = await res.json();
+      if (!res.ok || !d.data) throw new Error(d.error || 'Action failed');
+      setComplaint(d.data);
+      return d.data;
+    } finally {
+      setActing(false);
+    }
+  }
 
   async function handleSendUpdate() {
     if (!remark.trim()) { toast.error('Please enter an update message.'); return; }
     try {
-      const res = await fetch(`/api/grievances/${id}`, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ action: 'send_update', actorId: user?.id, message: remark })
-      });
-      const d = await res.json();
-      if (d.data) {
-        setComplaint(d.data);
-        toast.success(`✉️ Update sent to citizen via ${notifyVia}`);
-      } else {
-        toast.error(d.error || 'Failed to send update');
-      }
-    } catch (error) {
-      toast.error('Failed to send update');
+      await patchAction('send_update', { message: remark });
+      toast.success('Update sent to citizen', { description: `Notified via ${notifyVia}` });
+      setRemark('');
+    } catch (e: any) {
+      toast.error('Failed to send update', { description: e.message });
     }
-    setRemark('');
   }
 
   async function handleResolve() {
     try {
-      const res = await fetch(`/api/grievances/${id}`, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ action: 'resolve', actorId: user?.id })
+      await patchAction('resolve');
+      toast.success('Grievance resolved successfully', {
+        description: 'Status changed to Resolved · Survey link sent to citizen',
       });
-      const d = await res.json();
-      if (d.data) {
-        setComplaint(d.data);
-        toast.success(`✅ Grievance resolved successfully\nSurvey link sent to citizen`);
-      } else {
-        toast.error(d.error || 'Failed to resolve grievance');
-      }
-    } catch (error) {
-      toast.error('Failed to resolve grievance');
+    } catch (e: any) {
+      toast.error('Could not resolve grievance', { description: e.message });
     }
   }
 
   async function handleEscalate() {
     try {
-      const res = await fetch(`/api/grievances/${id}`, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ action: 'escalate', actorId: user?.id })
+      await patchAction('escalate');
+      toast.warning('Grievance escalated', {
+        description: 'Status changed to Escalated · Supervisor notified',
       });
-      const d = await res.json();
-      if (d.data) {
-        setComplaint(d.data);
-        toast.warning(`⚠️ Grievance escalated to senior management\nCitizen notified of escalation`);
-      } else {
-        toast.error(d.error || 'Failed to escalate grievance');
-      }
-    } catch (error) {
-      toast.error('Failed to escalate grievance');
+    } catch (e: any) {
+      toast.error('Could not escalate grievance', { description: e.message });
     }
   }
 
   async function handleAcknowledge() {
     try {
-      const res = await fetch(`/api/grievances/${id}`, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ action: 'acknowledge', actorId: user?.id })
+      await patchAction('acknowledge');
+      toast.success('Grievance acknowledged', {
+        description: 'Status changed to Acknowledged · Citizen notified via SMS',
       });
-      const d = await res.json();
-      if (d.data) {
-        setComplaint(d.data);
-        setIsAcknowledged(true);
-        toast.success(`👁️ Grievance acknowledged\nCitizen notified via SMS`);
-      } else {
-        toast.error(d.error || 'Failed to acknowledge grievance');
-      }
-    } catch (error) {
-      toast.error('Failed to acknowledge grievance');
+    } catch (e: any) {
+      toast.error('Could not acknowledge grievance', { description: e.message });
     }
   }
 
@@ -219,7 +201,7 @@ export default function ComplaintDetailPage() {
                   🔗 Grouped
                 </span>
               )}
-              {isAcknowledged && (
+              {complaint.status === 'acknowledged' && (
                 <span className="text-[10px] font-semibold text-yellow-800 bg-yellow-100 px-2 py-0.5 rounded-full">
                   ✋ Acknowledged
                 </span>
@@ -234,26 +216,60 @@ export default function ComplaintDetailPage() {
           </div>
           {/* Action buttons */}
           <div className="flex gap-2 flex-wrap flex-shrink-0">
-            {!isAcknowledged && (
-              <button onClick={handleAcknowledge} className="flex items-center gap-1.5 px-3 py-1.5 bg-amber-50 border border-amber-300 text-amber-800 text-[12px] font-semibold rounded-lg hover:bg-amber-100 transition-colors">
+            {!['acknowledged', 'in_progress', 'under_review', 'escalated', 'resolved', 'closed'].includes(complaint.status) && (
+              <button onClick={handleAcknowledge} disabled={acting} className="flex items-center gap-1.5 px-3 py-1.5 bg-amber-50 border border-amber-300 text-amber-800 text-[12px] font-semibold rounded-lg hover:bg-amber-100 transition-colors disabled:opacity-50">
                 ✋ Acknowledge
               </button>
             )}
-            <button onClick={handleReassign} className="flex items-center gap-1.5 px-3 py-1.5 bg-orange-500 text-white text-[12px] font-semibold rounded-lg hover:bg-orange-600 transition-colors">
+            <button onClick={handleReassign} disabled={acting} className="flex items-center gap-1.5 px-3 py-1.5 bg-orange-500 text-white text-[12px] font-semibold rounded-lg hover:bg-orange-600 transition-colors disabled:opacity-50">
               <RotateCcw size={13} /> Reassign
             </button>
             <button onClick={() => router.push('/portal/grouped')} className="flex items-center gap-1.5 px-3 py-1.5 bg-purple-600 text-white text-[12px] font-semibold rounded-lg hover:bg-purple-700 transition-colors">
               <Link2 size={13} /> Group
             </button>
-            <button onClick={handleEscalate} className="flex items-center gap-1.5 px-3 py-1.5 bg-white border border-[#DDE3EE] text-[#3D5068] text-[12px] font-semibold rounded-lg hover:border-red-300 hover:text-red-600 transition-colors">
-              <AlertTriangle size={13} /> Escalate
-            </button>
-            <button onClick={handleResolve} className="flex items-center gap-1.5 px-3 py-1.5 bg-green-600 text-white text-[12px] font-semibold rounded-lg hover:bg-green-700 transition-colors">
-              <CheckCircle size={13} /> Resolve
-            </button>
+            {complaint.status !== 'resolved' && complaint.status !== 'closed' && complaint.status !== 'escalated' && (
+              <button onClick={handleEscalate} disabled={acting} className="flex items-center gap-1.5 px-3 py-1.5 bg-white border border-[#DDE3EE] text-[#3D5068] text-[12px] font-semibold rounded-lg hover:border-red-300 hover:text-red-600 transition-colors disabled:opacity-50">
+                <AlertTriangle size={13} /> Escalate
+              </button>
+            )}
+            {complaint.status !== 'resolved' && complaint.status !== 'closed' && (
+              <button onClick={handleResolve} disabled={acting} className="flex items-center gap-1.5 px-3 py-1.5 bg-green-600 text-white text-[12px] font-semibold rounded-lg hover:bg-green-700 transition-colors disabled:opacity-50">
+                <CheckCircle size={13} /> {acting ? 'Resolving…' : 'Resolve'}
+              </button>
+            )}
+            {complaint.status === 'resolved' && (
+              <span className="flex items-center gap-1.5 px-3 py-1.5 bg-green-50 border border-green-300 text-green-700 text-[12px] font-semibold rounded-lg">
+                <CheckCircle size={13} /> Resolved
+              </span>
+            )}
           </div>
         </div>
       </div>
+
+      {/* Status banners */}
+      {complaint.status === 'resolved' && (
+        <div className="flex items-center gap-3 bg-green-50 border border-green-200 rounded-[12px] px-5 py-3.5 mb-4">
+          <span className="text-[22px]">✅</span>
+          <div>
+            <p className="text-[13px] font-bold text-green-800">Grievance Resolved</p>
+            <p className="text-[11px] text-green-700">
+              {complaint.resolvedAt
+                ? `Resolved on ${new Date(complaint.resolvedAt).toLocaleString('en-IN', { dateStyle: 'medium', timeStyle: 'short' })}`
+                : 'This grievance has been successfully resolved.'
+              } · Citizen satisfaction survey sent.
+            </p>
+          </div>
+        </div>
+      )}
+      {complaint.status === 'escalated' && (
+        <div className="flex items-center gap-3 bg-red-50 border border-red-200 rounded-[12px] px-5 py-3.5 mb-4">
+          <span className="text-[22px]">🚨</span>
+          <div>
+            <p className="text-[13px] font-bold text-red-800">Grievance Escalated</p>
+            <p className="text-[11px] text-red-700">This grievance has been escalated to senior authority for urgent attention.</p>
+          </div>
+        </div>
+      )}
 
       {/* Main 2-column layout */}
       <div className="grid grid-cols-1 xl:grid-cols-3 gap-4">

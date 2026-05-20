@@ -205,8 +205,8 @@ export async function PATCH(
       // ========== RESOLVE ==========
       case 'resolve': {
         const { resolution } = rest;
-        if (!['in_progress', 'under_review', 'escalated'].includes(complaint.status)) {
-          return NextResponse.json({ error: `Cannot resolve grievance in ${complaint.status} status.` }, { status: 400 });
+        if (['resolved', 'closed'].includes(complaint.status)) {
+          return NextResponse.json({ error: 'Grievance is already resolved or closed.' }, { status: 400 });
         }
         complaint.status = 'resolved';
         complaint.resolvedAt = now;

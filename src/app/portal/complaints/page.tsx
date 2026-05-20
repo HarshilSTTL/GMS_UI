@@ -118,18 +118,47 @@ export default function ComplaintsPage() {
   function resetFilters() { setSearch(''); setQuickFilter('all'); setPriorityFilter('all'); setSelected(new Set()); }
 
   /* ─── Dialog handlers ─── */
-  async function handleAcknowledge(id: string) { await patchGrievance(id, 'acknowledge'); toast.success('Complaint acknowledged. Citizen notified via SMS.'); closeDialog(); }
-  async function handleReassign(id: string, officer: Officer) { await patchGrievance(id, 'reassign', { newOfficerId: officer.id }); }
-  async function handleEscalate(id: string) { await patchGrievance(id, 'escalate'); toast.warning('Complaint escalated. Supervisor notified.'); closeDialog(); }
-  async function handleResolve(id: string) { await patchGrievance(id, 'resolve'); toast.success('Complaint resolved.'); closeDialog(); }
-  async function handleSendUpdate(id: string, msg: string) { await patchGrievance(id, 'send_update', { message: msg }); toast.success('Update sent to citizen.'); }
+  async function handleAcknowledge(id: string) {
+    try {
+      await patchGrievance(id, 'acknowledge');
+      toast.success('Grievance acknowledged', { description: 'Status changed to Acknowledged · Citizen notified via SMS' });
+    } catch (e: any) { toast.error('Could not acknowledge', { description: e.message }); }
+    closeDialog();
+  }
+  async function handleReassign(id: string, officer: Officer) {
+    try {
+      await patchGrievance(id, 'reassign', { newOfficerId: officer.id });
+      toast.success('Grievance reassigned', { description: `Assigned to ${officer.name} · They have been notified` });
+    } catch (e: any) { toast.error('Could not reassign', { description: e.message }); }
+    closeDialog();
+  }
+  async function handleEscalate(id: string) {
+    try {
+      await patchGrievance(id, 'escalate');
+      toast.warning('Grievance escalated', { description: 'Status changed to Escalated · Supervisor notified' });
+    } catch (e: any) { toast.error('Could not escalate', { description: e.message }); }
+    closeDialog();
+  }
+  async function handleResolve(id: string) {
+    try {
+      await patchGrievance(id, 'resolve');
+      toast.success('Grievance resolved', { description: 'Status changed to Resolved · Survey link sent to citizen' });
+    } catch (e: any) { toast.error('Could not resolve', { description: e.message }); }
+    closeDialog();
+  }
+  async function handleSendUpdate(id: string, msg: string) {
+    try {
+      await patchGrievance(id, 'send_update', { message: msg });
+      toast.success('Update sent to citizen', { description: 'Notified via SMS + Email' });
+    } catch (e: any) { toast.error('Failed to send update', { description: e.message }); }
+  }
   async function handleCreateGroup(primaryId: string, memberIds: string[], label: string) {
     const groupId = `g${Date.now()}`;
     await patchGrievance(primaryId, 'add_note', { note: `Grouped as primary: ${label} (${groupId})` });
     for (const mid of memberIds) {
       await patchGrievance(mid, 'add_note', { note: `Added to group: ${label} (${groupId})` });
     }
-    toast.success(`Group created - ${label} with ${memberIds.length + 1} complaints.`);
+    toast.success('Group created', { description: `${label} · ${memberIds.length + 1} complaints linked` });
     closeDialog();
   }
 

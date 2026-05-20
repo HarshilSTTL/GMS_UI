@@ -110,16 +110,18 @@ export function ViewDetailDialog({
               </p>
             </div>
             <div className="flex items-center gap-2 flex-shrink-0">
-              {complaint.status === 'open' && (
+              {!['acknowledged', 'in_progress', 'under_review', 'escalated', 'resolved', 'closed'].includes(complaint.status) && (
                 <button onClick={() => { onAcknowledge(complaint.id); }} className="px-3 py-1.5 rounded-[7px] text-[11px] font-semibold bg-amber-50 text-amber-800 border border-amber-300 hover:bg-amber-100 transition-all">✋ Acknowledge</button>
               )}
               <button onClick={onOpenReassign} className="px-3 py-1.5 rounded-[7px] text-[11px] font-semibold bg-orange-500 text-white hover:bg-orange-600 transition-all">↗ Reassign</button>
               <button onClick={onOpenGroup} className="px-3 py-1.5 rounded-[7px] text-[11px] font-semibold bg-violet-500 text-white hover:bg-violet-600 transition-all">🔗 Group</button>
-              {complaint.status !== 'resolved' && complaint.status !== 'escalated' && (
-                <>
-                  <button onClick={() => { onEscalate(complaint.id); }} className="px-3 py-1.5 rounded-[7px] text-[11px] font-semibold bg-white text-[#3D5068] border border-[#DDE3EE] hover:bg-red-50 hover:border-red-300 transition-all">🚨 Escalate</button>
-                  <button onClick={() => { onResolve(complaint.id); }} className="px-3 py-1.5 rounded-[7px] text-[11px] font-semibold bg-green-600 text-white hover:bg-green-700 transition-all">✅ Resolve</button>
-                </>
+              {complaint.status !== 'resolved' && complaint.status !== 'closed' && complaint.status !== 'escalated' && (
+                <button onClick={() => { onEscalate(complaint.id); }} className="px-3 py-1.5 rounded-[7px] text-[11px] font-semibold bg-white text-[#3D5068] border border-[#DDE3EE] hover:bg-red-50 hover:border-red-300 transition-all">🚨 Escalate</button>
+              )}
+              {complaint.status !== 'resolved' && complaint.status !== 'closed' ? (
+                <button onClick={() => { onResolve(complaint.id); }} className="px-3 py-1.5 rounded-[7px] text-[11px] font-semibold bg-green-600 text-white hover:bg-green-700 transition-all">✅ Resolve</button>
+              ) : (
+                <span className="px-3 py-1.5 rounded-[7px] text-[11px] font-semibold bg-green-50 text-green-700 border border-green-200">✅ Resolved</span>
               )}
               <button onClick={onClose} className="w-7 h-7 rounded-full hover:bg-gray-100 flex items-center justify-center text-[#7A8FA6] ml-1"><X size={16} /></button>
             </div>
@@ -128,6 +130,27 @@ export function ViewDetailDialog({
 
         {/* Body */}
         <div className="flex-1 overflow-y-auto p-5" style={{ scrollbarWidth: 'thin' }}>
+          {/* Resolved banner */}
+          {complaint.status === 'resolved' && (
+            <div className="mb-4 flex items-center gap-3 bg-green-50 border border-green-200 rounded-[10px] px-4 py-3">
+              <span className="text-[20px]">✅</span>
+              <div>
+                <p className="text-[13px] font-bold text-green-800">Grievance Resolved</p>
+                <p className="text-[11px] text-green-700">
+                  {complaint.resolvedAt ? `Resolved on ${new Date(complaint.resolvedAt).toLocaleString('en-IN', { dateStyle: 'medium', timeStyle: 'short' })}` : 'This grievance has been resolved.'} · Survey sent to citizen.
+                </p>
+              </div>
+            </div>
+          )}
+          {complaint.status === 'escalated' && (
+            <div className="mb-4 flex items-center gap-3 bg-red-50 border border-red-200 rounded-[10px] px-4 py-3">
+              <span className="text-[20px]">🚨</span>
+              <div>
+                <p className="text-[13px] font-bold text-red-800">Grievance Escalated</p>
+                <p className="text-[11px] text-red-700">This grievance has been escalated to senior authority for urgent attention.</p>
+              </div>
+            </div>
+          )}
           <div className="grid grid-cols-1 md:grid-cols-[1fr_300px] gap-4 items-start">
             {/* Main column */}
             <div className="space-y-4">
