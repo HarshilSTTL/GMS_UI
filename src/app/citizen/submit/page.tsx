@@ -324,48 +324,31 @@ export default function SubmitGrievance() {
         </div>
       </div>
 
-      {/* Mode Toggle + Language Selector */}
+      {/* Mode Toggle */}
       {result === null && (
-        <div className="bg-white rounded-[14px] p-4 shadow-[0_1px_3px_rgba(14,28,47,0.08),0_4px_16px_rgba(14,28,47,0.06)] mb-5 flex items-center justify-between flex-wrap gap-3">
-          <div className="flex items-center gap-2">
-            <span className="text-[11px] font-semibold text-[#3D5068]">Mode:</span>
-            <div className="flex gap-2">
-              <button
-                onClick={() => { setQuickMode(false); setStep(1); setDomain(null); setSub(null); }}
-                className="px-3.5 py-1.5 rounded-[8px] text-[11px] font-semibold transition-all"
-                style={{
-                  background: !quickMode ? '#F4811F' : '#F0F2F7',
-                  color: !quickMode ? '#fff' : '#3D5068',
-                }}
-              >
-                Step-by-step
-              </button>
-              <button
-                onClick={() => { setQuickMode(true); setStep(1); setDomain(null); setSub(null); }}
-                className="px-3.5 py-1.5 rounded-[8px] text-[11px] font-semibold transition-all"
-                style={{
-                  background: quickMode ? '#F4811F' : '#F0F2F7',
-                  color: quickMode ? '#fff' : '#3D5068',
-                }}
-              >
-                Quick Submit
-              </button>
-            </div>
-          </div>
-          <div className="flex items-center gap-2">
-            <label className="text-[11px] font-semibold text-[#3D5068]">Voice Language:</label>
-            <div className="relative">
-              <select
-                value={voiceLang}
-                onChange={e => setVoiceLang(e.target.value as 'en-IN' | 'gu-IN' | 'hi-IN')}
-                className="px-3 py-1.5 border-2 border-[#DDE3EE] rounded-[8px] text-[11px] outline-none focus:border-[#F4811F] appearance-none bg-white pr-7"
-              >
-                <option value="en-IN">🇬🇧 English</option>
-                <option value="gu-IN">🇮🇳 Gujarati</option>
-                <option value="hi-IN">🇮🇳 Hindi</option>
-              </select>
-              <ChevronDown size={12} className="absolute right-2 top-1/2 -translate-y-1/2 text-[#7A8FA6] pointer-events-none" />
-            </div>
+        <div className="bg-white rounded-[14px] p-4 shadow-[0_1px_3px_rgba(14,28,47,0.08),0_4px_16px_rgba(14,28,47,0.06)] mb-5 flex items-center gap-4">
+          <span className="text-[11px] font-semibold text-[#3D5068]">Mode:</span>
+          <div className="flex gap-2">
+            <button
+              onClick={() => { setQuickMode(false); setStep(1); setDomain(null); setSub(null); }}
+              className="px-3.5 py-1.5 rounded-[8px] text-[11px] font-semibold transition-all"
+              style={{
+                background: !quickMode ? '#F4811F' : '#F0F2F7',
+                color: !quickMode ? '#fff' : '#3D5068',
+              }}
+            >
+              Step-by-step
+            </button>
+            <button
+              onClick={() => { setQuickMode(true); setStep(1); setDomain(null); setSub(null); }}
+              className="px-3.5 py-1.5 rounded-[8px] text-[11px] font-semibold transition-all"
+              style={{
+                background: quickMode ? '#F4811F' : '#F0F2F7',
+                color: quickMode ? '#fff' : '#3D5068',
+              }}
+            >
+              Quick Submit
+            </button>
           </div>
         </div>
       )}
@@ -579,11 +562,25 @@ export default function SubmitGrievance() {
             <div>
               <div className="flex items-center justify-between mb-1">
                 <label className="block text-[11px] font-semibold text-[#3D5068]">Description *</label>
-                <button onClick={toggleVoice}
-                  className="flex items-center gap-1.5 px-3 py-1 rounded-[8px] text-[10px] font-semibold transition-all"
-                  style={{ background: listening ? '#FEE2E2' : '#F0F2F7', color: listening ? '#DC2626' : '#3D5068' }}>
-                  {listening ? <><MicOff size={12} /> Recording...</> : <><Mic size={12} /> Voice Input</>}
-                </button>
+                <div className="flex items-center gap-2">
+                  <button onClick={toggleVoice}
+                    className="flex items-center gap-1.5 px-3 py-1 rounded-[8px] text-[10px] font-semibold transition-all"
+                    style={{ background: listening ? '#FEE2E2' : '#F0F2F7', color: listening ? '#DC2626' : '#3D5068' }}>
+                    {listening ? <><MicOff size={12} /> Recording...</> : <><Mic size={12} /> Voice Input</>}
+                  </button>
+                  <div className="relative">
+                    <select
+                      value={voiceLang}
+                      onChange={e => setVoiceLang(e.target.value as 'en-IN' | 'gu-IN' | 'hi-IN')}
+                      className="px-2.5 py-1 border-2 border-[#DDE3EE] rounded-[6px] text-[9px] outline-none focus:border-[#F4811F] appearance-none bg-white pr-6"
+                    >
+                      <option value="en-IN">🇬🇧 EN</option>
+                      <option value="gu-IN">🇮🇳 GU</option>
+                      <option value="hi-IN">🇮🇳 HI</option>
+                    </select>
+                    <ChevronDown size={10} className="absolute right-1.5 top-1/2 -translate-y-1/2 text-[#7A8FA6] pointer-events-none" />
+                  </div>
+                </div>
               </div>
               <textarea
                 value={form.description}

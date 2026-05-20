@@ -103,11 +103,25 @@ export function QuickSubmitForm({
           <div className="flex items-center justify-between mb-1">
             <label className="block text-[11px] font-semibold text-[#3D5068]">Description *</label>
             {onToggleVoice && (
-              <button onClick={onToggleVoice}
-                className="flex items-center gap-1.5 px-3 py-1 rounded-[8px] text-[10px] font-semibold transition-all"
-                style={{ background: listening ? '#FEE2E2' : '#F0F2F7', color: listening ? '#DC2626' : '#3D5068' }}>
-                {listening ? <><MicOff size={12} /> Recording...</> : <><Mic size={12} /> Voice Input</>}
-              </button>
+              <div className="flex items-center gap-2">
+                <button onClick={onToggleVoice}
+                  className="flex items-center gap-1.5 px-3 py-1 rounded-[8px] text-[10px] font-semibold transition-all"
+                  style={{ background: listening ? '#FEE2E2' : '#F0F2F7', color: listening ? '#DC2626' : '#3D5068' }}>
+                  {listening ? <><MicOff size={12} /> Recording...</> : <><Mic size={12} /> Voice Input</>}
+                </button>
+                <div className="relative">
+                  <select
+                    value={lang}
+                    disabled
+                    className="px-2.5 py-1 border-2 border-[#DDE3EE] rounded-[6px] text-[9px] outline-none appearance-none bg-white pr-6 cursor-default"
+                  >
+                    <option value="en-IN">🇬🇧 EN</option>
+                    <option value="gu-IN">🇮🇳 GU</option>
+                    <option value="hi-IN">🇮🇳 HI</option>
+                  </select>
+                  <ChevronDown size={10} className="absolute right-1.5 top-1/2 -translate-y-1/2 text-[#7A8FA6] pointer-events-none" />
+                </div>
+              </div>
             )}
           </div>
           <textarea
