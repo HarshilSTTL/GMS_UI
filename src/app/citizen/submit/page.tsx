@@ -245,7 +245,13 @@ export default function SubmitGrievance() {
   }
 
   async function handleSubmit() {
-    if (!domain || !sub) return;
+    if (!domain || !sub) {
+      toast.error('Please select a category and issue type');
+      return;
+    }
+    if (!form.title.trim()) return toast.error('Please enter a title');
+    if (!form.description.trim()) return toast.error('Please describe the issue');
+    if (!form.district) return toast.error('Please select a district');
     setSubmitting(true);
     try {
       const now = new Date().toISOString();
@@ -378,80 +384,23 @@ export default function SubmitGrievance() {
 
       {/* ── Quick Submit Mode ── */}
       {quickMode && result === null && (
-        <>
-          {/* Domain selector for Quick Mode */}
-          {!domain || !sub ? (
-            <div className="bg-white rounded-[14px] p-5 shadow-[0_1px_3px_rgba(14,28,47,0.08),0_4px_16px_rgba(14,28,47,0.06)] mb-5">
-              <h2 className="text-[14px] font-bold text-[#0E1C2F] mb-1">Select Category & Issue Type</h2>
-              <p className="text-[11px] text-[#7A8FA6] mb-4">Choose the category and specific issue</p>
-              <div className="grid grid-cols-1 gap-3 mb-4">
-                {DOMAINS.map(d => {
-                  const Icon = d.icon;
-                  const selected = domain?.id === d.id;
-                  return (
-                    <div key={d.id}>
-                      <button onClick={() => setDomain(d)}
-                        className="w-full flex items-center gap-4 p-4 rounded-[12px] border-2 text-left transition-all mb-2"
-                        style={{ borderColor: selected ? d.color : '#DDE3EE', background: selected ? d.bg : '#fff' }}>
-                        <div className="w-10 h-10 rounded-[10px] flex items-center justify-center flex-shrink-0"
-                          style={{ background: selected ? d.color : d.bg }}>
-                          <Icon size={18} style={{ color: selected ? '#fff' : d.color }} />
-                        </div>
-                        <div className="flex-1">
-                          <p className="text-[12px] font-bold text-[#0E1C2F]">{d.label}</p>
-                          <p className="text-[10px]" style={{ color: d.color }}>{d.labelGu}</p>
-                        </div>
-                        {selected && <CheckCircle size={16} style={{ color: d.color, flexShrink: 0 }} />}
-                      </button>
-                      {selected && (
-                        <div className="ml-2 space-y-1 mb-3">
-                          {d.subs.map(s => {
-                            const subSelected = sub?.id === s.id;
-                            return (
-                              <button key={s.id} onClick={() => setSub(s)}
-                                className="w-full flex items-center gap-2 p-2.5 rounded-[8px] border-2 text-left transition-all text-[11px]"
-                                style={{ borderColor: subSelected ? d.color : '#E5E7EB', background: subSelected ? d.bg : '#fff' }}>
-                                <div className="flex-1">
-                                  <p className="font-semibold text-[#0E1C2F]">{s.label}</p>
-                                </div>
-                                <span className="text-[8px] font-bold px-1.5 py-0.5 rounded-full whitespace-nowrap"
-                                  style={{ background: PRIORITY_BG[s.priority], color: PRIORITY_COLORS[s.priority] }}>
-                                  {s.priority.toUpperCase()}
-                                </span>
-                                {subSelected && <CheckCircle size={12} style={{ color: d.color, flexShrink: 0 }} />}
-                              </button>
-                            );
-                          })}
-                        </div>
-                      )}
-                    </div>
-                  );
-                })}
-              </div>
-              <button
-                onClick={() => { if (!domain || !sub) return toast.error('Please select category and issue type'); }}
-                disabled={!domain || !sub}
-                className="w-full py-2.5 rounded-[10px] text-[12px] font-semibold text-white disabled:opacity-50"
-                style={{ background: '#F4811F' }}
-              >
-                Continue to Details
-              </button>
-            </div>
-          ) : (
-            <QuickSubmitForm
-              form={form}
-              onFormChange={update}
-              onBack={() => { setSub(null); setDomain(null); }}
-              onSubmit={handleSubmit}
-              submitting={submitting}
-              listening={listening}
-              detecting={detecting}
-              lang={voiceLang}
-              onToggleVoice={toggleVoice}
-              onDetectLocation={detectLocation}
-            />
-          )}
-        </>
+        <QuickSubmitForm
+          form={form}
+          onFormChange={update}
+          onBack={() => { setQuickMode(false); setDomain(null); setSub(null); }}
+          onSubmit={handleSubmit}
+          onDomainChange={setDomain}
+          onSubChange={setSub}
+          domain={domain}
+          sub={sub}
+          domains={DOMAINS}
+          submitting={submitting}
+          listening={listening}
+          detecting={detecting}
+          lang={voiceLang}
+          onToggleVoice={toggleVoice}
+          onDetectLocation={detectLocation}
+        />
       )}
 
       {/* ── Step 1: Domain ── */}

@@ -1,7 +1,8 @@
 'use client';
 import { useState, useRef, useCallback } from 'react';
 import {
-  ArrowLeft, ChevronDown, Mic, MicOff, Navigation,
+  ArrowLeft, ChevronDown, Mic, MicOff, Navigation, CheckCircle,
+  Hospital, Droplet, Route, Building2, Leaf,
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { GrievanceFormData } from '@/lib/grievanceSchema';
@@ -31,11 +32,35 @@ const TALUKAS: Record<string, string[]> = {
 const WARDS = ['Ward 1', 'Ward 2', 'Ward 3', 'Ward 4', 'Ward 5', 'Ward 6', 'Ward 7', 'Ward 8',
   'Panchayat Area', 'Town Area', 'Municipal Area', 'Rural Area'];
 
+interface Domain {
+  id: string;
+  code: string;
+  label: string;
+  labelGu: string;
+  color: string;
+  bg: string;
+  icon: any;
+  subs: Sub[];
+}
+
+interface Sub {
+  id: string;
+  label: string;
+  labelGu: string;
+  priority: 'critical' | 'high' | 'medium' | 'low';
+  sla: number;
+}
+
 interface QuickSubmitFormProps {
   form: GrievanceFormData;
   onFormChange: (field: string, value: string) => void;
   onBack: () => void;
   onSubmit: () => void;
+  onDomainChange?: (domain: Domain | null) => void;
+  onSubChange?: (sub: Sub | null) => void;
+  domain?: Domain | null;
+  sub?: Sub | null;
+  domains?: Domain[];
   submitting?: boolean;
   listening?: boolean;
   detecting?: boolean;
@@ -44,11 +69,23 @@ interface QuickSubmitFormProps {
   onDetectLocation?: () => void;
 }
 
+const PRIORITY_COLORS: Record<string, string> = {
+  critical: '#DC2626', high: '#D97706', medium: '#1A56C4', low: '#16A34A',
+};
+const PRIORITY_BG: Record<string, string> = {
+  critical: '#FEE2E2', high: '#FEF3C7', medium: '#EFF6FF', low: '#DCFCE7',
+};
+
 export function QuickSubmitForm({
   form,
   onFormChange,
   onBack,
   onSubmit,
+  onDomainChange,
+  onSubChange,
+  domain = null,
+  sub = null,
+  domains = [],
   submitting = false,
   listening = false,
   detecting = false,
@@ -63,6 +100,7 @@ export function QuickSubmitForm({
   };
 
   const handleSubmit = () => {
+    if (!domain || !sub) return toast.error('Please select a category and issue type');
     if (!form.title.trim()) return toast.error('Please enter a title');
     if (!form.description.trim()) return toast.error('Please describe the issue');
     if (!form.district) return toast.error('Please select a district');
@@ -85,6 +123,60 @@ export function QuickSubmitForm({
       </div>
 
       <div className="space-y-4 max-h-[calc(100vh-200px)] overflow-y-auto pr-2">
+        {/* Category & Sub-Category */}
+        {domains && domains.length > 0 && (
+          <>
+            <div>
+              <label className="block text-[11px] font-semibold text-[#3D5068] mb-2">Category *</label>
+              <div className="grid grid-cols-2 gap-2">
+                {domains.map(d => {
+                  const Icon = d.icon;
+                  const selected = domain?.id === d.id;
+                  return (
+                    <button key={d.id} onClick={() => onDomainChange?.(d)}
+                      className="flex items-center gap-2 p-3 rounded-[10px] border-2 text-left transition-all"
+                      style={{ borderColor: selected ? d.color : '#DDE3EE', background: selected ? d.bg : '#fff' }}>
+                      <div className="w-8 h-8 rounded-[8px] flex items-center justify-center flex-shrink-0"
+                        style={{ background: selected ? d.color : d.bg }}>
+                        <Icon size={14} style={{ color: selected ? '#fff' : d.color }} />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-[10px] font-bold text-[#0E1C2F] truncate">{d.label}</p>
+                      </div>
+                      {selected && <CheckCircle size={12} style={{ color: d.color, flexShrink: 0 }} />}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+
+            {domain && (
+              <div>
+                <label className="block text-[11px] font-semibold text-[#3D5068] mb-2">Issue Type *</label>
+                <div className="space-y-1.5">
+                  {domain.subs.map(s => {
+                    const subSelected = sub?.id === s.id;
+                    return (
+                      <button key={s.id} onClick={() => onSubChange?.(s)}
+                        className="w-full flex items-center gap-2 p-2.5 rounded-[8px] border-2 text-left transition-all text-[10px]"
+                        style={{ borderColor: subSelected ? domain.color : '#E5E7EB', background: subSelected ? domain.bg : '#fff' }}>
+                        <div className="flex-1">
+                          <p className="font-semibold text-[#0E1C2F]">{s.label}</p>
+                        </div>
+                        <span className="text-[7px] font-bold px-1.5 py-0.5 rounded-full whitespace-nowrap"
+                          style={{ background: PRIORITY_BG[s.priority], color: PRIORITY_COLORS[s.priority] }}>
+                          {s.priority.toUpperCase()}
+                        </span>
+                        {subSelected && <CheckCircle size={10} style={{ color: domain.color, flexShrink: 0 }} />}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+          </>
+        )}
+
         {/* Title */}
         <div>
           <label className="block text-[11px] font-semibold text-[#3D5068] mb-1">
