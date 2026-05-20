@@ -1,7 +1,7 @@
 'use client';
-import { useState } from 'react';
+import { useState, useRef, useCallback } from 'react';
 import {
-  ArrowLeft, ChevronDown, Mic, MicOff, Navigation, CheckCircle, ChevronRight,
+  ArrowLeft, ChevronDown, Mic, MicOff, Navigation, CheckCircle,
   Hospital, Droplet, Route, Building2, Leaf,
 } from 'lucide-react';
 import { toast } from 'sonner';
@@ -95,7 +95,6 @@ export function QuickSubmitForm({
   onToggleVoice,
   onDetectLocation,
 }: QuickSubmitFormProps) {
-  const [expandedDomain, setExpandedDomain] = useState<string | null>(domain?.id || null);
   const update = (field: string, value: string) => {
     if (field === 'district') { onFormChange('district', value); onFormChange('taluka', ''); onFormChange('ward', ''); return; }
     if (field === 'taluka') { onFormChange('taluka', value); onFormChange('ward', ''); return; }
@@ -126,77 +125,58 @@ export function QuickSubmitForm({
       </div>
 
       <div className="space-y-4 max-h-[calc(100vh-200px)] overflow-y-auto pr-2">
-        {/* Category & Sub-Category - Accordion Style */}
+        {/* Category & Sub-Category */}
         {domains && domains.length > 0 && (
-          <div>
-            <label className="block text-[11px] font-semibold text-[#3D5068] mb-2">Select Category & Issue Type *</label>
-            <div className="space-y-1.5 border-2 border-[#DDE3EE] rounded-[10px] overflow-hidden">
-              {domains.map(d => {
-                const Icon = d.icon;
-                const isExpanded = expandedDomain === d.id;
-                const selected = domain?.id === d.id;
-                return (
-                  <div key={d.id}>
-                    <button
-                      onClick={() => {
-                        setExpandedDomain(isExpanded ? null : d.id);
-                        if (!isExpanded) onDomainChange?.(d);
-                      }}
-                      className="w-full flex items-center gap-3 p-3 text-left transition-all"
-                      style={{
-                        background: selected ? d.bg : '#fff',
-                        borderBottom: isExpanded ? `2px solid ${d.color}` : 'none',
-                      }}
-                    >
+          <>
+            <div>
+              <label className="block text-[11px] font-semibold text-[#3D5068] mb-2">Category *</label>
+              <div className="grid grid-cols-2 gap-2">
+                {domains.map(d => {
+                  const Icon = d.icon;
+                  const selected = domain?.id === d.id;
+                  return (
+                    <button key={d.id} onClick={() => onDomainChange?.(d)}
+                      className="flex items-center gap-2 p-3 rounded-[10px] border-2 text-left transition-all"
+                      style={{ borderColor: selected ? d.color : '#DDE3EE', background: selected ? d.bg : '#fff' }}>
                       <div className="w-8 h-8 rounded-[8px] flex items-center justify-center flex-shrink-0"
-                        style={{ background: d.color }}>
-                        <Icon size={14} style={{ color: '#fff' }} />
+                        style={{ background: selected ? d.color : d.bg }}>
+                        <Icon size={14} style={{ color: selected ? '#fff' : d.color }} />
                       </div>
-                      <div className="flex-1">
-                        <p className="text-[12px] font-bold text-[#0E1C2F]">{d.label}</p>
-                        <p className="text-[9px]" style={{ color: d.color }}>{d.labelGu}</p>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-[10px] font-bold text-[#0E1C2F] truncate">{d.label}</p>
                       </div>
-                      <ChevronRight
-                        size={16}
-                        style={{ color: d.color, transform: isExpanded ? 'rotate(90deg)' : 'rotate(0)', transition: 'transform 0.2s' }}
-                      />
+                      {selected && <CheckCircle size={12} style={{ color: d.color, flexShrink: 0 }} />}
                     </button>
-
-                    {isExpanded && (
-                      <div className="bg-[#FAFBFC] border-t border-[#E5E7EB] space-y-1">
-                        {d.subs.map(s => {
-                          const subSelected = sub?.id === s.id;
-                          return (
-                            <button
-                              key={s.id}
-                              onClick={() => onSubChange?.(s)}
-                              className="w-full flex items-center gap-2.5 px-5 py-2.5 text-left transition-all border-l-4"
-                              style={{
-                                borderLeftColor: subSelected ? d.color : '#transparent',
-                                background: subSelected ? '#fff' : '#FAFBFC',
-                              }}
-                            >
-                              <div className="flex-1 min-w-0">
-                                <p className="text-[11px] font-semibold text-[#0E1C2F]">{s.label}</p>
-                                <p className="text-[9px]" style={{ color: d.color }}>{s.labelGu}</p>
-                              </div>
-                              <div className="flex items-center gap-1.5 flex-shrink-0">
-                                <span className="text-[8px] font-bold px-2 py-0.5 rounded-full whitespace-nowrap"
-                                  style={{ background: PRIORITY_BG[s.priority], color: PRIORITY_COLORS[s.priority] }}>
-                                  {s.priority.toUpperCase()}
-                                </span>
-                                {subSelected && <CheckCircle size={14} style={{ color: d.color }} />}
-                              </div>
-                            </button>
-                          );
-                        })}
-                      </div>
-                    )}
-                  </div>
-                );
-              })}
+                  );
+                })}
+              </div>
             </div>
-          </div>
+
+            {domain && (
+              <div>
+                <label className="block text-[11px] font-semibold text-[#3D5068] mb-2">Issue Type *</label>
+                <div className="space-y-1.5">
+                  {domain.subs.map(s => {
+                    const subSelected = sub?.id === s.id;
+                    return (
+                      <button key={s.id} onClick={() => onSubChange?.(s)}
+                        className="w-full flex items-center gap-2 p-2.5 rounded-[8px] border-2 text-left transition-all text-[10px]"
+                        style={{ borderColor: subSelected ? domain.color : '#E5E7EB', background: subSelected ? domain.bg : '#fff' }}>
+                        <div className="flex-1">
+                          <p className="font-semibold text-[#0E1C2F]">{s.label}</p>
+                        </div>
+                        <span className="text-[7px] font-bold px-1.5 py-0.5 rounded-full whitespace-nowrap"
+                          style={{ background: PRIORITY_BG[s.priority], color: PRIORITY_COLORS[s.priority] }}>
+                          {s.priority.toUpperCase()}
+                        </span>
+                        {subSelected && <CheckCircle size={10} style={{ color: domain.color, flexShrink: 0 }} />}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+          </>
         )}
 
         {/* Title */}
