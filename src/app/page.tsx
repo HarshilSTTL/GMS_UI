@@ -371,15 +371,17 @@ export default function RootPage() {
             <h4 className="text-[11px] font-bold text-white uppercase tracking-wider mb-4">Reference Materials</h4>
             <div className="flex flex-wrap gap-4">
               <a
-                href="/api/static?file=Swagat%203.0%20Mobile%20-%20Merged%20(2).html"
-                download="Swagat 3.0 Mobile - Merged (2).html"
+                href="/Swagat 3.0 Mobile - Merged (2).html"
+                target="_blank"
+                rel="noopener noreferrer"
                 className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-white/10 hover:bg-white/20 text-blue-200 hover:text-white text-[11px] font-medium transition-colors border border-white/10"
               >
                 📱 Swagat 3.0 Mobile
               </a>
               <a
-                href="/api/static?file=CitizenVoice_WhatsApp_v1.html"
-                download="CitizenVoice_WhatsApp_v1.html"
+                href="/CitizenVoice_WhatsApp_v1.html"
+                target="_blank"
+                rel="noopener noreferrer"
                 className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-white/10 hover:bg-white/20 text-blue-200 hover:text-white text-[11px] font-medium transition-colors border border-white/10"
               >
                 💬 CitizenVoice WhatsApp
