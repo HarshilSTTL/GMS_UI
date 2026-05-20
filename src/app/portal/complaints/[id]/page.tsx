@@ -3,9 +3,9 @@ import React, { useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { ArrowLeft, Send, RotateCcw, AlertTriangle, CheckCircle, Link2, User } from 'lucide-react';
-import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
 import { StatusBadge, PriorityBadge, ChannelBadge, SLABadge } from '@/components/gms/StatusBadge';
+import { ActionPopup, ActionPopupData } from '@/components/gms/ActionPopup';
 import type { TimelineEntry } from '@/types/complaint';
 
 function getTimelineIcon(type: string): { icon: string; bg: string } {
@@ -110,6 +110,7 @@ export default function ComplaintDetailPage() {
   const [notifyVia, setNotifyVia] = useState('SMS + Email');
   const [newStatus, setNewStatus] = useState('');
   const [acting, setActing] = useState(false);
+  const [popup, setPopup] = useState<ActionPopupData | null>(null);
 
   const user = JSON.parse(localStorage.getItem('gms-auth') || '{}')?.state?.user;
 
@@ -131,46 +132,76 @@ export default function ComplaintDetailPage() {
   }
 
   async function handleSendUpdate() {
-    if (!remark.trim()) { toast.error('Please enter an update message.'); return; }
+    if (!remark.trim()) {
+      setPopup({ type: 'error', title: 'Message required', description: 'Please enter an update message before sending.' });
+      return;
+    }
     try {
       await patchAction('send_update', { message: remark });
-      toast.success('Update sent to citizen', { description: `Notified via ${notifyVia}` });
       setRemark('');
+      setPopup({
+        type: 'send_update',
+        token: complaint.token,
+        title: 'Update Sent to Citizen',
+        description: `Your update has been delivered to the citizen. They will be notified via ${notifyVia}.`,
+        meta: [{ label: 'Notification channel', value: notifyVia }],
+      });
     } catch (e: any) {
-      toast.error('Failed to send update', { description: e.message });
+      setPopup({ type: 'error', title: 'Failed to send update', description: e.message });
     }
   }
 
   async function handleResolve() {
     try {
-      await patchAction('resolve');
-      toast.success('Grievance resolved successfully', {
-        description: 'Status changed to Resolved · Survey link sent to citizen',
+      const updated = await patchAction('resolve');
+      setPopup({
+        type: 'resolve',
+        token: complaint.token,
+        title: 'Grievance Resolved Successfully',
+        description: 'The grievance has been marked as resolved. The citizen has been notified and a satisfaction survey has been sent.',
+        meta: [
+          { label: 'New Status', value: 'Resolved' },
+          { label: 'Resolved at', value: new Date().toLocaleString('en-IN', { dateStyle: 'medium', timeStyle: 'short' }) },
+        ],
       });
     } catch (e: any) {
-      toast.error('Could not resolve grievance', { description: e.message });
+      setPopup({ type: 'error', title: 'Could not resolve grievance', description: e.message });
     }
   }
 
   async function handleEscalate() {
     try {
       await patchAction('escalate');
-      toast.warning('Grievance escalated', {
-        description: 'Status changed to Escalated · Supervisor notified',
+      setPopup({
+        type: 'escalate',
+        token: complaint.token,
+        title: 'Grievance Escalated',
+        description: 'The grievance has been escalated to senior authority for urgent review. The citizen has been notified.',
+        meta: [
+          { label: 'New Status', value: 'Escalated' },
+          { label: 'Notified', value: 'Supervisor + Citizen' },
+        ],
       });
     } catch (e: any) {
-      toast.error('Could not escalate grievance', { description: e.message });
+      setPopup({ type: 'error', title: 'Could not escalate grievance', description: e.message });
     }
   }
 
   async function handleAcknowledge() {
     try {
       await patchAction('acknowledge');
-      toast.success('Grievance acknowledged', {
-        description: 'Status changed to Acknowledged · Citizen notified via SMS',
+      setPopup({
+        type: 'acknowledge',
+        token: complaint.token,
+        title: 'Grievance Acknowledged',
+        description: 'You have acknowledged this grievance. The citizen has been notified via SMS that their complaint is under review.',
+        meta: [
+          { label: 'New Status', value: 'Acknowledged' },
+          { label: 'Citizen notified', value: 'SMS sent' },
+        ],
       });
     } catch (e: any) {
-      toast.error('Could not acknowledge grievance', { description: e.message });
+      setPopup({ type: 'error', title: 'Could not acknowledge grievance', description: e.message });
     }
   }
 
@@ -178,6 +209,9 @@ export default function ComplaintDetailPage() {
 
   return (
     <div>
+      {/* Action result popup */}
+      {popup && <ActionPopup data={popup} onClose={() => setPopup(null)} />}
+
       {/* Back + breadcrumb */}
       <div className="flex items-center gap-2 mb-4">
         <Link href="/portal/complaints" className="flex items-center gap-1.5 text-[12px] text-[#7A8FA6] hover:text-[#3D5068] transition-colors">

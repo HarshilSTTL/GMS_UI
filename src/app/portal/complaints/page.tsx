@@ -9,6 +9,7 @@ import { useOfficers } from '@/hooks/useOfficers';
 import { useDepartments } from '@/hooks/useDepartments';
 import { StatusBadge, PriorityBadge, ChannelBadge, SLABadge } from '@/components/gms/StatusBadge';
 import { ViewDetailDialog, ReassignDialog, GroupDialog, DialogType } from '@/components/gms/ComplaintModals';
+import { ActionPopup, ActionPopupData } from '@/components/gms/ActionPopup';
 import type { Complaint, Officer, ComplaintStatus, ComplaintPriority } from '@/types';
 
 /* ─── FILTER CONFIG ─── */
@@ -85,6 +86,7 @@ export default function ComplaintsPage() {
   /* ─── Dialog state ─── */
   const [dialogType, setDialogType] = useState<DialogType>(null);
   const [activeComplaint, setActiveComplaint] = useState<Complaint | null>(null);
+  const [popup, setPopup] = useState<ActionPopupData | null>(null);
 
   function openDialog(type: DialogType, complaint: Complaint) { setActiveComplaint(complaint); setDialogType(type); }
   function closeDialog() { setDialogType(null); setActiveComplaint(null); }
@@ -119,38 +121,86 @@ export default function ComplaintsPage() {
 
   /* ─── Dialog handlers ─── */
   async function handleAcknowledge(id: string) {
+    const c = complaints.find(x => x.id === id);
+    closeDialog();
     try {
       await patchGrievance(id, 'acknowledge');
-      toast.success('Grievance acknowledged', { description: 'Status changed to Acknowledged · Citizen notified via SMS' });
-    } catch (e: any) { toast.error('Could not acknowledge', { description: e.message }); }
-    closeDialog();
+      setPopup({
+        type: 'acknowledge',
+        token: c?.token,
+        title: 'Grievance Acknowledged',
+        description: 'You have acknowledged this grievance. The citizen has been notified via SMS that their complaint is under review.',
+        meta: [{ label: 'New Status', value: 'Acknowledged' }, { label: 'Citizen notified', value: 'SMS sent' }],
+      });
+    } catch (e: any) {
+      setPopup({ type: 'error', title: 'Could not acknowledge', description: e.message });
+    }
   }
   async function handleReassign(id: string, officer: Officer) {
+    const c = complaints.find(x => x.id === id);
+    closeDialog();
     try {
       await patchGrievance(id, 'reassign', { newOfficerId: officer.id });
-      toast.success('Grievance reassigned', { description: `Assigned to ${officer.name} · They have been notified` });
-    } catch (e: any) { toast.error('Could not reassign', { description: e.message }); }
-    closeDialog();
+      setPopup({
+        type: 'reassign',
+        token: c?.token,
+        title: 'Grievance Reassigned',
+        description: `The grievance has been successfully reassigned. ${officer.name} has been notified and will begin working on it.`,
+        meta: [{ label: 'Assigned To', value: officer.name }, { label: 'Department', value: officer.department }],
+      });
+    } catch (e: any) {
+      setPopup({ type: 'error', title: 'Could not reassign', description: e.message });
+    }
   }
   async function handleEscalate(id: string) {
+    const c = complaints.find(x => x.id === id);
+    closeDialog();
     try {
       await patchGrievance(id, 'escalate');
-      toast.warning('Grievance escalated', { description: 'Status changed to Escalated · Supervisor notified' });
-    } catch (e: any) { toast.error('Could not escalate', { description: e.message }); }
-    closeDialog();
+      setPopup({
+        type: 'escalate',
+        token: c?.token,
+        title: 'Grievance Escalated',
+        description: 'The grievance has been escalated to senior authority for urgent review. The citizen has been notified.',
+        meta: [{ label: 'New Status', value: 'Escalated' }, { label: 'Notified', value: 'Supervisor + Citizen' }],
+      });
+    } catch (e: any) {
+      setPopup({ type: 'error', title: 'Could not escalate', description: e.message });
+    }
   }
   async function handleResolve(id: string) {
+    const c = complaints.find(x => x.id === id);
+    closeDialog();
     try {
       await patchGrievance(id, 'resolve');
-      toast.success('Grievance resolved', { description: 'Status changed to Resolved · Survey link sent to citizen' });
-    } catch (e: any) { toast.error('Could not resolve', { description: e.message }); }
-    closeDialog();
+      setPopup({
+        type: 'resolve',
+        token: c?.token,
+        title: 'Grievance Resolved Successfully',
+        description: 'The grievance has been marked as resolved. The citizen has been notified and a satisfaction survey has been sent.',
+        meta: [
+          { label: 'New Status', value: 'Resolved' },
+          { label: 'Resolved at', value: new Date().toLocaleString('en-IN', { dateStyle: 'medium', timeStyle: 'short' }) },
+        ],
+      });
+    } catch (e: any) {
+      setPopup({ type: 'error', title: 'Could not resolve', description: e.message });
+    }
   }
   async function handleSendUpdate(id: string, msg: string) {
+    const c = complaints.find(x => x.id === id);
     try {
       await patchGrievance(id, 'send_update', { message: msg });
-      toast.success('Update sent to citizen', { description: 'Notified via SMS + Email' });
-    } catch (e: any) { toast.error('Failed to send update', { description: e.message }); }
+      setPopup({
+        type: 'send_update',
+        token: c?.token,
+        title: 'Update Sent to Citizen',
+        description: 'Your update has been delivered to the citizen. They will be notified via SMS and Email.',
+        meta: [{ label: 'Channel', value: 'SMS + Email' }],
+      });
+    } catch (e: any) {
+      setPopup({ type: 'error', title: 'Failed to send update', description: e.message });
+    }
   }
   async function handleCreateGroup(primaryId: string, memberIds: string[], label: string) {
     const groupId = `g${Date.now()}`;
@@ -158,8 +208,13 @@ export default function ComplaintsPage() {
     for (const mid of memberIds) {
       await patchGrievance(mid, 'add_note', { note: `Added to group: ${label} (${groupId})` });
     }
-    toast.success('Group created', { description: `${label} · ${memberIds.length + 1} complaints linked` });
     closeDialog();
+    setPopup({
+      type: 'forward',
+      title: 'Group Created',
+      description: `Complaints have been grouped under "${label}". All related cases are now linked for easier tracking.`,
+      meta: [{ label: 'Total complaints', value: `${memberIds.length + 1}` }, { label: 'Group label', value: label }],
+    });
   }
 
   const hasFilters = search || quickFilter !== 'all' || priorityFilter !== 'all';
@@ -168,6 +223,9 @@ export default function ComplaintsPage() {
 
   return (
     <div>
+      {/* Action result popup */}
+      {popup && <ActionPopup data={popup} onClose={() => setPopup(null)} />}
+
       {/* Dialogs */}
       {dialogType === 'view' && activeComplaint && (
         <ViewDetailDialog complaint={activeComplaint} complaints={complaints} officers={officers} onClose={closeDialog}
