@@ -19,7 +19,14 @@
       "Bash(cat:*)",
       "Bash(powershell:*)",
       "Bash(\"E:/GMS/Local/gms_ui/logs/2026-05-13.md\":*)",
-      "WebFetch(domain:gms-silvertouch.vercel.app)"
+      "WebFetch(domain:gms-silvertouch.vercel.app)",
+      "Bash(Get-ChildItem public *)",
+      "Bash(Select-Object Name)",
+      "Bash(git add *)",
+      "Bash(git commit -m 'fix: Replace HTML link 404s with API static file server *)",
+      "Bash(git reset *)",
+      "Bash(git checkout *)",
+      "Bash(git stash *)"
     ]
   }
 }
