@@ -113,32 +113,85 @@ export default function ComplaintDetailPage() {
 
   const user = JSON.parse(localStorage.getItem('gms-auth') || '{}')?.state?.user;
 
-  function handleSendUpdate() {
+  async function handleSendUpdate() {
     if (!remark.trim()) { toast.error('Please enter an update message.'); return; }
-    fetch(`/api/grievances/${id}`, {
-      method: 'PATCH',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ action: 'send_update', actorId: user?.id, message: remark })
-    }).then(r => r.json()).then(d => { if (d.data) setComplaint(d.data); });
-    toast.success('Update sent & citizen notified via ' + notifyVia);
+    try {
+      const res = await fetch(`/api/grievances/${id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'send_update', actorId: user?.id, message: remark })
+      });
+      const d = await res.json();
+      if (d.data) {
+        setComplaint(d.data);
+        toast.success(`✉️ Update sent to citizen via ${notifyVia}`);
+      } else {
+        toast.error(d.error || 'Failed to send update');
+      }
+    } catch (error) {
+      toast.error('Failed to send update');
+    }
     setRemark('');
   }
+
   async function handleResolve() {
-    const res = await fetch(`/api/grievances/${id}`, { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ action: 'resolve', actorId: user?.id }) });
-    const d = await res.json(); if (d.data) setComplaint(d.data);
-    toast.success(`GVM complaint ${complaint!.token} marked as resolved. CSAT survey sent to citizen.`);
+    try {
+      const res = await fetch(`/api/grievances/${id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'resolve', actorId: user?.id })
+      });
+      const d = await res.json();
+      if (d.data) {
+        setComplaint(d.data);
+        toast.success(`✅ Grievance resolved successfully\nSurvey link sent to citizen`);
+      } else {
+        toast.error(d.error || 'Failed to resolve grievance');
+      }
+    } catch (error) {
+      toast.error('Failed to resolve grievance');
+    }
   }
+
   async function handleEscalate() {
-    const res = await fetch(`/api/grievances/${id}`, { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ action: 'escalate', actorId: user?.id }) });
-    const d = await res.json(); if (d.data) setComplaint(d.data);
-    toast.warning(`Complaint ${complaint!.token} escalated to L2.`);
+    try {
+      const res = await fetch(`/api/grievances/${id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'escalate', actorId: user?.id })
+      });
+      const d = await res.json();
+      if (d.data) {
+        setComplaint(d.data);
+        toast.warning(`⚠️ Grievance escalated to senior management\nCitizen notified of escalation`);
+      } else {
+        toast.error(d.error || 'Failed to escalate grievance');
+      }
+    } catch (error) {
+      toast.error('Failed to escalate grievance');
+    }
   }
+
   async function handleAcknowledge() {
-    setIsAcknowledged(true);
-    const res = await fetch(`/api/grievances/${id}`, { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ action: 'acknowledge', actorId: user?.id }) });
-    const d = await res.json(); if (d.data) setComplaint(d.data);
-    toast.success('Case acknowledged. Citizen notified via SMS.');
+    try {
+      const res = await fetch(`/api/grievances/${id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'acknowledge', actorId: user?.id })
+      });
+      const d = await res.json();
+      if (d.data) {
+        setComplaint(d.data);
+        setIsAcknowledged(true);
+        toast.success(`👁️ Grievance acknowledged\nCitizen notified via SMS`);
+      } else {
+        toast.error(d.error || 'Failed to acknowledge grievance');
+      }
+    } catch (error) {
+      toast.error('Failed to acknowledge grievance');
+    }
   }
+
   function handleReassign() { router.push('/portal/reassign'); }
 
   return (

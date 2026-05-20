@@ -39,21 +39,69 @@ export default function ReassignPage() {
     });
   }
 
-  function handleQuickAssign(complaint: Complaint) {
+  async function handleQuickAssign(complaint: Complaint) {
     if (!selectedOfficerId) { toast.error('Select an officer from the right panel first.'); return; }
     const officer = officers.find(o => o.id === selectedOfficerId)!;
-    updateComplaint.mutate({ id: complaint.id, data: { assignedTo: officer } });
-    toast.success(`📋 ${complaint.token} assigned to ${officer.name}.`);
+    const user = JSON.parse(localStorage.getItem('gms-auth') || '{}')?.state?.user;
+
+    try {
+      const res = await fetch(`/api/grievances/${complaint.id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action: 'assign',
+          actorId: user?.id,
+          officerId: selectedOfficerId,
+        }),
+      });
+
+      const data = await res.json();
+      if (data.data) {
+        toast.success(`👤 Assigned to ${officer.name}\n${officer.role} · ${officer.department}`);
+        updateComplaint.mutate({ id: complaint.id, data: data.data });
+      } else {
+        toast.error(data.error || 'Failed to assign grievance');
+      }
+    } catch (error) {
+      toast.error('Failed to assign grievance');
+    }
   }
 
-  function handleConfirmBulk() {
+  async function handleConfirmBulk() {
     if (selectedIds.size === 0) { toast.error('Select at least one complaint.'); return; }
     if (!selectedOfficerId) { toast.error('Select an officer.'); return; }
+
     const officer = officers.find(o => o.id === selectedOfficerId)!;
-    selectedIds.forEach(id => {
-      updateComplaint.mutate({ id, data: { assignedTo: officer } });
-    });
-    toast.success(`↗ ${selectedIds.size} complaint(s) reassigned to ${officer.name}.`);
+    const user = JSON.parse(localStorage.getItem('gms-auth') || '{}')?.state?.user;
+    let successCount = 0;
+
+    for (const id of selectedIds) {
+      try {
+        const res = await fetch(`/api/grievances/${id}`, {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            action: 'assign',
+            actorId: user?.id,
+            officerId: selectedOfficerId,
+          }),
+        });
+
+        const data = await res.json();
+        if (data.data) {
+          successCount++;
+          updateComplaint.mutate({ id, data: data.data });
+        }
+      } catch (error) {
+        // Continue with next complaint
+      }
+    }
+
+    if (successCount > 0) {
+      toast.success(`↗ ${successCount} grievance(s) reassigned to ${officer.name}`);
+    } else {
+      toast.error('Failed to reassign grievances');
+    }
     setSelectedIds(new Set());
   }
 

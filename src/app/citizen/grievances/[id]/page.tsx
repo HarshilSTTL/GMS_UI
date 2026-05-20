@@ -69,47 +69,61 @@ export default function GrievanceDetail({ params }: { params: Promise<{ id: stri
   async function handleAction() {
     if (!g) return;
     const user = JSON.parse(localStorage.getItem('gms-auth') || '{}')?.state?.user;
-    if (modal === 'reopen') {
-      if (!reason) return toast.error('Please provide a reason');
-      const res = await fetch(`/api/grievances/${id}`, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ action: 'reopen', actorId: user?.id, reopenReason: reason })
-      });
-      const result = await res.json();
-      if (result.data) {
-        const mapped = { ...result.data, submittedDate: result.data.createdAt, officer: result.data.assignedTo?.name || 'Unassigned', officerDept: result.data.assignedTo?.department || '', status: result.data.status === 'open' ? 'pending' : result.data.status };
-        setG(mapped);
+    try {
+      if (modal === 'reopen') {
+        if (!reason) return toast.error('Please provide a reason for reopening');
+        const res = await fetch(`/api/grievances/${id}`, {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ action: 'reopen', actorId: user?.id, reopenReason: reason })
+        });
+        const result = await res.json();
+        if (result.data) {
+          const mapped = { ...result.data, submittedDate: result.data.createdAt, officer: result.data.assignedTo?.name || 'Unassigned', officerDept: result.data.assignedTo?.department || '', status: result.data.status === 'open' ? 'pending' : result.data.status };
+          setG(mapped);
+          setModalStep(1);
+          toast.success(`🔓 Grievance reopened\nOfficer has been notified`);
+        } else {
+          toast.error(result.error || 'Failed to reopen grievance');
+        }
+      } else if (modal === 'feedback') {
+        if (!rating) return toast.error('Please select a rating');
+        const res = await fetch(`/api/grievances/${id}`, {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ action: 'feedback', actorId: user?.id, feedbackText: comment, rating })
+        });
+        const result = await res.json();
+        if (result.data) {
+          const mapped = { ...result.data, submittedDate: result.data.createdAt, officer: result.data.assignedTo?.name || 'Unassigned', officerDept: result.data.assignedTo?.department || '', status: result.data.status === 'open' ? 'pending' : result.data.status };
+          setG(mapped);
+          setModalStep(1);
+          toast.success(`⭐ Thank you for your feedback\nYour rating: ${rating}/5 stars`);
+        } else {
+          toast.error(result.error || 'Failed to submit feedback');
+        }
+      } else if (modal === 'escalate') {
+        if (!reason) return toast.error('Please select a reason for escalation');
+        const res = await fetch(`/api/grievances/${id}`, {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ action: 'escalate', actorId: user?.id, escalationReason: reason })
+        });
+        const result = await res.json();
+        if (result.data) {
+          const mapped = { ...result.data, submittedDate: result.data.createdAt, officer: result.data.assignedTo?.name || 'Unassigned', officerDept: result.data.assignedTo?.department || '', status: result.data.status === 'open' ? 'pending' : result.data.status };
+          setG(mapped);
+          setModalStep(1);
+          toast.warning(`⚠️ Grievance escalated to higher authority\nYou will receive updates soon`);
+        } else {
+          toast.error(result.error || 'Failed to escalate grievance');
+        }
+      } else if (modal === 'contact') {
+        setModalStep(1);
+        toast.success(`💬 Message sent to ${g.officer}\nExpect a response within 24 hours`);
       }
-      setModalStep(1); toast.success('Case reopened successfully');
-    } else if (modal === 'feedback') {
-      if (!rating) return toast.error('Please select a rating');
-      const res = await fetch(`/api/grievances/${id}`, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ action: 'feedback', actorId: user?.id, feedbackText: comment, rating })
-      });
-      const result = await res.json();
-      if (result.data) {
-        const mapped = { ...result.data, submittedDate: result.data.createdAt, officer: result.data.assignedTo?.name || 'Unassigned', officerDept: result.data.assignedTo?.department || '', status: result.data.status === 'open' ? 'pending' : result.data.status };
-        setG(mapped);
-      }
-      setModalStep(1); toast.success('Feedback submitted');
-    } else if (modal === 'escalate') {
-      if (!reason) return toast.error('Please select a reason');
-      const res = await fetch(`/api/grievances/${id}`, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ action: 'escalate', actorId: user?.id, escalationReason: reason })
-      });
-      const result = await res.json();
-      if (result.data) {
-        const mapped = { ...result.data, submittedDate: result.data.createdAt, officer: result.data.assignedTo?.name || 'Unassigned', officerDept: result.data.assignedTo?.department || '', status: result.data.status === 'open' ? 'pending' : result.data.status };
-        setG(mapped);
-      }
-      setModalStep(1); toast.success('Escalated successfully');
-    } else if (modal === 'contact') {
-      setModalStep(1); toast.success('Message sent to officer');
+    } catch (error) {
+      toast.error('An error occurred. Please try again.');
     }
   }
 

@@ -21,17 +21,19 @@ function TakeActionDialog({ complaint, onClose }: { complaint: Complaint; onClos
 
     setLoading(true);
     try {
+      const user = JSON.parse(localStorage.getItem('gms-auth') || '{}')?.state?.user;
       const actionMap: Record<string, string> = {
         resolve: 'resolve',
         deescalate: 'de_escalate',
         forward: 'forward',
       };
 
-      const response = await fetch(`/api/complaints/${complaint.id}`, {
+      const response = await fetch(`/api/grievances/${complaint.id}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           action: actionMap[action],
+          actorId: user?.id,
           resolution: note || undefined,
           reason: note || undefined,
           toDepartment: action === 'forward' ? complaint.department : undefined,
@@ -40,13 +42,13 @@ function TakeActionDialog({ complaint, onClose }: { complaint: Complaint; onClos
 
       if (!response.ok) throw new Error('Action failed');
 
-      const labels: Record<string, string> = {
-        resolve: `✅ ${complaint.token} resolved.`,
-        deescalate: `↩️ ${complaint.token} de-escalated to In Progress.`,
-        forward: `📨 ${complaint.token} forwarded.`,
+      const messages: Record<string, string> = {
+        resolve: `✅ Grievance marked as resolved\nCitizen survey link sent`,
+        deescalate: `↩️ Escalation withdrawn\nGrievance back to in-progress status`,
+        forward: `📨 Grievance forwarded\nCitizen notified of department change`,
       };
 
-      toast.success(labels[action] ?? 'Action recorded.');
+      toast.success(messages[action] ?? 'Action recorded successfully');
       refetch();
       onClose();
     } catch (error) {
@@ -120,12 +122,14 @@ function ReassignDialog({ complaint, onClose }: { complaint: Complaint; onClose:
 
     setLoading(true);
     try {
+      const user = JSON.parse(localStorage.getItem('gms-auth') || '{}')?.state?.user;
       const o = officers.find(o => o.id === officer)!;
-      const response = await fetch(`/api/complaints/${complaint.id}`, {
+      const response = await fetch(`/api/grievances/${complaint.id}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           action: 'reassign',
+          actorId: user?.id,
           newOfficerId: officer,
           reason: reason || 'Reassigned',
         }),
@@ -133,11 +137,11 @@ function ReassignDialog({ complaint, onClose }: { complaint: Complaint; onClose:
 
       if (!response.ok) throw new Error('Reassign failed');
 
-      toast.success(`🔄 ${complaint.token} reassigned to ${o.name}.`);
+      toast.success(`🔄 Reassigned to ${o.name}\n${o.role} · ${o.department}`);
       refetch();
       onClose();
     } catch (error) {
-      toast.error('Failed to reassign');
+      toast.error('Failed to reassign grievance');
     } finally {
       setLoading(false);
     }
