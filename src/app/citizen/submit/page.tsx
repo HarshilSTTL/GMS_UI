@@ -10,6 +10,7 @@ import {
 import { toast } from 'sonner';
 import { useAuthStore } from '@/stores';
 import { addLocalGrievance } from '@/lib/local-store';
+import { QuickSubmitForm } from '@/components/gms/QuickSubmitForm';
 
 // ── Data ─────────────────────────────────────────────────────────────────────
 const DOMAINS = [
@@ -188,6 +189,8 @@ export default function SubmitGrievance() {
   const [listening, setListening] = useState(false);
   const [detecting, setDetecting] = useState(false);
   const [submitting, setSubmitting] = useState(false);
+  const [quickMode, setQuickMode] = useState(false);
+  const [voiceLang, setVoiceLang] = useState<'en-IN' | 'gu-IN' | 'hi-IN'>('en-IN');
   const recogRef = useRef<any>(null);
 
   function update(field: string, value: string) {
@@ -208,7 +211,7 @@ export default function SubmitGrievance() {
       return;
     }
     const recog = new SpeechAPI();
-    recog.lang = 'gu-IN';
+    recog.lang = voiceLang;
     recog.continuous = false;
     recog.interimResults = false;
     recog.onresult = (e: any) => {
@@ -219,7 +222,7 @@ export default function SubmitGrievance() {
     recog.start();
     recogRef.current = recog;
     setListening(true);
-  }, [listening]);
+  }, [listening, voiceLang]);
 
   function detectLocation() {
     setDetecting(true);
@@ -300,7 +303,7 @@ export default function SubmitGrievance() {
   }
 
   function resetForm() {
-    setStep(1); setDomain(null); setSub(null);
+    setStep(1); setDomain(null); setSub(null); setQuickMode(false);
     setForm({ title: '', description: '', district: '', taluka: '', ward: '', specificLocation: '' });
     setResult(null);
   }
@@ -310,19 +313,65 @@ export default function SubmitGrievance() {
       {/* Header */}
       <div className="flex items-center gap-3 mb-4">
         <button
-          onClick={() => step > 1 && step < 5 ? setStep(s => s - 1) : router.push('/citizen')}
+          onClick={() => quickMode ? setQuickMode(false) : (step > 1 && step < 5 ? setStep(s => s - 1) : router.push('/citizen'))}
           className="w-8 h-8 rounded-lg bg-[#F0F2F7] flex items-center justify-center hover:bg-[#DDE3EE] transition-colors"
         >
           <ArrowLeft size={16} className="text-[#3D5068]" />
         </button>
         <div>
           <h1 className="text-[16px] font-bold text-[#0E1C2F]">Submit Grievance</h1>
-          <p className="text-[11px] text-[#7A8FA6]">ફરિયાદ નોંધો — File a complaint in 5 steps</p>
+          <p className="text-[11px] text-[#7A8FA6]">ફરિયાદ નોંધો — File a complaint</p>
         </div>
       </div>
 
+      {/* Mode Toggle + Language Selector */}
+      {result === null && (
+        <div className="bg-white rounded-[14px] p-4 shadow-[0_1px_3px_rgba(14,28,47,0.08),0_4px_16px_rgba(14,28,47,0.06)] mb-5 flex items-center justify-between flex-wrap gap-3">
+          <div className="flex items-center gap-2">
+            <span className="text-[11px] font-semibold text-[#3D5068]">Mode:</span>
+            <div className="flex gap-2">
+              <button
+                onClick={() => { setQuickMode(false); setStep(1); setDomain(null); setSub(null); }}
+                className="px-3.5 py-1.5 rounded-[8px] text-[11px] font-semibold transition-all"
+                style={{
+                  background: !quickMode ? '#F4811F' : '#F0F2F7',
+                  color: !quickMode ? '#fff' : '#3D5068',
+                }}
+              >
+                Step-by-step
+              </button>
+              <button
+                onClick={() => { setQuickMode(true); setStep(1); setDomain(null); setSub(null); }}
+                className="px-3.5 py-1.5 rounded-[8px] text-[11px] font-semibold transition-all"
+                style={{
+                  background: quickMode ? '#F4811F' : '#F0F2F7',
+                  color: quickMode ? '#fff' : '#3D5068',
+                }}
+              >
+                Quick Submit
+              </button>
+            </div>
+          </div>
+          <div className="flex items-center gap-2">
+            <label className="text-[11px] font-semibold text-[#3D5068]">Voice Language:</label>
+            <div className="relative">
+              <select
+                value={voiceLang}
+                onChange={e => setVoiceLang(e.target.value as 'en-IN' | 'gu-IN' | 'hi-IN')}
+                className="px-3 py-1.5 border-2 border-[#DDE3EE] rounded-[8px] text-[11px] outline-none focus:border-[#F4811F] appearance-none bg-white pr-7"
+              >
+                <option value="en-IN">🇬🇧 English</option>
+                <option value="gu-IN">🇮🇳 Gujarati</option>
+                <option value="hi-IN">🇮🇳 Hindi</option>
+              </select>
+              <ChevronDown size={12} className="absolute right-2 top-1/2 -translate-y-1/2 text-[#7A8FA6] pointer-events-none" />
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Step bar */}
-      {step < 5 && (
+      {step < 5 && !quickMode && (
         <div className="flex items-center mb-5">
           {STEPS.map((label, idx) => (
             <div key={idx} className="flex items-center flex-1">
@@ -344,8 +393,86 @@ export default function SubmitGrievance() {
         </div>
       )}
 
+      {/* ── Quick Submit Mode ── */}
+      {quickMode && result === null && (
+        <>
+          {/* Domain selector for Quick Mode */}
+          {!domain || !sub ? (
+            <div className="bg-white rounded-[14px] p-5 shadow-[0_1px_3px_rgba(14,28,47,0.08),0_4px_16px_rgba(14,28,47,0.06)] mb-5">
+              <h2 className="text-[14px] font-bold text-[#0E1C2F] mb-1">Select Category & Issue Type</h2>
+              <p className="text-[11px] text-[#7A8FA6] mb-4">Choose the category and specific issue</p>
+              <div className="grid grid-cols-1 gap-3 mb-4">
+                {DOMAINS.map(d => {
+                  const Icon = d.icon;
+                  const selected = domain?.id === d.id;
+                  return (
+                    <div key={d.id}>
+                      <button onClick={() => setDomain(d)}
+                        className="w-full flex items-center gap-4 p-4 rounded-[12px] border-2 text-left transition-all mb-2"
+                        style={{ borderColor: selected ? d.color : '#DDE3EE', background: selected ? d.bg : '#fff' }}>
+                        <div className="w-10 h-10 rounded-[10px] flex items-center justify-center flex-shrink-0"
+                          style={{ background: selected ? d.color : d.bg }}>
+                          <Icon size={18} style={{ color: selected ? '#fff' : d.color }} />
+                        </div>
+                        <div className="flex-1">
+                          <p className="text-[12px] font-bold text-[#0E1C2F]">{d.label}</p>
+                          <p className="text-[10px]" style={{ color: d.color }}>{d.labelGu}</p>
+                        </div>
+                        {selected && <CheckCircle size={16} style={{ color: d.color, flexShrink: 0 }} />}
+                      </button>
+                      {selected && (
+                        <div className="ml-2 space-y-1 mb-3">
+                          {d.subs.map(s => {
+                            const subSelected = sub?.id === s.id;
+                            return (
+                              <button key={s.id} onClick={() => setSub(s)}
+                                className="w-full flex items-center gap-2 p-2.5 rounded-[8px] border-2 text-left transition-all text-[11px]"
+                                style={{ borderColor: subSelected ? d.color : '#E5E7EB', background: subSelected ? d.bg : '#fff' }}>
+                                <div className="flex-1">
+                                  <p className="font-semibold text-[#0E1C2F]">{s.label}</p>
+                                </div>
+                                <span className="text-[8px] font-bold px-1.5 py-0.5 rounded-full whitespace-nowrap"
+                                  style={{ background: PRIORITY_BG[s.priority], color: PRIORITY_COLORS[s.priority] }}>
+                                  {s.priority.toUpperCase()}
+                                </span>
+                                {subSelected && <CheckCircle size={12} style={{ color: d.color, flexShrink: 0 }} />}
+                              </button>
+                            );
+                          })}
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+              <button
+                onClick={() => { if (!domain || !sub) return toast.error('Please select category and issue type'); }}
+                disabled={!domain || !sub}
+                className="w-full py-2.5 rounded-[10px] text-[12px] font-semibold text-white disabled:opacity-50"
+                style={{ background: '#F4811F' }}
+              >
+                Continue to Details
+              </button>
+            </div>
+          ) : (
+            <QuickSubmitForm
+              form={form}
+              onFormChange={update}
+              onBack={() => { setSub(null); setDomain(null); }}
+              onSubmit={handleSubmit}
+              submitting={submitting}
+              listening={listening}
+              detecting={detecting}
+              lang={voiceLang}
+              onToggleVoice={toggleVoice}
+              onDetectLocation={detectLocation}
+            />
+          )}
+        </>
+      )}
+
       {/* ── Step 1: Domain ── */}
-      {step === 1 && (
+      {step === 1 && !quickMode && (
         <div className="bg-white rounded-[14px] p-5 shadow-[0_1px_3px_rgba(14,28,47,0.08),0_4px_16px_rgba(14,28,47,0.06)]">
           <h2 className="text-[14px] font-bold text-[#0E1C2F] mb-1">Select Category</h2>
           <p className="text-[11px] text-[#7A8FA6] mb-4">વિભાગ પસંદ કરો — Choose the service domain</p>
@@ -384,7 +511,7 @@ export default function SubmitGrievance() {
       )}
 
       {/* ── Step 2: Sub-category ── */}
-      {step === 2 && domain && (
+      {step === 2 && domain && !quickMode && (
         <div className="bg-white rounded-[14px] p-5 shadow-[0_1px_3px_rgba(14,28,47,0.08),0_4px_16px_rgba(14,28,47,0.06)]">
           <div className="flex items-center gap-2 mb-1">
             <div className="w-6 h-6 rounded-lg flex items-center justify-center" style={{ background: domain.bg }}>
@@ -430,7 +557,7 @@ export default function SubmitGrievance() {
       )}
 
       {/* ── Step 3: Issue Details ── */}
-      {step === 3 && (
+      {step === 3 && !quickMode && (
         <div className="bg-white rounded-[14px] p-5 shadow-[0_1px_3px_rgba(14,28,47,0.08),0_4px_16px_rgba(14,28,47,0.06)]">
           <h2 className="text-[14px] font-bold text-[#0E1C2F] mb-1">Issue Details</h2>
           <p className="text-[11px] text-[#7A8FA6] mb-4">સમસ્યાની વિગત — Describe your issue</p>
@@ -469,7 +596,7 @@ export default function SubmitGrievance() {
               {listening && (
                 <p className="text-[10px] text-[#DC2626] mt-0.5 flex items-center gap-1">
                   <span className="inline-block w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse" />
-                  Listening... speak now (gu/en)
+                  Listening in {voiceLang === 'en-IN' ? 'English' : voiceLang === 'gu-IN' ? 'Gujarati' : 'Hindi'}...
                 </p>
               )}
             </div>
@@ -554,7 +681,7 @@ export default function SubmitGrievance() {
       )}
 
       {/* ── Step 4: Review & Submit ── */}
-      {step === 4 && domain && sub && (
+      {step === 4 && domain && sub && !quickMode && (
         <div className="bg-white rounded-[14px] p-5 shadow-[0_1px_3px_rgba(14,28,47,0.08),0_4px_16px_rgba(14,28,47,0.06)]">
           <h2 className="text-[14px] font-bold text-[#0E1C2F] mb-1">Review & Submit</h2>
           <p className="text-[11px] text-[#7A8FA6] mb-4">સમીક્ષા — Verify details before submitting</p>
@@ -612,7 +739,7 @@ export default function SubmitGrievance() {
       )}
 
       {/* ── Step 5: Success ── */}
-      {step === 5 && result && domain && sub && (
+      {result && domain && sub && (
         <div className="space-y-4">
           <div className="rounded-[16px] p-6 text-center text-white" style={{ background: 'linear-gradient(135deg, #16A34A 0%, #15803D 100%)' }}>
             <div className="w-16 h-16 rounded-full bg-white/20 flex items-center justify-center mx-auto mb-3">
