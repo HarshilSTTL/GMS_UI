@@ -1,5 +1,5 @@
 'use client';
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { KPICard } from '@/components/gms/KPICard';
 import { KPIData } from '@/types';
@@ -50,7 +50,9 @@ const CHANNELS = [
   { icon: '✉', bg: '#F1EFE8', fg: '#5F5E5A', name: 'Email / RTPS', vol: 54, pct: '4%' },
 ];
 
-function DonutChart() {
+const alertBg: Record<string, string> = { critical: '#FCEBEB', warning: '#FAEEDA', resolved: '#EAF3DE' };
+
+function AnimatedDonut({ animated }: { animated: boolean }) {
   let cumPct = 0;
   const stops = PRIORITY_DONUT.map(d => {
     const start = cumPct;
@@ -60,8 +62,24 @@ function DonutChart() {
   });
   return (
     <div className="relative flex items-center justify-center mx-auto" style={{ width: 140, height: 140 }}>
-      <div className="rounded-full" style={{ width: 140, height: 140, background: `conic-gradient(${stops.join(', ')})` }} />
-      <div className="absolute rounded-full bg-white flex flex-col items-center justify-center" style={{ width: 72, height: 72 }}>
+      <div
+        className="rounded-full"
+        style={{
+          width: 140,
+          height: 140,
+          background: `conic-gradient(${stops.join(', ')})`,
+          transform: animated ? 'scale(1) rotate(0deg)' : 'scale(0) rotate(-180deg)',
+          transition: 'transform 0.9s cubic-bezier(0.34, 1.56, 0.64, 1)',
+        }}
+      />
+      <div
+        className="absolute rounded-full bg-white flex flex-col items-center justify-center"
+        style={{
+          width: 72, height: 72,
+          opacity: animated ? 1 : 0,
+          transition: 'opacity 0.4s ease 0.6s',
+        }}
+      >
         <span className="text-[11px] font-bold text-[#0E1C2F]">2,847</span>
         <span className="text-[9px] text-[#7A8FA6]">Open</span>
       </div>
@@ -69,9 +87,14 @@ function DonutChart() {
   );
 }
 
-const alertBg: Record<string, string> = { critical: '#FCEBEB', warning: '#FAEEDA', resolved: '#EAF3DE' };
-
 export default function SecretaryOverviewPage() {
+  const [animated, setAnimated] = useState(false);
+
+  useEffect(() => {
+    const t = setTimeout(() => setAnimated(true), 80);
+    return () => clearTimeout(t);
+  }, []);
+
   return (
     <div>
       <div className="mb-4">
@@ -106,10 +129,18 @@ export default function SecretaryOverviewPage() {
             <Link href="/secretary/sop" className="text-[11px] text-blue-600 font-medium hover:underline">View by SOP →</Link>
           </div>
           <div className="p-4">
-            <DonutChart />
+            <AnimatedDonut animated={animated} />
             <div className="grid grid-cols-2 gap-2 mt-4">
-              {PRIORITY_DONUT.map(d => (
-                <div key={d.label} className="flex items-center gap-2">
+              {PRIORITY_DONUT.map((d, i) => (
+                <div
+                  key={d.label}
+                  className="flex items-center gap-2"
+                  style={{
+                    opacity: animated ? 1 : 0,
+                    transform: animated ? 'translateY(0)' : 'translateY(8px)',
+                    transition: `opacity 0.4s ease ${0.7 + i * 0.08}s, transform 0.4s ease ${0.7 + i * 0.08}s`,
+                  }}
+                >
                   <span className="w-2 h-2 rounded-full flex-shrink-0" style={{ background: d.color }} />
                   <span className="text-[11px] text-[#3D5068] flex-1">{d.label}</span>
                   <span className="text-[11px] font-semibold text-[#0E1C2F]">{d.pct}%</span>
@@ -125,13 +156,20 @@ export default function SecretaryOverviewPage() {
             <Link href="/secretary/sop" className="text-[11px] text-blue-600 font-medium hover:underline">Detail view →</Link>
           </div>
           <div className="divide-y divide-[#F0F2F7]">
-            {CATEGORIES.map(c => (
+            {CATEGORIES.map((c, i) => (
               <div key={c.name} className="flex items-center gap-3 px-4 py-2.5">
                 <span className="w-2 h-2 rounded-full flex-shrink-0" style={{ background: c.bg }} />
                 <span className="text-[12px] text-[#0E1C2F] flex-1">{c.name}</span>
                 <span className="text-[13px] font-semibold text-[#0E1C2F] min-w-[36px] text-right">{c.count}</span>
                 <div className="w-20 bg-[#F0F2F7] rounded-full h-1.5 overflow-hidden">
-                  <div className="h-full rounded-full" style={{ width: `${c.pct}%`, background: c.color }} />
+                  <div
+                    className="h-full rounded-full"
+                    style={{
+                      width: animated ? `${c.pct}%` : '0%',
+                      background: c.color,
+                      transition: `width 1s cubic-bezier(0.4,0,0.2,1) ${i * 0.06}s`,
+                    }}
+                  />
                 </div>
               </div>
             ))}
@@ -147,7 +185,16 @@ export default function SecretaryOverviewPage() {
           </div>
           <div className="p-4 space-y-2">
             {ALERTS.map((a, i) => (
-              <div key={i} className="flex items-start gap-3 rounded-[10px] px-3 py-2.5 text-[12px]" style={{ background: alertBg[a.type] }}>
+              <div
+                key={i}
+                className="flex items-start gap-3 rounded-[10px] px-3 py-2.5 text-[12px]"
+                style={{
+                  background: alertBg[a.type],
+                  opacity: animated ? 1 : 0,
+                  transform: animated ? 'translateX(0)' : 'translateX(-12px)',
+                  transition: `opacity 0.4s ease ${i * 0.1}s, transform 0.4s ease ${i * 0.1}s`,
+                }}
+              >
                 <span className="text-[14px] flex-shrink-0 mt-0.5">{a.icon}</span>
                 <div>
                   <div className="text-[#0E1C2F] leading-snug">
@@ -176,13 +223,28 @@ export default function SecretaryOverviewPage() {
               </div>
             ))}
           </div>
+          {/* Animated bar chart */}
           <div className="px-4 pb-4 pt-2">
             <div className="flex items-end gap-1.5 h-16">
-              {CHANNELS.map(c => {
+              {CHANNELS.map((c, i) => {
                 const heightPct = Math.round((c.vol / 487) * 100);
                 return (
                   <div key={c.name} className="flex-1 flex flex-col items-center justify-end gap-1">
-                    <div className="w-full rounded-t" style={{ height: `${heightPct}%`, minHeight: 4, background: c.fg }} />
+                    <div
+                      className="w-full rounded-t overflow-hidden"
+                      style={{ height: '100%', display: 'flex', alignItems: 'flex-end' }}
+                    >
+                      <div
+                        style={{
+                          width: '100%',
+                          height: animated ? `${heightPct}%` : '0%',
+                          minHeight: animated ? 4 : 0,
+                          background: c.fg,
+                          borderRadius: '3px 3px 0 0',
+                          transition: `height 0.8s cubic-bezier(0.4,0,0.2,1) ${i * 0.07}s`,
+                        }}
+                      />
+                    </div>
                     <span className="text-[8px] text-[#7A8FA6] truncate w-full text-center">{c.vol}</span>
                   </div>
                 );

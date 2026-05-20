@@ -1,5 +1,5 @@
 'use client';
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { KPICard } from '@/components/gms/KPICard';
 import { KPIData } from '@/types';
 
@@ -42,6 +42,13 @@ const DOP_COMPLIANCE = [
 const maxEsc = Math.max(...ESC_BY_CATEGORY.map(e => e.val));
 
 export default function SecretaryEscalationPage() {
+  const [animated, setAnimated] = useState(false);
+
+  useEffect(() => {
+    const t = setTimeout(() => setAnimated(true), 80);
+    return () => clearTimeout(t);
+  }, []);
+
   return (
     <div>
       <div className="mb-4">
@@ -63,7 +70,15 @@ export default function SecretaryEscalationPage() {
           </div>
           <div className="divide-y divide-[#F0F2F7]">
             {L3_ESCALATIONS.map((e, i) => (
-              <div key={i} className="flex items-center gap-3 px-4 py-3">
+              <div
+                key={i}
+                className="flex items-center gap-3 px-4 py-3"
+                style={{
+                  opacity: animated ? 1 : 0,
+                  transform: animated ? 'translateX(0)' : 'translateX(-14px)',
+                  transition: `opacity 0.4s ease ${i * 0.08}s, transform 0.4s ease ${i * 0.08}s`,
+                }}
+              >
                 <div className="w-7 h-7 rounded-lg flex items-center justify-center flex-shrink-0 text-[13px]" style={{ background: e.bg }}>
                   {e.icon}
                 </div>
@@ -77,19 +92,38 @@ export default function SecretaryEscalationPage() {
           </div>
         </div>
 
-        {/* Escalation by SOP category */}
+        {/* Escalation by SOP category - horizontal bars */}
         <div className="bg-white border border-[#DDE3EE] rounded-[14px] overflow-hidden shadow-[0_1px_3px_rgba(14,28,47,0.08)]">
           <div className="px-5 py-3.5 border-b border-[#DDE3EE]">
             <h2 className="text-[13px] font-bold text-[#0E1C2F]">Escalation by SOP Category</h2>
           </div>
-          <div className="p-5 space-y-2.5">
-            {ESC_BY_CATEGORY.map(e => (
+          <div className="p-5 space-y-3">
+            {ESC_BY_CATEGORY.map((e, i) => (
               <div key={e.name} className="flex items-center gap-3">
-                <span className="text-[11px] text-[#0E1C2F] w-28 flex-shrink-0 font-medium">{e.name}</span>
-                <div className="flex-1 bg-[#F0F2F7] rounded-full h-2.5 overflow-hidden">
-                  <div className="h-full rounded-full transition-all" style={{ width: `${(e.val / maxEsc) * 100}%`, background: e.color }} />
+                <span
+                  className="text-[11px] text-[#0E1C2F] w-28 flex-shrink-0 font-medium"
+                  style={{
+                    opacity: animated ? 1 : 0,
+                    transition: `opacity 0.3s ease ${i * 0.07}s`,
+                  }}
+                >
+                  {e.name}
+                </span>
+                <div className="flex-1 bg-[#F0F2F7] rounded-full h-3 overflow-hidden">
+                  <div
+                    className="h-full rounded-full flex items-center justify-end pr-1.5"
+                    style={{
+                      width: animated ? `${(e.val / maxEsc) * 100}%` : '0%',
+                      background: e.color,
+                      transition: `width 1s cubic-bezier(0.4,0,0.2,1) ${i * 0.07}s`,
+                      minWidth: animated && e.val > 0 ? 24 : 0,
+                    }}
+                  >
+                    {animated && (
+                      <span className="text-[8px] font-bold text-white leading-none">{e.val}</span>
+                    )}
+                  </div>
                 </div>
-                <span className="text-[11px] font-bold w-6 text-right flex-shrink-0" style={{ color: e.color }}>{e.val}</span>
               </div>
             ))}
           </div>
@@ -102,14 +136,30 @@ export default function SecretaryEscalationPage() {
           <h2 className="text-[13px] font-bold text-[#0E1C2F]">DOP Compliance — Officer-level Tracking</h2>
         </div>
         <div className="p-5 space-y-3.5">
-          {DOP_COMPLIANCE.map(d => (
+          {DOP_COMPLIANCE.map((d, i) => (
             <div key={d.label}>
               <div className="flex justify-between text-[11px] mb-1">
                 <span className="text-[#0E1C2F]">{d.label}</span>
-                <span className="font-bold" style={{ color: d.color }}>{d.val}%</span>
+                <span
+                  className="font-bold"
+                  style={{
+                    color: d.color,
+                    opacity: animated ? 1 : 0,
+                    transition: `opacity 0.4s ease ${i * 0.1}s`,
+                  }}
+                >
+                  {d.val}%
+                </span>
               </div>
               <div className="bg-[#F0F2F7] rounded-full h-2 overflow-hidden">
-                <div className="h-full rounded-full transition-all" style={{ width: `${d.val}%`, background: d.color }} />
+                <div
+                  className="h-full rounded-full"
+                  style={{
+                    width: animated ? `${d.val}%` : '0%',
+                    background: d.color,
+                    transition: `width 1s cubic-bezier(0.4,0,0.2,1) ${i * 0.1}s`,
+                  }}
+                />
               </div>
             </div>
           ))}

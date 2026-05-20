@@ -1,5 +1,5 @@
 'use client';
-import React, { useState, useMemo } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 
 const DIST_DATA = [
   { name: 'Ahmedabad', cdho: 'Dr. R. Shah', open: 287, crit: 8, sla: 88, csat: 4.1, top: 'MCH' },
@@ -23,6 +23,12 @@ function csatColor(v: number) { return v >= 4.0 ? '#16A34A' : v >= 3.5 ? '#D9770
 export default function SecretaryDistrictPage() {
   const [distFilter, setDistFilter] = useState('all');
   const [metricFilter, setMetricFilter] = useState('sla');
+  const [animated, setAnimated] = useState(false);
+
+  useEffect(() => {
+    const t = setTimeout(() => setAnimated(true), 80);
+    return () => clearTimeout(t);
+  }, []);
 
   const filtered = useMemo(() => {
     let data = [...DIST_DATA];
@@ -51,7 +57,7 @@ export default function SecretaryDistrictPage() {
         <span className="text-[11px] text-[#7A8FA6] font-medium">Filter:</span>
         <select
           value={distFilter}
-          onChange={e => setDistFilter(e.target.value)}
+          onChange={e => { setDistFilter(e.target.value); setAnimated(false); setTimeout(() => setAnimated(true), 80); }}
           className="text-[11px] px-3 py-1.5 border border-[#DDE3EE] rounded-lg bg-white text-[#0E1C2F] outline-none focus:border-blue-400 cursor-pointer"
         >
           <option value="all">All districts</option>
@@ -90,7 +96,15 @@ export default function SecretaryDistrictPage() {
                 const statusBg = d.sla >= 85 ? '#F0FDF4' : d.sla >= 75 ? '#FFFBEB' : '#FEF2F2';
                 const statusFg = d.sla >= 85 ? '#16A34A' : d.sla >= 75 ? '#D97706' : '#DC2626';
                 return (
-                  <tr key={d.name} className={`${i < filtered.length - 1 ? 'border-b border-[#F0F2F7]' : ''} hover:bg-[#F8FAFD] transition-colors`}>
+                  <tr
+                    key={d.name}
+                    className={`${i < filtered.length - 1 ? 'border-b border-[#F0F2F7]' : ''} hover:bg-[#F8FAFD] transition-colors`}
+                    style={{
+                      opacity: animated ? 1 : 0,
+                      transform: animated ? 'translateX(0)' : 'translateX(-10px)',
+                      transition: `opacity 0.35s ease ${i * 0.05}s, transform 0.35s ease ${i * 0.05}s`,
+                    }}
+                  >
                     <td className="px-3 py-2.5 font-semibold text-[#0E1C2F]">{d.name}</td>
                     <td className="px-3 py-2.5 text-[#7A8FA6] text-[11px]">{d.cdho}</td>
                     <td className="px-3 py-2.5 font-semibold text-[#0E1C2F]">{d.open}</td>
@@ -100,7 +114,14 @@ export default function SecretaryDistrictPage() {
                         {d.sla}%
                       </span>
                       <div className="w-14 bg-[#F0F2F7] rounded-full h-1 overflow-hidden mt-1 inline-block align-middle ml-1.5">
-                        <div className="h-full rounded-full" style={{ width: `${d.sla}%`, background: slaColor(d.sla) }} />
+                        <div
+                          className="h-full rounded-full"
+                          style={{
+                            width: animated ? `${d.sla}%` : '0%',
+                            background: slaColor(d.sla),
+                            transition: `width 0.9s cubic-bezier(0.4,0,0.2,1) ${i * 0.05 + 0.1}s`,
+                          }}
+                        />
                       </div>
                     </td>
                     <td className="px-3 py-2.5 font-bold" style={{ color: csatColor(d.csat) }}>{d.csat.toFixed(1)}</td>
@@ -116,19 +137,33 @@ export default function SecretaryDistrictPage() {
         </div>
       </div>
 
-      {/* SLA adherence bar chart */}
+      {/* SLA adherence vertical bar chart */}
       <div className="bg-white border border-[#DDE3EE] rounded-[14px] overflow-hidden shadow-[0_1px_3px_rgba(14,28,47,0.08)] mb-5">
         <div className="px-5 py-3.5 border-b border-[#DDE3EE]">
           <h2 className="text-[13px] font-bold text-[#0E1C2F]">SLA Adherence by District</h2>
         </div>
         <div className="p-5">
           <div className="flex items-end gap-2 h-48">
-            {DIST_DATA.map(d => (
+            {DIST_DATA.map((d, i) => (
               <div key={d.name} className="flex-1 flex flex-col items-center justify-end gap-1">
-                <span className="text-[9px] font-semibold" style={{ color: slaColor(d.sla) }}>{d.sla}%</span>
+                <span
+                  className="text-[9px] font-semibold"
+                  style={{
+                    color: slaColor(d.sla),
+                    opacity: animated ? 1 : 0,
+                    transition: `opacity 0.3s ease ${i * 0.06}s`,
+                  }}
+                >
+                  {d.sla}%
+                </span>
                 <div
                   className="w-full rounded-t-sm"
-                  style={{ height: `${(d.sla / 100) * 160}px`, background: slaColor(d.sla), minHeight: 8 }}
+                  style={{
+                    height: animated ? `${(d.sla / 100) * 160}px` : '0px',
+                    background: slaColor(d.sla),
+                    minHeight: animated ? 8 : 0,
+                    transition: `height 0.8s cubic-bezier(0.4,0,0.2,1) ${i * 0.06}s`,
+                  }}
                 />
                 <span className="text-[8px] text-[#7A8FA6] text-center truncate w-full">{d.name.slice(0, 5)}</span>
               </div>
@@ -142,18 +177,25 @@ export default function SecretaryDistrictPage() {
         </div>
       </div>
 
-      {/* Open complaints bar chart */}
+      {/* Open complaints horizontal bars */}
       <div className="bg-white border border-[#DDE3EE] rounded-[14px] overflow-hidden shadow-[0_1px_3px_rgba(14,28,47,0.08)]">
         <div className="px-5 py-3.5 border-b border-[#DDE3EE]">
           <h2 className="text-[13px] font-bold text-[#0E1C2F]">Open Complaints Volume by District</h2>
         </div>
         <div className="p-5">
           <div className="space-y-2.5">
-            {[...DIST_DATA].sort((a, b) => b.open - a.open).map(d => (
+            {[...DIST_DATA].sort((a, b) => b.open - a.open).map((d, i) => (
               <div key={d.name} className="flex items-center gap-3">
                 <span className="text-[11px] text-[#0E1C2F] w-28 flex-shrink-0 font-medium">{d.name}</span>
                 <div className="flex-1 bg-[#F0F2F7] rounded-full h-2 overflow-hidden">
-                  <div className="h-full rounded-full bg-[#185FA5]" style={{ width: `${(d.open / maxOpen) * 100}%` }} />
+                  <div
+                    className="h-full rounded-full"
+                    style={{
+                      width: animated ? `${(d.open / maxOpen) * 100}%` : '0%',
+                      background: '#185FA5',
+                      transition: `width 1s cubic-bezier(0.4,0,0.2,1) ${i * 0.06}s`,
+                    }}
+                  />
                 </div>
                 <span className="text-[11px] font-semibold text-[#0E1C2F] w-8 text-right">{d.open}</span>
               </div>
