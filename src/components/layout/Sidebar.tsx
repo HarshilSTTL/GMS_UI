@@ -94,6 +94,7 @@ export function Sidebar() {
     admin: 'bg-purple-900/60 text-purple-300',
     cm: 'bg-yellow-900/60 text-yellow-300',
     citizen: 'bg-teal-900/60 text-teal-300',
+    health_secretary: 'bg-sky-900/60 text-sky-300',
   };
   const roleLabel: Record<string, string> = {
     nodal_officer: 'Nodal Officer',
@@ -101,6 +102,7 @@ export function Sidebar() {
     admin: 'System Admin',
     cm: 'CM View',
     citizen: 'Citizen',
+    health_secretary: 'Health Secretary',
   };
 
   return (

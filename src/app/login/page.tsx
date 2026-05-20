@@ -11,10 +11,11 @@ import { DEMO_ACCOUNTS } from '@/data/mock-users';
 const OFFICER_DEMOS = DEMO_ACCOUNTS.filter(a => a.label !== 'Citizen Portal');
 
 const ROLE_META: Record<string, { icon: string; desc: string }> = {
-  'Nodal Officer': { icon: '👮', desc: 'Manage & assign grievances' },
-  'Clerk / Task':  { icon: '📋', desc: 'Process & resolve tasks' },
-  'Admin Console': { icon: '⚙️', desc: 'System administration' },
-  'CM Dashboard':  { icon: '🏛', desc: 'Intelligence overview' },
+  'Nodal Officer':    { icon: '👮', desc: 'Manage & assign grievances' },
+  'Clerk / Task':     { icon: '📋', desc: 'Process & resolve tasks' },
+  'Admin Console':    { icon: '⚙️', desc: 'System administration' },
+  'CM Dashboard':     { icon: '🏛', desc: 'Intelligence overview' },
+  'Health Secretary': { icon: '🏥', desc: 'Health dept command view' },
 };
 
 const FEATURES = [

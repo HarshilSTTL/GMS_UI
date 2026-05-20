@@ -9,6 +9,7 @@ const DEMO_USERS = [
   { id: 'u3', name: 'Bhupesh Patel', email: 'bhupesh.patel@gujarat.gov.in', password: 'admin123', role: 'admin' as const, district: 'Surat', department: 'Admin', designation: 'Admin' },
   { id: 'u4', name: 'CM Office', email: 'cm.office@gujarat.gov.in', password: 'cm123', role: 'cm' as const, district: 'Gandhinagar', department: 'CM Office', designation: 'CM' },
   { id: 'u5', name: 'Demo Citizen', email: 'demo.citizen@example.com', password: 'demo123', role: 'citizen' as const, district: 'Ahmedabad', department: 'N/A', designation: 'Citizen' },
+  { id: 'u6', name: 'Dr. Aarti Desai', email: 'secretary.health@gujarat.gov.in', password: 'secretary123', role: 'health_secretary' as const, district: 'Gandhinagar', department: 'Health & Family Welfare', designation: 'Principal Secretary (Health)' },
 ];
 
 export async function POST(request: NextRequest) {
@@ -30,6 +31,20 @@ export async function POST(request: NextRequest) {
     const token = generateSessionToken();
     createSession(token, user.id, user.role);
 
+    const AVATAR_COLORS: Record<string, string> = {
+      nodal_officer: '#1A56C4',
+      clerk: '#16A34A',
+      admin: '#7C3AED',
+      cm: '#C9A84C',
+      citizen: '#0891B2',
+      health_secretary: '#004B87',
+    };
+    const PERMISSIONS: Record<string, string[]> = {
+      admin: ['*'],
+      health_secretary: ['dashboard.secretary', 'reports.view', 'departments.view', 'districts.view', 'escalations.view'],
+      cm: ['dashboard.cm', 'reports.view', 'departments.view', 'districts.view'],
+    };
+
     // Return user (without password)
     const response = NextResponse.json({
       user: {
@@ -41,8 +56,8 @@ export async function POST(request: NextRequest) {
         department: user.department,
         designation: user.designation,
         initials: user.name.split(' ').map(n => n[0]).join(''),
-        avatarColor: '#3B82F6',
-        permissions: user.role === 'admin' ? ['all'] : ['complaints.view'],
+        avatarColor: AVATAR_COLORS[user.role] ?? '#3B82F6',
+        permissions: PERMISSIONS[user.role] ?? ['complaints.view'],
         status: 'active'
       },
       token

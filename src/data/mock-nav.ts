@@ -122,12 +122,27 @@ const CM_NAV: NavSection[] = [
   },
 ];
 
+const SECRETARY_NAV: NavSection[] = [
+  {
+    id: 'views',
+    label: 'Command Dashboard',
+    items: [
+      { id: 'overview', label: 'Overview', icon: 'Globe2', path: '/secretary/overview' },
+      { id: 'district', label: 'District Analysis', icon: 'MapPin', path: '/secretary/district', badge: 3, badgeVariant: 'red' },
+      { id: 'sop', label: 'SOP Performance', icon: 'FileText', path: '/secretary/sop' },
+      { id: 'trends', label: 'Trends & Patterns', icon: 'TrendingUp', path: '/secretary/trends' },
+      { id: 'escalation', label: 'Escalation Radar', icon: 'AlertTriangle', path: '/secretary/escalation', badge: 15, badgeVariant: 'red' },
+    ],
+  },
+];
+
 export const NAV_CONFIG: Record<UserRole, NavSection[]> = {
   nodal_officer: OFFICER_NAV,
   clerk: CLERK_NAV,
   admin: ADMIN_NAV,
   cm: CM_NAV,
   citizen: CITIZEN_NAV,
+  health_secretary: SECRETARY_NAV,
 };
 
 export function getNavForRole(role: UserRole): NavSection[] {
@@ -141,6 +156,7 @@ export function getDefaultPath(role: UserRole): string {
     admin: '/admin/overview',
     cm: '/cm/overview',
     citizen: '/citizen',
+    health_secretary: '/secretary/overview',
   };
   return paths[role] ?? '/portal/dashboard';
 }

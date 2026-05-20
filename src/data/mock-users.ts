@@ -61,6 +61,17 @@ export const MOCK_USERS: User[] = [
     permissions: ['dashboard.cm', 'reports.view', 'departments.view', 'districts.view'],
   },
   {
+    id: 'u6',
+    name: 'Dr. Aarti Desai',
+    email: 'secretary.health@gujarat.gov.in',
+    role: 'health_secretary',
+    department: 'Health & Family Welfare Department',
+    designation: 'Principal Secretary (Health)',
+    initials: 'AD',
+    avatarColor: '#004B87',
+    permissions: ['dashboard.secretary', 'reports.view', 'departments.view', 'districts.view', 'escalations.view'],
+  },
+  {
     id: 'u5',
     name: 'Rajesh Patel',
     email: 'citizen@gmail.com',
@@ -79,6 +90,7 @@ const MOCK_CREDENTIALS: Record<string, { password: string; userId: string }> = {
   'bhupesh.patel@gujarat.gov.in': { password: 'admin123', userId: 'u3' },
   'cm.office@gujarat.gov.in': { password: 'cm123', userId: 'u4' },
   'citizen@gmail.com': { password: 'citizen123', userId: 'u5' },
+  'secretary.health@gujarat.gov.in': { password: 'secretary123', userId: 'u6' },
 };
 
 export function mockLogin(credentials: LoginCredentials): LoginResponse | null {
@@ -94,6 +106,7 @@ export const DEMO_ACCOUNTS = [
   { label: 'Clerk / Task', email: 'anita.sharma@gujarat.gov.in', password: 'clerk123', color: '#16A34A' },
   { label: 'Admin Console', email: 'bhupesh.patel@gujarat.gov.in', password: 'admin123', color: '#7C3AED' },
   { label: 'CM Dashboard', email: 'cm.office@gujarat.gov.in', password: 'cm123', color: '#C9A84C' },
+  { label: 'Health Secretary', email: 'secretary.health@gujarat.gov.in', password: 'secretary123', color: '#004B87' },
   { label: 'Citizen Portal', email: 'citizen@gmail.com', password: 'citizen123', color: '#0891B2' },
 ];
 

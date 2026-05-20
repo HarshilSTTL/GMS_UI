@@ -1,4 +1,4 @@
-export type UserRole = 'admin' | 'nodal_officer' | 'clerk' | 'cm' | 'citizen';
+export type UserRole = 'admin' | 'nodal_officer' | 'clerk' | 'cm' | 'citizen' | 'health_secretary';
 
 export interface User {
   id: string;
