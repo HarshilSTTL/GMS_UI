@@ -7,7 +7,8 @@ export type ComplaintStatus =
   | 'escalated'
   | 'acknowledged'
   | 'grouped'
-  | 'closed';
+  | 'closed'
+  | 'document_requested';
 
 export type ComplaintPriority = 'critical' | 'high' | 'medium' | 'low';
 
@@ -33,7 +34,7 @@ export interface Officer {
 
 export interface TimelineEntry {
   id: string;
-  type: 'created' | 'assigned' | 'status_change' | 'resolved' | 'escalated' | 'note' | 'forwarded' | 'reassigned' | 'acknowledged' | 'transferred' | 'reopened' | 'feedback';
+  type: 'created' | 'assigned' | 'status_change' | 'resolved' | 'escalated' | 'note' | 'forwarded' | 'reassigned' | 'acknowledged' | 'transferred' | 'reopened' | 'feedback' | 'document_requested' | 'document_resubmitted';
   title: string;
   actor: string;
   actorRole: 'citizen' | 'officer' | 'system';
@@ -69,6 +70,14 @@ export interface Complaint {
   createdAt: string;
   updatedAt: string;
   resolvedAt?: string | null;
+  documentRequest?: {
+    note: string;
+    requestedBy: string;
+    requestedByName: string;
+    requestedAt: string;
+  };
+  isResubmitted?: boolean;
+  resubmittedAttachment?: string;
 }
 
 export interface ComplaintGroup {

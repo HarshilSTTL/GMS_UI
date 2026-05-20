@@ -2,7 +2,8 @@
 import React, { useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { ArrowLeft, Send, RotateCcw, AlertTriangle, CheckCircle, Link2, User } from 'lucide-react';
+import { toast } from 'sonner';
+import { ArrowLeft, Send, RotateCcw, AlertTriangle, CheckCircle, Link2, User, Paperclip } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { StatusBadge, PriorityBadge, ChannelBadge, SLABadge } from '@/components/gms/StatusBadge';
 import { ActionPopup, ActionPopupData } from '@/components/gms/ActionPopup';
@@ -22,6 +23,8 @@ function getTimelineIcon(type: string): { icon: string; bg: string } {
     transferred: { icon: '✈️', bg: '#FCC0FF' },
     reopened: { icon: '🔓', bg: '#FECDD3' },
     feedback: { icon: '⭐', bg: '#FEF3C7' },
+    document_requested: { icon: '📎', bg: '#FDE68A' },
+    document_resubmitted: { icon: '📄', bg: '#BFDBFE' },
   };
   return icons[type] || { icon: '•', bg: '#E5E7EB' };
 }
@@ -111,6 +114,8 @@ export default function ComplaintDetailPage() {
   const [newStatus, setNewStatus] = useState('');
   const [acting, setActing] = useState(false);
   const [popup, setPopup] = useState<ActionPopupData | null>(null);
+  const [showDocReqModal, setShowDocReqModal] = useState(false);
+  const [docReqNote, setDocReqNote] = useState('');
 
   const user = JSON.parse(localStorage.getItem('gms-auth') || '{}')?.state?.user;
 
@@ -207,10 +212,74 @@ export default function ComplaintDetailPage() {
 
   function handleReassign() { router.push('/portal/reassign'); }
 
+  async function handleRequestDocument() {
+    if (!docReqNote.trim()) {
+      setPopup({ type: 'error', title: 'Note required', description: 'Please explain what document is needed before submitting the request.' });
+      return;
+    }
+    try {
+      await patchAction('request_document', { requestNote: docReqNote });
+      setShowDocReqModal(false);
+      setDocReqNote('');
+      setPopup({
+        type: 'request_document',
+        token: complaint.token,
+        title: 'Document Requested',
+        description: 'The citizen has been notified and asked to resubmit the grievance with the required document.',
+        meta: [
+          { label: 'New Status', value: 'Action Required' },
+          { label: 'Citizen notified', value: 'SMS + In-app' },
+        ],
+      });
+    } catch (e: any) {
+      setPopup({ type: 'error', title: 'Request failed', description: e.message });
+    }
+  }
+
   return (
     <div>
       {/* Action result popup */}
       {popup && <ActionPopup data={popup} onClose={() => setPopup(null)} />}
+
+      {/* Request Document modal */}
+      {showDocReqModal && (
+        <div className="fixed inset-0 z-[200] flex items-center justify-center p-4" style={{ background: 'rgba(14,28,47,0.55)', backdropFilter: 'blur(3px)' }} onClick={() => setShowDocReqModal(false)}>
+          <div className="bg-white rounded-[18px] w-full max-w-[420px] shadow-[0_8px_40px_rgba(14,28,47,0.22)] overflow-hidden border border-amber-200" onClick={e => e.stopPropagation()}>
+            <div className="px-6 pt-6 pb-4 bg-amber-50">
+              <div className="flex items-center gap-3 mb-3">
+                <div className="w-10 h-10 rounded-full bg-amber-100 flex items-center justify-center text-[20px]">📎</div>
+                <div>
+                  <h2 className="text-[16px] font-bold text-[#0E1C2F]">Request Additional Document</h2>
+                  <p className="text-[11px] text-[#7A8FA6]">Citizen will be notified to resubmit with the document</p>
+                </div>
+              </div>
+            </div>
+            <div className="px-6 py-4">
+              <label className="block text-[11px] font-bold text-[#3D5068] mb-1.5 uppercase tracking-wide">What document is required?</label>
+              <textarea
+                value={docReqNote}
+                onChange={e => setDocReqNote(e.target.value)}
+                rows={4}
+                placeholder="Describe the document needed (e.g. 'Please attach a photo of the affected area' or 'Provide your water bill copy')..."
+                className="w-full px-3 py-2.5 border border-[#DDE3EE] rounded-lg text-[12px] text-[#0E1C2F] resize-none outline-none focus:border-amber-400 focus:ring-2 focus:ring-amber-400/10 transition-colors"
+              />
+              <div className="flex gap-2 mt-4">
+                <button onClick={() => setShowDocReqModal(false)} className="flex-1 py-2.5 rounded-[10px] text-[12px] font-semibold border border-[#DDE3EE] text-[#3D5068] bg-white hover:bg-[#F0F2F7] transition-colors">
+                  Cancel
+                </button>
+                <button
+                  onClick={handleRequestDocument}
+                  disabled={acting || !docReqNote.trim()}
+                  className="flex-1 flex items-center justify-center gap-2 py-2.5 rounded-[10px] text-[12px] font-semibold text-white disabled:opacity-50 transition-colors"
+                  style={{ background: '#D97706' }}
+                >
+                  <Paperclip size={13} /> Send Request
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Back + breadcrumb */}
       <div className="flex items-center gap-2 mb-4">
@@ -253,6 +322,11 @@ export default function ComplaintDetailPage() {
             {!['acknowledged', 'in_progress', 'under_review', 'escalated', 'resolved', 'closed'].includes(complaint.status) && (
               <button onClick={handleAcknowledge} disabled={acting} className="flex items-center gap-1.5 px-3 py-1.5 bg-amber-50 border border-amber-300 text-amber-800 text-[12px] font-semibold rounded-lg hover:bg-amber-100 transition-colors disabled:opacity-50">
                 ✋ Acknowledge
+              </button>
+            )}
+            {!['resolved', 'closed', 'document_requested'].includes(complaint.status) && (
+              <button onClick={() => { setDocReqNote(''); setShowDocReqModal(true); }} disabled={acting} className="flex items-center gap-1.5 px-3 py-1.5 bg-amber-50 border border-amber-200 text-amber-700 text-[12px] font-semibold rounded-lg hover:bg-amber-100 transition-colors disabled:opacity-50">
+                <Paperclip size={13} /> Request Doc
               </button>
             )}
             <button onClick={handleReassign} disabled={acting} className="flex items-center gap-1.5 px-3 py-1.5 bg-orange-500 text-white text-[12px] font-semibold rounded-lg hover:bg-orange-600 transition-colors disabled:opacity-50">
@@ -301,6 +375,32 @@ export default function ComplaintDetailPage() {
           <div>
             <p className="text-[13px] font-bold text-red-800">Grievance Escalated</p>
             <p className="text-[11px] text-red-700">This grievance has been escalated to senior authority for urgent attention.</p>
+          </div>
+        </div>
+      )}
+      {complaint.status === 'document_requested' && (
+        <div className="flex items-center gap-3 bg-amber-50 border border-amber-200 rounded-[12px] px-5 py-3.5 mb-4">
+          <span className="text-[22px]">📎</span>
+          <div className="flex-1">
+            <p className="text-[13px] font-bold text-amber-800">Document Requested — Awaiting Citizen Response</p>
+            {complaint.documentRequest && (
+              <p className="text-[11px] text-amber-700 mt-0.5">
+                <span className="font-semibold">Requested by:</span> {complaint.documentRequest.requestedByName} ·{' '}
+                <span className="font-semibold">Note:</span> {complaint.documentRequest.note}
+              </p>
+            )}
+          </div>
+        </div>
+      )}
+      {complaint.isResubmitted && (
+        <div className="flex items-center gap-3 bg-blue-50 border border-blue-200 rounded-[12px] px-5 py-3.5 mb-4">
+          <span className="text-[22px]">📄</span>
+          <div className="flex-1">
+            <p className="text-[13px] font-bold text-blue-800">Document Resubmitted by Citizen</p>
+            <p className="text-[11px] text-blue-700">
+              The citizen has updated this grievance with additional documents.
+              {complaint.resubmittedAttachment && <> Attachment: <span className="font-semibold">{complaint.resubmittedAttachment}</span></>}
+            </p>
           </div>
         </div>
       )}

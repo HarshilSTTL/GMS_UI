@@ -12,6 +12,7 @@ const STATUS_CONFIG: Record<ComplaintStatus, { label: string; className: string 
   acknowledged: { label: 'Acknowledged', className: 'bg-yellow-100 text-yellow-900' },
   grouped: { label: 'Grouped', className: 'bg-orange-100 text-orange-800' },
   closed: { label: 'Closed', className: 'bg-slate-100 text-slate-800' },
+  document_requested: { label: 'Action Required', className: 'bg-amber-100 text-amber-800 font-bold' },
 };
 
 const PRIORITY_CONFIG: Record<ComplaintPriority, { label: string; className: string }> = {

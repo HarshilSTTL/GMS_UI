@@ -16,7 +16,9 @@ type Action =
   | 'reopen'
   | 'feedback'
   | 'send_update'
-  | 'begin_work';
+  | 'begin_work'
+  | 'request_document'
+  | 'resubmit_document';
 
 function addTimelineEntry(complaint: Complaint, type: any, title: string, actor: string, actorRole: 'citizen' | 'officer' | 'system', description?: string) {
   const tlId = `tl-${complaint.id}-${complaint.timeline.length + 1}`;
@@ -297,6 +299,44 @@ export async function PATCH(
         addTimelineEntry(complaint, 'status_change', 'Work Started', actorName, actorRole, `${actorName} has started working on this grievance.`);
         createNotification(complaint.citizenId, 'Work Started', `Work has begun on your grievance ${complaint.token}.`, id, 'status_update');
         logAction('BEGIN WORK', actorId, `grievance: ${id}`);
+        break;
+      }
+
+      // ========== REQUEST DOCUMENT ==========
+      case 'request_document': {
+        const { requestNote } = rest;
+        if (!requestNote?.trim()) {
+          return NextResponse.json({ error: 'Request note is required.' }, { status: 400 });
+        }
+        complaint.status = 'document_requested' as any;
+        (complaint as any).documentRequest = {
+          note: requestNote,
+          requestedBy: actorId,
+          requestedByName: actorName,
+          requestedAt: now,
+        };
+        addTimelineEntry(complaint, 'document_requested', 'Document Requested', actorName, actorRole, requestNote);
+        createNotification(complaint.citizenId, 'Action Required: Document Requested', `Officer ${actorName} has requested an additional document for your grievance ${complaint.token}. Please log in to resubmit.`, id, 'status_update');
+        logAction('REQUEST DOCUMENT', actorId, `grievance: ${id}`);
+        break;
+      }
+
+      // ========== RESUBMIT DOCUMENT ==========
+      case 'resubmit_document': {
+        const { newDescription, attachmentName } = rest;
+        if (complaint.status !== 'document_requested') {
+          return NextResponse.json({ error: 'Can only resubmit when document is requested.' }, { status: 400 });
+        }
+        complaint.status = 'in_progress';
+        (complaint as any).isResubmitted = true;
+        if (newDescription?.trim()) complaint.description = newDescription;
+        if (attachmentName) (complaint as any).resubmittedAttachment = attachmentName;
+        addTimelineEntry(complaint, 'document_resubmitted', 'Document Resubmitted by Citizen', actorName, 'citizen', attachmentName ? `Attached: ${attachmentName}` : 'Citizen resubmitted the grievance with updated information.');
+        const officerId = (complaint.assignedTo as any)?.id;
+        if (officerId) {
+          createNotification(officerId, 'Document Resubmitted', `Citizen has resubmitted documents for grievance ${complaint.token}. Please review.`, id, 'status_update');
+        }
+        logAction('RESUBMIT DOCUMENT', actorId, `grievance: ${id}`);
         break;
       }
 

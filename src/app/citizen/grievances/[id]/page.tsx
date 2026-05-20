@@ -1,7 +1,7 @@
 'use client';
 import { useState, useEffect, use } from 'react';
 import { useRouter } from 'next/navigation';
-import { ArrowLeft, Clock, User, MapPin, Phone, Building, Calendar, Star, RefreshCw, AlertTriangle, MessageSquare, Download, Send, CheckCircle, FileText } from 'lucide-react';
+import { ArrowLeft, Clock, User, MapPin, Phone, Building, Calendar, Star, RefreshCw, AlertTriangle, MessageSquare, Download, Send, CheckCircle, FileText, Paperclip, Upload } from 'lucide-react';
 import Link from 'next/link';
 import { toast } from 'sonner';
 
@@ -12,6 +12,9 @@ interface Grievance {
   district: string; officer: string; officerDept: string;
   submittedDate: string; updatedAt: string; resolvedAt?: string;
   feedback: string | null; rating: number | null;
+  documentRequest?: { note: string; requestedBy: string; requestedByName: string; requestedAt: string };
+  isResubmitted?: boolean;
+  resubmittedAttachment?: string;
 }
 
 const STATUS_CONFIG: Record<string, { label: string; color: string; bg: string }> = {
@@ -21,6 +24,7 @@ const STATUS_CONFIG: Record<string, { label: string; color: string; bg: string }
   escalated: { label: 'Escalated', color: '#DC2626', bg: '#FEF2F2' },
   acknowledged: { label: 'Acknowledged', color: '#0891B2', bg: '#ECFEFF' },
   under_review: { label: 'Under Review', color: '#7C3AED', bg: '#F5F3FF' },
+  document_requested: { label: 'Action Required', color: '#B45309', bg: '#FEF3C7' },
 };
 
 const PRIORITY_CONFIG: Record<string, { label: string; color: string }> = {
@@ -48,6 +52,10 @@ export default function GrievanceDetail({ params }: { params: Promise<{ id: stri
   const [rating, setRating] = useState(0);
   const [comment, setComment] = useState('');
   const [modalStep, setModalStep] = useState(0);
+  const [resubDesc, setResubDesc] = useState('');
+  const [resubFile, setResubFile] = useState<File | null>(null);
+  const [resubmitting, setResubmitting] = useState(false);
+  const [resubDone, setResubDone] = useState(false);
 
   useEffect(() => {
     fetch(`/api/grievances/${id}`)
@@ -82,7 +90,7 @@ export default function GrievanceDetail({ params }: { params: Promise<{ id: stri
           const mapped = { ...result.data, submittedDate: result.data.createdAt, officer: result.data.assignedTo?.name || 'Unassigned', officerDept: result.data.assignedTo?.department || '', status: result.data.status === 'open' ? 'pending' : result.data.status };
           setG(mapped);
           setModalStep(1);
-          toast.success(`🔓 Grievance reopened\nOfficer has been notified`);
+          toast.success(`🔓 Grievance reopened successfully\nStatus changed to Open\nOfficer has been notified`);
         } else {
           toast.error(result.error || 'Failed to reopen grievance');
         }
@@ -98,7 +106,7 @@ export default function GrievanceDetail({ params }: { params: Promise<{ id: stri
           const mapped = { ...result.data, submittedDate: result.data.createdAt, officer: result.data.assignedTo?.name || 'Unassigned', officerDept: result.data.assignedTo?.department || '', status: result.data.status === 'open' ? 'pending' : result.data.status };
           setG(mapped);
           setModalStep(1);
-          toast.success(`⭐ Thank you for your feedback\nYour rating: ${rating}/5 stars`);
+          toast.success(`⭐ Thank you for your feedback!\nYour rating: ${rating}/5 stars has been recorded`);
         } else {
           toast.error(result.error || 'Failed to submit feedback');
         }
@@ -114,7 +122,7 @@ export default function GrievanceDetail({ params }: { params: Promise<{ id: stri
           const mapped = { ...result.data, submittedDate: result.data.createdAt, officer: result.data.assignedTo?.name || 'Unassigned', officerDept: result.data.assignedTo?.department || '', status: result.data.status === 'open' ? 'pending' : result.data.status };
           setG(mapped);
           setModalStep(1);
-          toast.warning(`⚠️ Grievance escalated to higher authority\nYou will receive updates soon`);
+          toast.warning(`🚨 Grievance escalated to higher authority\nStatus changed to Escalated\nYou will receive priority updates`);
         } else {
           toast.error(result.error || 'Failed to escalate grievance');
         }
@@ -124,6 +132,43 @@ export default function GrievanceDetail({ params }: { params: Promise<{ id: stri
       }
     } catch (error) {
       toast.error('An error occurred. Please try again.');
+    }
+  }
+
+  async function handleResubmit() {
+    if (!g) return;
+    const user = JSON.parse(localStorage.getItem('gms-auth') || '{}')?.state?.user;
+    setResubmitting(true);
+    try {
+      const res = await fetch(`/api/grievances/${id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action: 'resubmit_document',
+          actorId: user?.id,
+          newDescription: resubDesc.trim() || undefined,
+          attachmentName: resubFile?.name || undefined,
+        }),
+      });
+      const result = await res.json();
+      if (result.data) {
+        const data = result.data;
+        setG({
+          ...data,
+          submittedDate: data.createdAt || data.submittedDate,
+          officer: data.assignedTo?.name || data.officer || 'Unassigned',
+          officerDept: data.assignedTo?.department || data.officerDept || '',
+          status: data.status,
+        });
+        setResubDone(true);
+        setResubFile(null);
+      } else {
+        toast.error(result.error || 'Failed to resubmit');
+      }
+    } catch {
+      toast.error('An error occurred. Please try again.');
+    } finally {
+      setResubmitting(false);
     }
   }
 
@@ -152,6 +197,69 @@ export default function GrievanceDetail({ params }: { params: Promise<{ id: stri
         </div>
         <span className="text-[11px] font-semibold px-3 py-1.5 rounded-full" style={{ color: sc.color, background: sc.bg }}>{sc.label}</span>
       </div>
+
+      {/* Action Required Banner */}
+      {g.status === 'document_requested' && (
+        <div className="bg-amber-50 border-2 border-amber-300 rounded-[14px] p-5 space-y-4">
+          <div className="flex items-start gap-3">
+            <span className="text-[28px] flex-shrink-0">📎</span>
+            <div className="flex-1">
+              <p className="text-[14px] font-bold text-amber-900">Action Required: Additional Document Needed</p>
+              {g.documentRequest && (
+                <p className="text-[12px] text-amber-800 mt-1 leading-relaxed">
+                  <span className="font-semibold">{g.documentRequest.requestedByName}</span> has requested an additional document:{' '}
+                  <span className="italic">&ldquo;{g.documentRequest.note}&rdquo;</span>
+                </p>
+              )}
+              <p className="text-[11px] text-amber-700 mt-1">Please update your description and attach the requested document below, then resubmit.</p>
+            </div>
+          </div>
+
+          {resubDone ? (
+            <div className="bg-green-50 border border-green-200 rounded-[10px] p-4 flex items-center gap-3">
+              <CheckCircle size={20} className="text-green-600 flex-shrink-0" />
+              <div>
+                <p className="text-[13px] font-bold text-green-800">Resubmitted Successfully</p>
+                <p className="text-[11px] text-green-700">Your grievance is back in progress. The officer has been notified.</p>
+              </div>
+            </div>
+          ) : (
+            <div className="bg-white rounded-[12px] border border-amber-200 p-4 space-y-3">
+              <div>
+                <label className="block text-[11px] font-bold text-[#3D5068] mb-1.5">Update Description (optional)</label>
+                <textarea
+                  value={resubDesc}
+                  onChange={e => setResubDesc(e.target.value)}
+                  rows={3}
+                  placeholder={g.description}
+                  className="w-full px-3 py-2.5 border-2 border-[#DDE3EE] rounded-[10px] text-[12px] outline-none focus:border-amber-400 resize-none"
+                />
+              </div>
+              <div>
+                <label className="block text-[11px] font-bold text-[#3D5068] mb-1.5">Attach Document</label>
+                <label className="flex items-center gap-3 px-4 py-3 border-2 border-dashed border-[#DDE3EE] rounded-[10px] cursor-pointer hover:border-amber-400 transition-colors bg-[#FAFBFC]">
+                  <Upload size={16} className="text-[#7A8FA6] flex-shrink-0" />
+                  <span className="text-[12px] text-[#7A8FA6]">
+                    {resubFile ? resubFile.name : 'Click to select a file (photo, PDF, etc.)'}
+                  </span>
+                  <input type="file" className="hidden" onChange={e => setResubFile(e.target.files?.[0] || null)} />
+                </label>
+              </div>
+              <button
+                onClick={handleResubmit}
+                disabled={resubmitting}
+                className="w-full flex items-center justify-center gap-2 py-2.5 rounded-[10px] text-[13px] font-bold text-white disabled:opacity-60 transition-colors"
+                style={{ background: '#D97706' }}
+              >
+                {resubmitting
+                  ? <><span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" /> Resubmitting...</>
+                  : <><Send size={14} /> Resubmit Grievance</>
+                }
+              </button>
+            </div>
+          )}
+        </div>
+      )}
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
         {/* Main Content */}

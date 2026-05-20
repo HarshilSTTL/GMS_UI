@@ -11,6 +11,7 @@ export type ActionPopupType =
   | 'send_update'
   | 'forward'
   | 'reopen'
+  | 'request_document'
   | 'error';
 
 export interface ActionPopupData {
@@ -92,6 +93,15 @@ const CONFIG: Record<ActionPopupType, {
     headerBg: '#FEF2F2',
     btnBg: '#DC2626',
     btnHover: '#B91C1C',
+  },
+  request_document: {
+    icon: <span className="text-[22px]">📎</span>,
+    iconBg: '#FEF3C7',
+    iconColor: '#D97706',
+    borderColor: '#FDE68A',
+    headerBg: '#FFFBEB',
+    btnBg: '#D97706',
+    btnHover: '#B45309',
   },
   error: {
     icon: <X size={28} />,
