@@ -366,6 +366,28 @@ export default function RootPage() {
               </div>
             </div>
           </div>
+          {/* Reference Materials */}
+          <div className="border-t border-white/10 pt-6 mb-6">
+            <h4 className="text-[11px] font-bold text-white uppercase tracking-wider mb-4">Reference Materials</h4>
+            <div className="flex flex-wrap gap-4">
+              <a
+                href="/Swagat 3.0 Mobile - Merged (2).html"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-white/10 hover:bg-white/20 text-blue-200 hover:text-white text-[11px] font-medium transition-colors border border-white/10"
+              >
+                📱 Swagat 3.0 Mobile
+              </a>
+              <a
+                href="/CitizenVoice_WhatsApp_v1.html"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-white/10 hover:bg-white/20 text-blue-200 hover:text-white text-[11px] font-medium transition-colors border border-white/10"
+              >
+                💬 CitizenVoice WhatsApp
+              </a>
+            </div>
+          </div>
           {/* Bottom bar */}
           <div className="border-t border-white/10 pt-6 flex flex-col md:flex-row items-center justify-between gap-3">
             <p className="text-[10px] text-blue-300/50">© 2024 Government of Gujarat. All Rights Reserved.</p>
