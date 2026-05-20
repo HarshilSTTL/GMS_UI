@@ -2,7 +2,6 @@
 import { useState, useRef, useCallback } from 'react';
 import {
   ArrowLeft, ChevronDown, Mic, MicOff, Navigation, CheckCircle,
-  Hospital, Droplet, Route, Building2, Leaf,
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { GrievanceFormData } from '@/lib/grievanceSchema';
