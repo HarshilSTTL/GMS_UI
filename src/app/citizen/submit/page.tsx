@@ -215,8 +215,15 @@ export default function SubmitGrievance() {
     recog.continuous = false;
     recog.interimResults = false;
     recog.onresult = (e: any) => {
-      const text = e.results[0][0].transcript;
-      setForm(f => ({ ...f, description: f.description + (f.description ? ' ' : '') + text }));
+      let text = '';
+      for (let i = e.resultIndex; i < e.results.length; i++) {
+        if (e.results[i].isFinal) {
+          text += e.results[i][0].transcript + ' ';
+        }
+      }
+      if (text.trim()) {
+        setForm(f => ({ ...f, description: f.description + (f.description ? ' ' : '') + text.trim() }));
+      }
     };
     recog.onend = () => setListening(false);
     recog.start();
@@ -398,6 +405,7 @@ export default function SubmitGrievance() {
           listening={listening}
           detecting={detecting}
           lang={voiceLang}
+          onLanguageChange={setVoiceLang}
           onToggleVoice={toggleVoice}
           onDetectLocation={detectLocation}
         />

@@ -65,6 +65,7 @@ interface QuickSubmitFormProps {
   listening?: boolean;
   detecting?: boolean;
   lang?: 'en-IN' | 'gu-IN' | 'hi-IN';
+  onLanguageChange?: (lang: 'en-IN' | 'gu-IN' | 'hi-IN') => void;
   onToggleVoice?: () => void;
   onDetectLocation?: () => void;
 }
@@ -90,6 +91,7 @@ export function QuickSubmitForm({
   listening = false,
   detecting = false,
   lang = 'en-IN',
+  onLanguageChange,
   onToggleVoice,
   onDetectLocation,
 }: QuickSubmitFormProps) {
@@ -204,8 +206,8 @@ export function QuickSubmitForm({
                 <div className="relative">
                   <select
                     value={lang}
-                    disabled
-                    className="px-2.5 py-1 border-2 border-[#DDE3EE] rounded-[6px] text-[9px] outline-none appearance-none bg-white pr-6 cursor-default"
+                    onChange={e => onLanguageChange?.(e.target.value as 'en-IN' | 'gu-IN' | 'hi-IN')}
+                    className="px-2.5 py-1 border-2 border-[#DDE3EE] rounded-[6px] text-[9px] outline-none focus:border-[#F4811F] appearance-none bg-white pr-6"
                   >
                     <option value="en-IN">🇬🇧 EN</option>
                     <option value="gu-IN">🇮🇳 GU</option>
