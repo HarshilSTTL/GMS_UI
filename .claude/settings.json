@@ -1,14 +1,6 @@
 {
-  "env": {
-    "ANTHROPIC_AUTH_TOKEN": "sk-36e5ded99af147ae8f5a34a6f1b945ab",
-    "ANTHROPIC_BASE_URL": "https://api.deepseek.com/anthropic",
-    "ANTHROPIC_DEFAULT_OPUS_MODEL": "deepseek-v4-pro[1m]",
-    "ANTHROPIC_DEFAULT_SONNET_MODEL": "deepseek-v4-pro[1m]",
-    "ANTHROPIC_DEFAULT_HAIKU_MODEL": "deepseek-v4-flash",
-    "CLAUDE_CODE_SUBAGENT_MODEL": "deepseek-v4-flash",
-    "API_TIMEOUT_MS": "3000000"
-  },
-  "model": "sonnet",
-  "effortLevel": "medium",
-  "autoUpdatesChannel": "latest"
+  "permissions": {
+    "allow": [],
+    "deny": []
+  }
 }
