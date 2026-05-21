@@ -67,6 +67,8 @@ interface QuickSubmitFormProps {
   onLanguageChange?: (lang: 'en-IN' | 'gu-IN' | 'hi-IN') => void;
   onToggleVoice?: () => void;
   onDetectLocation?: () => void;
+  selectedFiles?: File[];
+  onFilesChange?: (files: File[]) => void;
 }
 
 const PRIORITY_COLORS: Record<string, string> = {
@@ -93,6 +95,8 @@ export function QuickSubmitForm({
   onLanguageChange,
   onToggleVoice,
   onDetectLocation,
+  selectedFiles = [],
+  onFilesChange,
 }: QuickSubmitFormProps) {
   const update = (field: string, value: string) => {
     if (field === 'district') { onFormChange('district', value); onFormChange('taluka', ''); onFormChange('ward', ''); return; }
@@ -293,6 +297,49 @@ export function QuickSubmitForm({
               />
             </div>
           </div>
+        </div>
+
+        {/* Documents */}
+        <div>
+          <label className="block text-[11px] font-semibold text-[#3D5068] mb-2">
+            📎 Attach Documents <span className="text-[#7A8FA6] font-normal">(Optional)</span>
+          </label>
+          <label className="flex items-center gap-3 p-4 border-2 border-dashed border-[#DDE3EE] rounded-[10px] cursor-pointer hover:border-[#F4811F] hover:bg-[#FFF8F0]/50 transition-colors">
+            <span className="text-[16px]">📎</span>
+            <span className="text-[12px] text-[#7A8FA6]">Click to select files or drag and drop</span>
+            <input
+              type="file"
+              multiple
+              accept="image/*,.pdf,.doc,.docx"
+              onChange={e => {
+                if (onFilesChange) {
+                  onFilesChange([...selectedFiles, ...(e.target.files ? Array.from(e.target.files) : [])]);
+                }
+              }}
+              className="hidden"
+            />
+          </label>
+
+          {selectedFiles.length > 0 && (
+            <div className="bg-[#F0F7FF] border border-[#B3E5FC] rounded-lg p-3 mt-2 space-y-2">
+              <p className="text-[11px] font-bold text-[#0277BD]">Selected: {selectedFiles.length} file(s)</p>
+              {selectedFiles.map((file, idx) => (
+                <div key={idx} className="flex items-center justify-between bg-white p-2 rounded border border-[#B3E5FC]">
+                  <p className="text-[11px] text-[#0F1A2E] truncate">{file.name}</p>
+                  <button
+                    onClick={() => {
+                      if (onFilesChange) {
+                        onFilesChange(selectedFiles.filter((_, i) => i !== idx));
+                      }
+                    }}
+                    className="text-[10px] text-[#FF8A80] hover:text-red-700 font-semibold"
+                  >
+                    Remove
+                  </button>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
       </div>
 

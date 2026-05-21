@@ -11,6 +11,7 @@ import { toast } from 'sonner';
 import { useAuthStore } from '@/stores';
 import { addLocalGrievance } from '@/lib/local-store';
 import { QuickSubmitForm } from '@/components/gms/QuickSubmitForm';
+import { cn } from '@/lib/utils';
 
 // ── Data ─────────────────────────────────────────────────────────────────────
 const DOMAINS = [
@@ -193,6 +194,7 @@ export default function SubmitGrievance() {
   const [submitting, setSubmitting] = useState(false);
   const [quickMode, setQuickMode] = useState(false);
   const [voiceLang, setVoiceLang] = useState<'en-IN' | 'gu-IN' | 'hi-IN'>('en-IN');
+  const [quickModeFiles, setQuickModeFiles] = useState<File[]>([]);
   const recogRef = useRef<any>(null);
 
   function update(field: string, value: string) {
@@ -265,10 +267,13 @@ export default function SubmitGrievance() {
     try {
       let attachmentUrls: string[] = [];
 
+      // Use the appropriate file array based on mode
+      const filesToUpload = quickMode ? quickModeFiles : selectedFiles;
+
       // Upload files to Cloudinary if any
-      if (selectedFiles.length > 0) {
+      if (filesToUpload.length > 0) {
         setUploadingFiles(true);
-        for (const file of selectedFiles) {
+        for (const file of filesToUpload) {
           const uploadForm = new FormData();
           uploadForm.append('file', file);
           uploadForm.append('grievanceId', 'pending');
@@ -345,50 +350,63 @@ export default function SubmitGrievance() {
     setStep(1); setDomain(null); setSub(null); setQuickMode(false);
     setForm({ title: '', description: '', district: '', taluka: '', ward: '', specificLocation: '' });
     setResult(null);
+    setSelectedFiles([]);
+    setQuickModeFiles([]);
   }
 
   return (
-    <div className="max-w-2xl mx-auto pb-20">
-      {/* Header */}
-      <div className="flex items-center gap-3 mb-4">
-        <button
-          onClick={() => quickMode ? setQuickMode(false) : (step > 1 && step < 5 ? setStep(s => s - 1) : router.push('/citizen'))}
-          className="w-8 h-8 rounded-lg bg-[#F0F2F7] flex items-center justify-center hover:bg-[#DDE3EE] transition-colors"
-        >
-          <ArrowLeft size={16} className="text-[#3D5068]" />
-        </button>
-        <div>
-          <h1 className="text-[16px] font-bold text-[#0E1C2F]">Submit Grievance</h1>
-          <p className="text-[11px] text-[#7A8FA6]">ફરિયાદ નોંધો — File a complaint</p>
-        </div>
-      </div>
-
-      {/* Mode Toggle */}
+    <div className="min-h-screen bg-[#F0F2F7]">
+      {/* Fixed Tabs Header */}
       {result === null && (
-        <div className="bg-white rounded-[14px] p-4 shadow-[0_1px_3px_rgba(14,28,47,0.08),0_4px_16px_rgba(14,28,47,0.06)] mb-5 flex items-center gap-4">
-          <span className="text-[11px] font-semibold text-[#3D5068]">Mode:</span>
-          <div className="flex gap-2">
-            <button
-              onClick={() => { setQuickMode(false); setStep(1); setDomain(null); setSub(null); }}
-              className="px-3.5 py-1.5 rounded-[8px] text-[11px] font-semibold transition-all"
-              style={{
-                background: !quickMode ? '#F4811F' : '#F0F2F7',
-                color: !quickMode ? '#fff' : '#3D5068',
-              }}
-            >
-              Step-by-step
-            </button>
-            <button
-              onClick={() => { setQuickMode(true); setStep(1); setDomain(null); setSub(null); }}
-              className="px-3.5 py-1.5 rounded-[8px] text-[11px] font-semibold transition-all"
-              style={{
-                background: quickMode ? '#F4811F' : '#F0F2F7',
-                color: quickMode ? '#fff' : '#3D5068',
-              }}
-            >
-              Quick Submit
-            </button>
+        <div className="sticky top-0 z-40 bg-white border-b border-[#E5E7EB]">
+          <div className="max-w-2xl mx-auto px-4 sm:px-6 flex items-center">
+            <div className="flex gap-0">
+              <button
+                onClick={() => { setQuickMode(false); setStep(1); setDomain(null); setSub(null); setQuickModeFiles([]); }}
+                className={cn(
+                  'px-6 py-3 text-[13px] font-semibold transition-all border-b-2',
+                  !quickMode
+                    ? 'border-[#F4811F] text-[#F4811F]'
+                    : 'border-transparent text-[#7A8FA6] hover:text-[#0F1A2E]'
+                )}
+              >
+                Detailed Submit
+              </button>
+              <button
+                onClick={() => { setQuickMode(true); setStep(1); setDomain(null); setSub(null); }}
+                className={cn(
+                  'px-6 py-3 text-[13px] font-semibold transition-all border-b-2',
+                  quickMode
+                    ? 'border-[#F4811F] text-[#F4811F]'
+                    : 'border-transparent text-[#7A8FA6] hover:text-[#0F1A2E]'
+                )}
+              >
+                Quick Submit
+              </button>
+            </div>
           </div>
+        </div>
+      )}
+
+      <div className="max-w-2xl mx-auto pb-20 px-4 py-6">
+        {/* Header */}
+        <div className="flex items-center gap-3 mb-4">
+          <button
+            onClick={() => quickMode ? setQuickMode(false) : (step > 1 && step < 5 ? setStep(s => s - 1) : router.push('/citizen'))}
+            className="w-8 h-8 rounded-lg bg-white flex items-center justify-center hover:bg-[#DDE3EE] transition-colors border border-[#DDE3EE]"
+          >
+            <ArrowLeft size={16} className="text-[#3D5068]" />
+          </button>
+          <div>
+            <h1 className="text-[16px] font-bold text-[#0E1C2F]">← Submit Grievance</h1>
+            <p className="text-[11px] text-[#7A8FA6]">ફરિયાદ નોંધો — File a complaint</p>
+          </div>
+        </div>
+
+      {/* Grievance Form heading */}
+      {result === null && (
+        <div className="mb-4">
+          <h2 className="text-[14px] font-bold text-[#0E1C2F]">Grievance Form</h2>
         </div>
       )}
 
@@ -434,6 +452,8 @@ export default function SubmitGrievance() {
           onLanguageChange={setVoiceLang}
           onToggleVoice={toggleVoice}
           onDetectLocation={detectLocation}
+          selectedFiles={quickModeFiles}
+          onFilesChange={setQuickModeFiles}
         />
       )}
 
