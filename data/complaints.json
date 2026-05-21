@@ -2593,11 +2593,11 @@
     "description": "documetn attach",
     "category": "MNREGA / Labour Issue",
     "department": "AGR",
-    "status": "pending",
+    "status": "resolved",
     "priority": "medium",
     "channel": "web",
     "slaStatus": "ok",
-    "slaDaysLeft": 7,
+    "slaDaysLeft": 0,
     "citizenId": "u5",
     "citizenName": "Rajesh Patel",
     "citizenPhone": "",
@@ -2617,13 +2617,22 @@
         "actorRole": "citizen",
         "timestamp": "2026-05-21T01:29:39.042Z",
         "description": "Filed via web. Token: GJ-2026-85098"
+      },
+      {
+        "id": "tl-c30-2",
+        "type": "resolved",
+        "title": "Grievance Resolved",
+        "actor": "Ravi Varma",
+        "actorRole": "nodal_officer",
+        "timestamp": "2026-05-21T06:59:07.065Z",
+        "description": "Grievance has been resolved."
       }
     ],
     "feedback": null,
     "rating": null,
     "createdAt": "2026-05-21T01:29:39.042Z",
-    "updatedAt": "2026-05-21T01:29:39.042Z",
-    "resolvedAt": null
+    "updatedAt": "2026-05-21T06:59:07.065Z",
+    "resolvedAt": "2026-05-21T06:59:07.065Z"
   },
   {
     "id": "c31",
@@ -2752,12 +2761,21 @@
         "actorRole": "nodal_officer",
         "timestamp": "2026-05-21T06:49:05.535Z",
         "description": "Grievance has been resolved."
+      },
+      {
+        "id": "tl-c33-3",
+        "type": "status_change",
+        "title": "Update: dgh",
+        "actor": "Ravi Varma",
+        "actorRole": "nodal_officer",
+        "timestamp": "2026-05-21T06:59:19.477Z",
+        "description": "dgh"
       }
     ],
     "feedback": null,
     "rating": null,
     "createdAt": "2026-05-21T02:22:47.296Z",
-    "updatedAt": "2026-05-21T06:49:05.535Z",
+    "updatedAt": "2026-05-21T06:59:19.477Z",
     "resolvedAt": "2026-05-21T06:49:05.535Z"
   },
   {

@@ -348,5 +348,25 @@
     "isRead": false,
     "type": "resolution",
     "grievanceId": "c28"
+  },
+  {
+    "id": "n36",
+    "userId": "u5",
+    "title": "Grievance Resolved",
+    "message": "Your grievance GJ-2026-85098 has been resolved. Please provide your feedback.",
+    "timestamp": "2026-05-21T06:59:07.065Z",
+    "isRead": false,
+    "type": "resolution",
+    "grievanceId": "c30"
+  },
+  {
+    "id": "n37",
+    "userId": "u5",
+    "title": "Grievance Update",
+    "message": "Update on GJ-2026-83005: dgh",
+    "timestamp": "2026-05-21T06:59:19.477Z",
+    "isRead": false,
+    "type": "status_update",
+    "grievanceId": "c33"
   }
 ]

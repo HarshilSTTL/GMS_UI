@@ -89,5 +89,12 @@
     "userId": "u1",
     "details": "Grievance c28 resolved",
     "timestamp": "2026-05-21T06:52:42.484Z"
+  },
+  {
+    "id": "audit-1779346747077",
+    "action": "RESOLVE",
+    "userId": "u1",
+    "details": "Grievance c30 resolved",
+    "timestamp": "2026-05-21T06:59:07.077Z"
   }
 ]

@@ -64,6 +64,7 @@ export default function CitizenGrievances() {
     const authUser = JSON.parse(localStorage.getItem('gms-auth') || '{}')?.state?.user;
     if (!authUser?.id) { setLoading(false); return; }
 
+    // Initial fetch on mount
     fetchFromServer(authUser.id)
       .catch(() => {
         setGrievances(getLocalGrievancesByUser(authUser.id));
@@ -77,13 +78,23 @@ export default function CitizenGrievances() {
     }
     window.addEventListener('focus', onFocus);
 
-    // Auto-refresh every 20 seconds to catch officer updates
+    // Listen for visibility change (user returns to tab)
+    function onVisibilityChange() {
+      if (document.visibilityState === 'visible') {
+        setRefreshing(true);
+        fetchFromServer(authUser.id).catch(() => {}).finally(() => setRefreshing(false));
+      }
+    }
+    document.addEventListener('visibilitychange', onVisibilityChange);
+
+    // Auto-refresh every 8 seconds to immediately show newly filed grievances
     const refreshInterval = setInterval(() => {
       fetchFromServer(authUser.id).catch(() => {});
-    }, 20000);
+    }, 8000);
 
     return () => {
       window.removeEventListener('focus', onFocus);
+      document.removeEventListener('visibilitychange', onVisibilityChange);
       clearInterval(refreshInterval);
     };
   }, []);
