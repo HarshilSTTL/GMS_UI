@@ -261,21 +261,15 @@ export default function SubmitGrievance() {
     if (!form.district) return toast.error('Please select a district');
     setSubmitting(true);
     try {
-      const now = new Date().toISOString();
-      const token = `GJ-${new Date().getFullYear()}-${Math.floor(10000 + Math.random() * 90000)}`;
-      const id = `local-${Date.now()}`;
       const location = [form.specificLocation, form.ward, form.taluka, form.district].filter(Boolean).join(', ');
 
-      const grievance = {
-        id, token,
+      const payload = {
         title: form.title,
         description: form.description,
         category: sub.label,
         department: domain.code,
-        status: 'pending',
         priority: sub.priority,
         channel: 'web',
-        slaStatus: 'ok',
         slaDaysLeft: sub.sla,
         citizenId: user?.id || '',
         citizenName: user?.name || 'Citizen',
@@ -284,32 +278,33 @@ export default function SubmitGrievance() {
         location,
         ward: form.ward,
         district: form.district,
-        assignedTo: null,
-        groupId: null,
-        isGroupPrimary: false,
-        createdAt: now,
-        updatedAt: now,
-        submittedDate: now,
-        resolvedAt: null,
-        officer: 'Unassigned',
-        officerDept: domain.code,
-        timeline: [{ id: `tl-${id}-1`, type: 'created', title: 'Grievance Filed', actor: user?.name || 'Citizen', actorRole: 'citizen', timestamp: now, description: `Filed via web. Token: ${token}` }],
-        feedback: null,
-        rating: null,
       };
 
-      addLocalGrievance(grievance);
-
-      fetch('/api/citizen/grievances', {
+      const res = await fetch('/api/citizen/grievances', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(grievance),
-      }).catch(() => {});
+        body: JSON.stringify(payload),
+      });
 
-      setResult({ token, id });
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        throw new Error(err.error || 'Server error');
+      }
+
+      const saved = await res.json();
+      // saved is the complaint object returned by the API
+      const serverComplaint = {
+        ...saved,
+        submittedDate: saved.createdAt,
+        officer: 'Unassigned',
+        officerDept: domain.code,
+      };
+      addLocalGrievance(serverComplaint);
+
+      setResult({ token: saved.token, id: saved.id });
       setStep(5);
-    } catch {
-      toast.error('Failed to submit grievance. Please try again.');
+    } catch (err: any) {
+      toast.error(err.message || 'Failed to submit grievance. Please try again.');
     } finally {
       setSubmitting(false);
     }
