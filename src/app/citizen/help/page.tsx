@@ -187,7 +187,7 @@ export default function HelpPage() {
           <p className="text-[11px] text-[#3D5068] mt-0.5">File a new grievance or track an existing one</p>
         </div>
         <div className="flex gap-2">
-          <Link href="/citizen/submit" className="px-4 py-2 rounded-lg text-[12px] font-semibold bg-[#F4811F] text-white">Submit Grievance</Link>
+          <Link href="/citizen/grievance" className="px-4 py-2 rounded-lg text-[12px] font-semibold bg-[#F4811F] text-white">Submit Grievance</Link>
           <Link href="/citizen/track" className="px-4 py-2 rounded-lg text-[12px] font-semibold border border-[#F4811F] text-[#F4811F] bg-white">Track Status</Link>
         </div>
       </div>

@@ -146,7 +146,7 @@ export default function CitizenGrievances() {
           <button onClick={handleManualRefresh} disabled={refreshing} className="inline-flex items-center gap-2 bg-[#F0F2F7] hover:bg-[#DDE3EE] text-[#3D5068] rounded-lg px-3 py-2 text-[12px] font-semibold transition-colors disabled:opacity-50">
             <RefreshCw size={14} className={refreshing ? 'animate-spin' : ''} /> Refresh
           </button>
-          <Link href="/citizen/submit" className="inline-flex items-center gap-2 bg-[#F4811F] hover:bg-[#E0721A] text-white rounded-lg px-4 py-2 text-[12px] font-semibold transition-colors">
+          <Link href="/citizen/grievance" className="inline-flex items-center gap-2 bg-[#F4811F] hover:bg-[#E0721A] text-white rounded-lg px-4 py-2 text-[12px] font-semibold transition-colors">
             <Plus size={14} /> File New
           </Link>
         </div>

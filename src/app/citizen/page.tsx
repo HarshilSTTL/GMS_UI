@@ -107,7 +107,7 @@ export default function CitizenDashboard() {
           <div className="w-12 h-12 rounded-2xl bg-white/10 flex items-center justify-center text-2xl">🏛</div>
         </div>
         <div className="flex gap-2 mt-4">
-          <Link href="/citizen/submit" className="inline-flex items-center gap-2 bg-[#F4811F] hover:bg-[#E0721A] text-white rounded-lg px-4 py-2 text-[12px] font-semibold transition-colors">
+          <Link href="/citizen/grievance" className="inline-flex items-center gap-2 bg-[#F4811F] hover:bg-[#E0721A] text-white rounded-lg px-4 py-2 text-[12px] font-semibold transition-colors">
             <Plus size={14} /> File New Grievance
           </Link>
           <Link href="/citizen/track" className="inline-flex items-center gap-2 bg-white/10 hover:bg-white/20 text-white rounded-lg px-4 py-2 text-[12px] font-semibold transition-colors">
@@ -171,7 +171,7 @@ export default function CitizenDashboard() {
           <div className="bg-white rounded-[14px] p-5 shadow-[0_1px_3px_rgba(14,28,47,0.08),0_4px_16px_rgba(14,28,47,0.06)]">
             <h2 className="text-[14px] font-bold text-[#0E1C2F] mb-3">Quick Actions</h2>
             <div className="space-y-2">
-              <Link href="/citizen/submit" className="flex items-center gap-3 p-2.5 rounded-[10px] hover:bg-[#F0F2F7] transition-colors">
+              <Link href="/citizen/grievance" className="flex items-center gap-3 p-2.5 rounded-[10px] hover:bg-[#F0F2F7] transition-colors">
                 <div className="w-8 h-8 rounded-lg bg-orange-50 flex items-center justify-center"><Plus size={14} className="text-[#F4811F]" /></div>
                 <span className="text-[12px] font-semibold text-[#0E1C2F]">Submit Grievance</span>
               </Link>
