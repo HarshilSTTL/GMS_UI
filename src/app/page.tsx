@@ -57,6 +57,8 @@ export default function RootPage() {
             <a href="#about" className="text-[12px] font-medium text-[#7A8FA6] hover:text-[#0E1C2F] transition-colors">About</a>
             <a href="#services" className="text-[12px] font-medium text-[#7A8FA6] hover:text-[#0E1C2F] transition-colors">Services</a>
             <a href="#track" className="text-[12px] font-medium text-[#7A8FA6] hover:text-[#0E1C2F] transition-colors">Track Complaint</a>
+            <a href="/Swagat 3.0 Mobile - Merged (2).html" target="_blank" rel="noopener noreferrer" className="text-[12px] font-medium text-[#7A8FA6] hover:text-[#0E1C2F] transition-colors">Swagat 3.0</a>
+            <a href="/CitizenVoice_WhatsApp_v1.html" target="_blank" rel="noopener noreferrer" className="text-[12px] font-medium text-[#7A8FA6] hover:text-[#0E1C2F] transition-colors">CitizenVoice</a>
           </div>
           <div className="flex items-center gap-2">
             <Link href="/login" className="text-[12px] font-semibold text-[#3D5068] hover:text-[#0E1C2F] px-3 py-1.5 rounded-lg hover:bg-[#F0F2F7] transition-colors">
