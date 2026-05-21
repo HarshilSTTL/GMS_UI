@@ -138,7 +138,7 @@ export default function FileComplaint() {
       }
 
       // Create grievance
-      const res = await fetch('/api/grievances', {
+      const res = await fetch('/api/citizen/grievances', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
