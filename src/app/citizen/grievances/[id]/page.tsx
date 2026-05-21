@@ -49,7 +49,7 @@ export default function GrievanceDetail({ params }: { params: Promise<{ id: stri
   const router = useRouter();
   const [g, setG] = useState<Grievance | null>(null);
   const [loading, setLoading] = useState(true);
-  const [modal, setModal] = useState<'reopen' | 'feedback' | 'escalate' | 'contact' | null>(null);
+  const [modal, setModal] = useState<'reopen' | 'feedback' | 'escalate' | 'contact' | 'edit' | null>(null);
   const [reason, setReason] = useState('');
   const [rating, setRating] = useState(0);
   const [comment, setComment] = useState('');
@@ -58,6 +58,9 @@ export default function GrievanceDetail({ params }: { params: Promise<{ id: stri
   const [resubFile, setResubFile] = useState<File | null>(null);
   const [resubmitting, setResubmitting] = useState(false);
   const [resubDone, setResubDone] = useState(false);
+  const [editDesc, setEditDesc] = useState('');
+  const [editFile, setEditFile] = useState<File | null>(null);
+  const [editing, setEditing] = useState(false);
 
   function loadGrievance() {
     return fetch(`/api/grievances/${id}`)
@@ -204,6 +207,73 @@ export default function GrievanceDetail({ params }: { params: Promise<{ id: stri
       toast.error(`An error occurred: ${error instanceof Error ? error.message : 'Please try again.'}`);
     } finally {
       setResubmitting(false);
+    }
+  }
+
+  async function handleEdit() {
+    if (!g) return;
+    const user = JSON.parse(localStorage.getItem('gms-auth') || '{}')?.state?.user;
+    if (!editDesc?.trim() && !editFile) {
+      toast.error('Please add a description update or upload a document');
+      return;
+    }
+    setEditing(true);
+    try {
+      let attachmentUrl: string | undefined;
+
+      // Upload file to Cloudinary if provided
+      if (editFile) {
+        const uploadForm = new FormData();
+        uploadForm.append('file', editFile);
+        uploadForm.append('grievanceId', id);
+
+        const uploadRes = await fetch('/api/documents/upload', {
+          method: 'POST',
+          body: uploadForm,
+        });
+
+        const uploadResult = await uploadRes.json();
+        if (!uploadResult.success) {
+          toast.error(`Upload failed: ${uploadResult.error}`);
+          setEditing(false);
+          return;
+        }
+
+        attachmentUrl = uploadResult.data.url;
+      }
+
+      // Edit grievance
+      const res = await fetch(`/api/grievances/${id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action: 'edit_grievance',
+          actorId: user?.id,
+          newDescription: editDesc.trim() || undefined,
+          attachmentUrl: attachmentUrl,
+        }),
+      });
+      const result = await res.json();
+      if (result.data) {
+        const data = result.data;
+        setG({
+          ...data,
+          submittedDate: data.createdAt || data.submittedDate,
+          officer: data.assignedTo?.name || data.officer || 'Unassigned',
+          officerDept: data.assignedTo?.department || data.officerDept || '',
+          status: data.status,
+        });
+        setModal(null);
+        setEditDesc('');
+        setEditFile(null);
+        toast.success('✅ Grievance updated successfully');
+      } else {
+        toast.error(result.error || 'Failed to update grievance');
+      }
+    } catch (error) {
+      toast.error(`An error occurred: ${error instanceof Error ? error.message : 'Please try again.'}`);
+    } finally {
+      setEditing(false);
     }
   }
 
@@ -412,6 +482,10 @@ export default function GrievanceDetail({ params }: { params: Promise<{ id: stri
           <div className="bg-white rounded-[14px] p-5 shadow-[0_1px_3px_rgba(14,28,47,0.08),0_4px_16px_rgba(14,28,47,0.06)]">
             <h2 className="text-[14px] font-bold text-[#0E1C2F] mb-3">Actions</h2>
             <div className="space-y-2">
+              <button onClick={() => { setModal('edit'); setEditDesc(''); setEditFile(null); }} className="w-full flex items-center gap-2.5 p-3 rounded-[10px] bg-[#F0F2F7] hover:bg-[#DDE3EE] transition-colors text-left">
+                <FileText size={14} className="text-[#F4811F]" />
+                <span className="text-[12px] font-semibold text-[#0E1C2F]">Edit Grievance</span>
+              </button>
               {g.status === 'resolved' && (
                 <>
                   {!g.rating && (
@@ -479,12 +553,14 @@ export default function GrievanceDetail({ params }: { params: Promise<{ id: stri
                       {modal === 'feedback' && 'Provide Feedback'}
                       {modal === 'escalate' && 'Escalate Grievance'}
                       {modal === 'contact' && `Contact ${g.officer}`}
+                      {modal === 'edit' && 'Edit Grievance'}
                     </h3>
                     <p className="text-[11px] text-[#7A8FA6] mt-1">
                       {modal === 'reopen' && 'Tell us why you are not satisfied with the resolution'}
                       {modal === 'feedback' && 'Rate how the grievance was handled'}
                       {modal === 'escalate' && 'Moves your case to higher authority'}
                       {modal === 'contact' && `Send a message to the assigned officer`}
+                      {modal === 'edit' && 'Update your grievance details or upload supporting documents'}
                     </p>
                   </div>
                   <button onClick={() => setModal(null)} className="text-[#7A8FA6] hover:text-[#3D5068]">
@@ -553,13 +629,40 @@ export default function GrievanceDetail({ params }: { params: Promise<{ id: stri
                   </div>
                 )}
 
+                {modal === 'edit' && (
+                  <div className="mb-3 space-y-3">
+                    <div>
+                      <label className="block text-[11px] font-bold text-[#3D5068] mb-1.5">Update Description (optional)</label>
+                      <textarea
+                        value={editDesc}
+                        onChange={e => setEditDesc(e.target.value)}
+                        rows={3}
+                        placeholder={g.description}
+                        className="w-full px-3 py-2.5 border-2 border-[#DDE3EE] rounded-[10px] text-[12px] outline-none focus:border-[#F4811F] resize-none"
+                      />
+                      <p className="text-[10px] text-[#7A8FA6] mt-1">Current: {g.description.substring(0, 40)}...</p>
+                    </div>
+                    <div>
+                      <label className="block text-[11px] font-bold text-[#3D5068] mb-1.5">Upload Supporting Document</label>
+                      <label className="flex items-center gap-3 px-4 py-3 border-2 border-dashed border-[#DDE3EE] rounded-[10px] cursor-pointer hover:border-[#F4811F] transition-colors bg-[#FAFBFC]">
+                        <Upload size={16} className="text-[#7A8FA6] flex-shrink-0" />
+                        <span className="text-[12px] text-[#7A8FA6]">
+                          {editFile ? editFile.name : 'Click to select a file (photo, PDF, etc.)'}
+                        </span>
+                        <input type="file" className="hidden" onChange={e => setEditFile(e.target.files?.[0] || null)} />
+                      </label>
+                    </div>
+                  </div>
+                )}
+
                 <div className="flex gap-2 mt-4">
                   <button onClick={() => setModal(null)} className="flex-1 py-2.5 rounded-[10px] text-[12px] font-semibold bg-[#F0F2F7] text-[#3D5068] border-none">Cancel</button>
-                  <button onClick={handleAction} disabled={(modal === 'reopen' && !reason) || (modal === 'escalate' && !reason) || (modal === 'feedback' && !rating) || (modal === 'contact' && !comment)} className="flex-1 py-2.5 rounded-[10px] text-[12px] font-bold bg-[#F4811F] text-white border-none disabled:opacity-40 disabled:cursor-not-allowed">
+                  <button onClick={modal === 'edit' ? handleEdit : handleAction} disabled={(modal === 'reopen' && !reason) || (modal === 'escalate' && !reason) || (modal === 'feedback' && !rating) || (modal === 'contact' && !comment) || (modal === 'edit' && editing)} className="flex-1 py-2.5 rounded-[10px] text-[12px] font-bold bg-[#F4811F] text-white border-none disabled:opacity-40 disabled:cursor-not-allowed">
                     {modal === 'reopen' && 'Reopen'}
                     {modal === 'feedback' && 'Submit Feedback'}
                     {modal === 'escalate' && 'Escalate'}
                     {modal === 'contact' && 'Send Message'}
+                    {modal === 'edit' && (editing ? 'Updating...' : 'Update Grievance')}
                   </button>
                 </div>
               </>
@@ -567,13 +670,14 @@ export default function GrievanceDetail({ params }: { params: Promise<{ id: stri
               <div className="text-center py-6">
                 <CheckCircle size={48} className="text-[#F4811F] mx-auto mb-3" />
                 <h3 className="text-[16px] font-bold text-[#0E1C2F] mb-2">
-                  {modal === 'contact' ? 'Message Sent!' : 'Action Completed!'}
+                  {modal === 'contact' ? 'Message Sent!' : modal === 'edit' ? 'Grievance Updated!' : 'Action Completed!'}
                 </h3>
                 <p className="text-[12px] text-[#7A8FA6] mb-4">
                   {modal === 'reopen' && 'Your case has been reopened. The officer will be notified.'}
                   {modal === 'feedback' && 'Thank you for your feedback. It helps us improve.'}
                   {modal === 'escalate' && 'Your grievance has been escalated. You will receive priority updates.'}
                   {modal === 'contact' && `Message sent to ${g.officer}. They typically respond within 24 hours.`}
+                  {modal === 'edit' && 'Your grievance has been updated. The officer has been notified of the changes.'}
                 </p>
                 <button onClick={() => { setModal(null); setModalStep(0); }} className="px-6 py-2.5 rounded-[10px] text-[12px] font-bold bg-[#F4811F] text-white border-none">Done</button>
               </div>

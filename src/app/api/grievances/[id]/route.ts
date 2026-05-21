@@ -18,7 +18,8 @@ type Action =
   | 'send_update'
   | 'begin_work'
   | 'request_document'
-  | 'resubmit_document';
+  | 'resubmit_document'
+  | 'edit_grievance';
 
 function addTimelineEntry(complaint: Complaint, type: any, title: string, actor: string, actorRole: 'citizen' | 'officer' | 'system', description?: string) {
   const tlId = `tl-${complaint.id}-${complaint.timeline.length + 1}`;
@@ -337,6 +338,29 @@ export async function PATCH(
           createNotification(officerId, 'Document Resubmitted', `Citizen has resubmitted documents for grievance ${complaint.token}. Please review.`, id, 'status_update');
         }
         logAction('RESUBMIT DOCUMENT', actorId, `grievance: ${id}`);
+        break;
+      }
+
+      // ========== EDIT GRIEVANCE ==========
+      case 'edit_grievance': {
+        const { newDescription, attachmentUrl } = rest;
+        const hasChanges = (newDescription?.trim() && newDescription !== complaint.description) || attachmentUrl;
+        if (!hasChanges) {
+          return NextResponse.json({ error: 'No changes provided.' }, { status: 400 });
+        }
+        if (newDescription?.trim()) complaint.description = newDescription;
+        if (attachmentUrl) {
+          if (!complaint.attachments) complaint.attachments = [];
+          complaint.attachments.push(attachmentUrl);
+        }
+        const descChange = newDescription?.trim() ? 'Updated description' : '';
+        const fileChange = attachmentUrl ? 'Uploaded new document' : '';
+        const changes = [descChange, fileChange].filter(Boolean).join(' and ');
+        addTimelineEntry(complaint, 'grievance_edited', 'Grievance Updated by Citizen', actorName, 'citizen', changes);
+        if (complaint.assignedTo?.id) {
+          createNotification(complaint.assignedTo.id, 'Grievance Updated', `Citizen has updated grievance ${complaint.token}. Please review the changes.`, id, 'status_update');
+        }
+        logAction('EDIT GRIEVANCE', actorId, `grievance: ${id}, changes: ${changes}`);
         break;
       }
 

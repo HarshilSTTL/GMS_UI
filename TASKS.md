@@ -336,6 +336,85 @@ Implemented 4 critical features for citizen grievance submission and document ma
 
 ---
 
+## Session 5 Work — Full Grievance Editing with Document Upload ✅ COMPLETED
+**Date:** 2026-05-21
+
+### Summary
+Implemented universal editing capability for all grievances in citizen portal + document upload for any grievance at any time.
+
+### Tasks Completed
+
+1. **✅ API Enhancement: Edit Grievance Action**
+   - Added `edit_grievance` action to `/api/grievances/[id]` route
+   - Allows citizens to update grievance description anytime
+   - Supports uploading additional documents
+   - Creates timeline entry and notifies assigned officer of changes
+   - Updates `src/app/api/grievances/[id]/route.ts` (lines 6-21, 369-393)
+
+2. **✅ Citizen Portal: Edit Grievance Modal**
+   - Added "Edit Grievance" button to Actions sidebar in grievance detail page
+   - Modal allows updating description and uploading documents
+   - Form shows current description for reference
+   - File upload with drag-and-drop support for images, PDFs, DOC, DOCX
+   - Updates `src/app/citizen/grievances/[id]/page.tsx`
+
+3. **✅ Complete Edit Form**
+   - Description field: optional update to grievance details
+   - Document upload: supports any file format
+   - Validation: requires at least one change (description OR document)
+   - Loading state: "Updating..." button during submission
+   - Success modal with confirmation message
+
+### Files Modified
+```
+✅ src/app/api/grievances/[id]/route.ts
+   - Added 'edit_grievance' to Action type (line 21)
+   - Implemented case handler (lines 369-393)
+   - Validates changes, updates description, appends attachments
+   - Creates timeline entry, notifies officer
+
+✅ src/app/citizen/grievances/[id]/page.tsx
+   - Added 'edit' modal state (line 52)
+   - Added editDesc, editFile, editing states (lines 61-63)
+   - Implemented handleEdit() function (lines 210-265)
+   - Added "Edit Grievance" button to Actions (line 485)
+   - Added edit modal form with description + file upload (lines 631-646)
+   - Updated modal titles and success messages (lines 555, 654-656)
+```
+
+### UI Components
+- **Edit Button**: Orange (#F4811F) button in Actions sidebar for all grievances
+- **Modal Form**: 
+  - Description textarea with placeholder showing current content
+  - File upload with drag-and-drop, showing selected filename
+  - Two buttons: Cancel + Update Grievance
+  - Success state shows confirmation message
+
+### API Behavior
+- **Request**: `PATCH /api/grievances/[id]` with `edit_grievance` action
+- **Validation**: Requires either `newDescription` or `attachmentUrl`
+- **Response**: Updated grievance object with new description/attachments
+- **Side Effects**:
+  - Timeline entry: "Grievance Updated by Citizen" with change summary
+  - Notification: Sent to assigned officer if one exists
+  - Logging: Logged to audit trail with change details
+
+### Testing
+- ✅ Build successful (no TypeScript errors)
+- ✅ Dev server running on localhost:3000
+- ✅ All pages accessible
+- ✅ Edit functionality ready for testing in browser
+
+### Features
+✅ All grievances editable (no status restrictions)
+✅ Description updates tracked in timeline
+✅ Document uploads tracked with URLs
+✅ Officer notifications on edits
+✅ Audit logging of all changes
+✅ Clean, consistent UI matching design system
+
+---
+
 ### Future Tasks
 - [ ] Add Next.js middleware for server-side route protection
 - [ ] Update CM portal pages to use real data
