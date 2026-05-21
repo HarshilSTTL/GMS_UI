@@ -225,32 +225,33 @@ export default function FileComplaint() {
 
   return (
     <div className="min-h-screen bg-[#F4F2EE]">
-      {/* Fixed Mode Selector Header */}
-      <div className="sticky top-0 z-40 bg-white border-b border-[#E5E7EB] shadow-sm">
-        <div className="max-w-2xl mx-auto px-4 sm:px-6 py-4 flex items-center gap-4">
-          <span className="text-[12px] font-semibold text-[#0F1A2E]">Mode:</span>
-          <button
-            onClick={() => { setMode('detail'); setStep(1); setError(''); }}
-            className={cn(
-              'px-4 py-2 rounded-[20px] text-[12px] font-semibold transition-colors',
-              mode === 'detail'
-                ? 'bg-[#FF8C42] text-white'
-                : 'bg-[#F4F2EE] text-[#7A8FA6] hover:bg-[#E5E7EB]'
-            )}
-          >
-            Step-by-step
-          </button>
-          <button
-            onClick={() => { setMode('quick'); setError(''); }}
-            className={cn(
-              'px-4 py-2 rounded-[20px] text-[12px] font-semibold transition-colors',
-              mode === 'quick'
-                ? 'bg-[#FF8C42] text-white'
-                : 'bg-[#F4F2EE] text-[#7A8FA6] hover:bg-[#E5E7EB]'
-            )}
-          >
-            Quick Submit
-          </button>
+      {/* Fixed Mode Selector Header with Proper Tabs */}
+      <div className="sticky top-0 z-40 bg-white border-b border-[#E5E7EB]">
+        <div className="max-w-2xl mx-auto px-4 sm:px-6 flex items-center">
+          <div className="flex gap-0">
+            <button
+              onClick={() => { setMode('detail'); setStep(1); setError(''); }}
+              className={cn(
+                'px-6 py-3 text-[13px] font-semibold transition-all border-b-2',
+                mode === 'detail'
+                  ? 'border-[#FF8C42] text-[#FF8C42]'
+                  : 'border-transparent text-[#7A8FA6] hover:text-[#0F1A2E]'
+              )}
+            >
+              Detailed Submit
+            </button>
+            <button
+              onClick={() => { setMode('quick'); setError(''); }}
+              className={cn(
+                'px-6 py-3 text-[13px] font-semibold transition-all border-b-2',
+                mode === 'quick'
+                  ? 'border-[#FF8C42] text-[#FF8C42]'
+                  : 'border-transparent text-[#7A8FA6] hover:text-[#0F1A2E]'
+              )}
+            >
+              Quick Submit
+            </button>
+          </div>
         </div>
       </div>
 
@@ -594,6 +595,43 @@ export default function FileComplaint() {
                 placeholder="+91 98765 43210"
                 className="w-full px-3 py-2.5 border border-[#E5E7EB] rounded-lg text-[12px] text-[#0F1A2E] outline-none focus:border-[#FF8C42] focus:ring-2 focus:ring-[#FF8C42]/10 placeholder:text-[#7A8FA6]"
               />
+            </div>
+
+            {/* Document Upload */}
+            <div>
+              <label className="block text-[11px] font-bold text-[#0F1A2E] mb-1.5">
+                Attach Documents <span className="text-[#7A8FA6] font-normal">(Optional - Photos, PDFs, etc.)</span>
+              </label>
+              <div className="space-y-3">
+                <label className="flex items-center gap-3 p-4 border-2 border-dashed border-[#E5E7EB] rounded-lg cursor-pointer hover:border-[#FF8C42] hover:bg-[#FFF8F0]/50 transition-colors">
+                  <span className="text-[16px]">📎</span>
+                  <span className="text-[12px] text-[#7A8FA6]">Click to select files or drag and drop</span>
+                  <input
+                    type="file"
+                    multiple
+                    accept="image/*,.pdf,.doc,.docx"
+                    onChange={e => setSelectedFiles([...selectedFiles, ...(e.target.files ? Array.from(e.target.files) : [])])}
+                    className="hidden"
+                  />
+                </label>
+
+                {selectedFiles.length > 0 && (
+                  <div className="bg-[#F0F7FF] border border-[#B3E5FC] rounded-lg p-3 space-y-2">
+                    <p className="text-[11px] font-bold text-[#0277BD]">Selected Files ({selectedFiles.length}):</p>
+                    {selectedFiles.map((file, idx) => (
+                      <div key={idx} className="flex items-center justify-between bg-white p-2 rounded border border-[#B3E5FC]">
+                        <p className="text-[11px] text-[#0F1A2E] truncate">{file.name}</p>
+                        <button
+                          onClick={() => setSelectedFiles(selectedFiles.filter((_, i) => i !== idx))}
+                          className="text-[11px] text-[#FF8A80] hover:text-red-700 font-semibold"
+                        >
+                          Remove
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
             </div>
 
             {/* Submit Button */}

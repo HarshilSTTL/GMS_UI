@@ -268,6 +268,74 @@ All CRUD operations are fully functional with real JSON data and exact design sy
 
 ---
 
+## Session 4 Work — Grievance Submission UI & Document Management ✅ COMPLETED
+**Date:** 2026-05-21
+
+### Summary
+Implemented 4 critical features for citizen grievance submission and document management workflow.
+
+### Tasks Completed
+
+1. **✅ Changed Mode Selector to Proper Tabs** 
+   - Converted button-style mode selector to proper tab UI
+   - File: `src/app/citizen/file-complaint/page.tsx`
+   - Tabs: "Detailed Submit" and "Quick Submit" with underline indicator
+   - Active tab shows orange (#FF8C42) color with bottom border
+
+2. **✅ Document Request & Editable Grievance**
+   - Already implemented in `src/app/citizen/grievances/[id]/page.tsx`
+   - When officer requests documents (status = `document_requested`):
+     - Shows amber banner with request message
+     - Displays officer's name and specific request
+     - Allows citizen to update description
+     - File upload section for new documents
+   - Status changes back to `in_progress` after resubmission
+
+3. **✅ Document Display in Grievance Detail**
+   - Already implemented in grievance detail page
+   - Shows attachments from initial submission
+   - Shows resubmitted documents separately (green highlight)
+   - Download links for all documents
+   - File names and metadata displayed
+
+4. **✅ Document Upload in Quick Submit Mode**
+   - Added file upload section to quick submit mode
+   - Same UI as detailed submit mode
+   - Supports: images, PDFs, DOC, DOCX
+   - File selection with drag-and-drop support
+   - Selected files display with remove option
+
+### API Actions Supporting Document Workflow
+- `request_document`: Officer requests additional documents (sets status to `document_requested`)
+- `resubmit_document`: Citizen resubmits with updated info and new files (status → `in_progress`)
+
+### Files Modified
+```
+✅ src/app/citizen/file-complaint/page.tsx
+   - Changed mode selector to proper tabs (lines 229-254)
+   - Added document upload to quick submit mode (lines 599-626)
+
+✅ src/app/citizen/grievances/[id]/page.tsx
+   - Document request banner with form (lines 237-297)
+   - Document display section (lines 336-365)
+   - Resubmit functionality (lines 148-208)
+```
+
+### Build Status
+- ✅ No TypeScript errors
+- ✅ Build successful
+- ✅ Dev server running on localhost:3000
+- ✅ All pages functional
+
+### Testing Ready
+- Citizen can submit grievance with optional documents
+- Quick submit now supports file uploads
+- When officer requests documents, citizen sees editable form
+- Documents display properly with download capability
+- All UI changes implemented with design system colors (#FF8C42 primary)
+
+---
+
 ### Future Tasks
 - [ ] Add Next.js middleware for server-side route protection
 - [ ] Update CM portal pages to use real data
