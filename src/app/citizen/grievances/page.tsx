@@ -1,7 +1,7 @@
 'use client';
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { FileText, Search, Filter, Plus, ChevronUp, ChevronDown, ArrowUpDown, RefreshCw } from 'lucide-react';
+import { FileText, Search, Filter, Plus, ChevronUp, ChevronDown, ArrowUpDown, RefreshCw, Upload } from 'lucide-react';
 import { getLocalGrievancesByUser } from '@/lib/local-store';
 import Link from 'next/link';
 import { useAuthStore } from '@/stores';
@@ -43,6 +43,10 @@ export default function CitizenGrievances() {
   const [search, setSearch] = useState('');
   const [sortKey, setSortKey] = useState<SortKey>('submittedDate');
   const [sortDir, setSortDir] = useState<SortDir>('desc');
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [editDesc, setEditDesc] = useState('');
+  const [editFile, setEditFile] = useState<File | null>(null);
+  const [saving, setSaving] = useState(false);
 
   function fetchFromServer(userId: string) {
     return fetch(`/api/grievances/citizen/${userId}`)
@@ -128,6 +132,82 @@ export default function CitizenGrievances() {
   function handleSort(key: SortKey) {
     if (sortKey === key) setSortDir(d => d === 'asc' ? 'desc' : 'asc');
     else { setSortKey(key); setSortDir('asc'); }
+  }
+
+  async function handleSaveEdit(grievanceId: string) {
+    if (!editDesc.trim() && !editFile) {
+      alert('Please enter a description or select a file to upload');
+      return;
+    }
+
+    setSaving(true);
+    try {
+      let attachmentUrl: string | undefined;
+
+      // Upload file if provided
+      if (editFile) {
+        const uploadForm = new FormData();
+        uploadForm.append('file', editFile);
+        uploadForm.append('grievanceId', grievanceId);
+
+        const uploadRes = await fetch('/api/documents/upload', {
+          method: 'POST',
+          body: uploadForm,
+        });
+
+        const uploadResult = await uploadRes.json();
+        if (!uploadResult.success) {
+          alert(`Upload failed: ${uploadResult.error}`);
+          setSaving(false);
+          return;
+        }
+        attachmentUrl = uploadResult.data.url;
+      }
+
+      // Update grievance
+      const res = await fetch(`/api/grievances/${grievanceId}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action: 'update_by_citizen',
+          actorId: user?.id,
+          description: editDesc.trim() || undefined,
+          attachmentUrl: attachmentUrl,
+        }),
+      });
+
+      const result = await res.json();
+      if (result.data) {
+        // Refresh the list
+        const authUser = JSON.parse(localStorage.getItem('gms-auth') || '{}')?.state?.user;
+        if (authUser?.id) {
+          await fetch(`/api/grievances/citizen/${authUser.id}`)
+            .then(r => r.json())
+            .then(d => {
+              const data = d.data || d;
+              if (Array.isArray(data)) {
+                setGrievances(data.map((g: any) => ({
+                  ...g,
+                  submittedDate: g.createdAt || g.submittedDate,
+                  officer: g.assignedTo?.name || g.officer || 'Unassigned',
+                  officerDept: g.assignedTo?.department || g.officerDept || '',
+                  status: g.status === 'open' ? 'pending' : g.status,
+                })));
+              }
+            });
+        }
+        setEditingId(null);
+        setEditDesc('');
+        setEditFile(null);
+        alert('✅ Grievance updated successfully');
+      } else {
+        alert(result.error || 'Failed to update grievance');
+      }
+    } catch (error) {
+      alert(`Error: ${error instanceof Error ? error.message : 'Please try again'}`);
+    } finally {
+      setSaving(false);
+    }
   }
 
   const ACTIVE_STATUSES = ['pending', 'in_progress', 'acknowledged', 'under_review', 'document_requested'];
@@ -240,7 +320,10 @@ export default function CitizenGrievances() {
                     <td className="px-4 py-3 text-[11px] text-[#7A8FA6]">{new Date(g.submittedDate).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: '2-digit' })}</td>
                     <td className="px-4 py-3 text-[11px] text-[#3D5068]">{g.officer === 'Unassigned' ? <span className="text-[#7A8FA6] italic">Pending</span> : g.officer}</td>
                     <td className="px-4 py-3 text-center">
-                      <Link href={`/citizen/grievances/${g.id}`} className="text-[11px] text-blue-600 font-semibold hover:underline">View</Link>
+                      <div className="flex items-center justify-center gap-2">
+                        <Link href={`/citizen/grievances/${g.id}`} className="text-[11px] text-blue-600 font-semibold hover:underline">View</Link>
+                        <button onClick={() => { setEditingId(g.id); setEditDesc(''); setEditFile(null); }} className="text-[11px] text-orange-600 font-semibold hover:underline">Edit</button>
+                      </div>
                     </td>
                   </tr>
                 );
@@ -252,6 +335,65 @@ export default function CitizenGrievances() {
           </table>
         </div>
       </div>
+
+      {/* Edit Modal */}
+      {editingId && (
+        <div className="fixed inset-0 z-[200] flex items-center justify-center p-4" style={{ background: 'rgba(14,28,47,0.55)', backdropFilter: 'blur(3px)' }} onClick={() => setEditingId(null)}>
+          <div className="bg-white rounded-[18px] w-full max-w-[500px] shadow-[0_8px_40px_rgba(14,28,47,0.22)] overflow-hidden border border-orange-200" onClick={e => e.stopPropagation()}>
+            <div className="px-6 pt-6 pb-4 bg-orange-50">
+              <h2 className="text-[16px] font-bold text-[#0E1C2F]">Edit Grievance</h2>
+              <p className="text-[11px] text-[#7A8FA6] mt-1">Update your grievance details and attach supporting documents</p>
+            </div>
+            <div className="px-6 py-5 space-y-4">
+              <div>
+                <label className="block text-[11px] font-bold text-[#3D5068] mb-2 uppercase tracking-wide">Update Description (optional)</label>
+                <textarea
+                  value={editDesc}
+                  onChange={e => setEditDesc(e.target.value)}
+                  rows={4}
+                  placeholder="Add more details or update your grievance description..."
+                  className="w-full px-3 py-2.5 border border-[#DDE3EE] rounded-lg text-[12px] text-[#0E1C2F] resize-none outline-none focus:border-orange-400 focus:ring-2 focus:ring-orange-400/10 transition-colors"
+                />
+              </div>
+
+              <div>
+                <label className="block text-[11px] font-bold text-[#3D5068] mb-2 uppercase tracking-wide">Attach Supporting Document</label>
+                <label className="flex items-center gap-3 px-4 py-3 border-2 border-dashed border-[#DDE3EE] rounded-[10px] cursor-pointer hover:border-orange-400 transition-colors bg-[#FAFBFC]">
+                  <Upload size={16} className="text-[#7A8FA6] flex-shrink-0" />
+                  <span className="text-[12px] text-[#7A8FA6]">
+                    {editFile ? editFile.name : 'Click to select a file (photo, PDF, etc.)'}
+                  </span>
+                  <input type="file" className="hidden" onChange={e => setEditFile(e.target.files?.[0] || null)} />
+                </label>
+              </div>
+
+              <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
+                <p className="text-[10px] text-blue-700">
+                  📌 <strong>Note:</strong> All updates will be visible to the assigned officer. They will review your changes and may request additional information if needed.
+                </p>
+              </div>
+
+              <div className="flex gap-2">
+                <button onClick={() => setEditingId(null)} className="flex-1 py-2.5 rounded-[10px] text-[12px] font-semibold border border-[#DDE3EE] text-[#3D5068] bg-white hover:bg-[#F0F2F7] transition-colors">
+                  Cancel
+                </button>
+                <button
+                  onClick={() => handleSaveEdit(editingId)}
+                  disabled={saving || (!editDesc.trim() && !editFile)}
+                  className="flex-1 flex items-center justify-center gap-2 py-2.5 rounded-[10px] text-[12px] font-semibold text-white disabled:opacity-50 transition-colors"
+                  style={{ background: '#F4811F' }}
+                >
+                  {saving ? (
+                    <><span className="w-3.5 h-3.5 border-2 border-white/30 border-t-white rounded-full animate-spin" /> Saving...</>
+                  ) : (
+                    <>✏️ Save Changes</>
+                  )}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
