@@ -512,9 +512,9 @@ export default function SubmitGrievance() {
         </div>
       )}
 
-      <div className="max-w-4xl mx-auto pb-20 px-4 py-8">
+      <div className="max-w-4xl mx-auto pb-20 px-4">
         {/* ── Page Header ── */}
-        <div className="mb-8">
+        <div className="mb-6 pt-4">
           <div className="flex items-center gap-3 mb-6">
             <button
               onClick={() => {
