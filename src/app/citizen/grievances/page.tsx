@@ -19,6 +19,7 @@ const STATUS_CONFIG: Record<string, { label: string; color: string; bg: string }
   escalated: { label: 'Escalated', color: '#DC2626', bg: '#FEF2F2' },
   acknowledged: { label: 'Acknowledged', color: '#0891B2', bg: '#ECFEFF' },
   under_review: { label: 'Under Review', color: '#7C3AED', bg: '#F5F3FF' },
+  document_requested: { label: '⚠ Action Required', color: '#92400E', bg: '#FEF3C7' },
 };
 
 const PRIORITY_CONFIG: Record<string, { label: string; color: string }> = {
@@ -71,7 +72,11 @@ export default function CitizenGrievances() {
   }, []);
 
   const filtered = grievances
-    .filter(g => filter === 'all' || g.status === filter)
+    .filter(g => {
+      if (filter === 'all') return true;
+      if (filter === 'active') return ACTIVE_STATUSES.includes(g.status);
+      return g.status === filter;
+    })
     .filter(g => search === '' || g.title.toLowerCase().includes(search.toLowerCase()) || g.token.toLowerCase().includes(search.toLowerCase()) || g.category.toLowerCase().includes(search.toLowerCase()))
     .sort((a, b) => {
       const dir = sortDir === 'asc' ? 1 : -1;
@@ -88,12 +93,16 @@ export default function CitizenGrievances() {
     else { setSortKey(key); setSortDir('asc'); }
   }
 
+  const ACTIVE_STATUSES = ['pending', 'in_progress', 'acknowledged', 'under_review', 'document_requested'];
+
   const counts = {
     all: grievances.length,
-    active: grievances.filter(g => ['pending', 'in_progress', 'acknowledged', 'under_review'].includes(g.status)).length,
+    active: grievances.filter(g => ACTIVE_STATUSES.includes(g.status)).length,
     escalated: grievances.filter(g => g.status === 'escalated').length,
     resolved: grievances.filter(g => g.status === 'resolved').length,
   };
+
+  const actionRequired = grievances.filter(g => g.status === 'document_requested').length;
 
   if (loading) {
     return <div className="flex items-center justify-center h-64"><div className="w-6 h-6 border-2 border-blue-600/30 border-t-blue-600 rounded-full animate-spin" /></div>;
@@ -111,6 +120,19 @@ export default function CitizenGrievances() {
           <Plus size={14} /> File New
         </Link>
       </div>
+
+      {/* Action Required Alert */}
+      {actionRequired > 0 && (
+        <div className="bg-amber-50 border-2 border-amber-300 rounded-[14px] px-4 py-3 flex items-center gap-3">
+          <span className="text-[22px] flex-shrink-0">📎</span>
+          <div className="flex-1">
+            <p className="text-[13px] font-bold text-amber-900">
+              {actionRequired === 1 ? '1 grievance needs your attention' : `${actionRequired} grievances need your attention`}
+            </p>
+            <p className="text-[11px] text-amber-700">An officer has requested additional documents. Click "View" to attach and resubmit.</p>
+          </div>
+        </div>
+      )}
 
       {/* Filters */}
       <div className="bg-white rounded-[14px] p-4 shadow-[0_1px_3px_rgba(14,28,47,0.08),0_4px_16px_rgba(14,28,47,0.06)]">
@@ -160,7 +182,7 @@ export default function CitizenGrievances() {
                 const pc = PRIORITY_CONFIG[g.priority] || PRIORITY_CONFIG.medium;
                 const slaColor = g.slaDaysLeft < 0 ? '#DC2626' : g.slaDaysLeft <= 2 ? '#D97706' : '#16A34A';
                 return (
-                  <tr key={g.id} className="border-b border-[#F0F2F7] last:border-0 hover:bg-[#F8F9FB] transition-colors">
+                  <tr key={g.id} className={`border-b border-[#F0F2F7] last:border-0 hover:bg-[#F8F9FB] transition-colors ${g.status === 'document_requested' ? 'bg-amber-50' : ''}`}>
                     <td className="px-4 py-3">
                       <p className="text-[12px] font-semibold text-[#0E1C2F]">{g.title}</p>
                       <p className="text-[10px] text-[#7A8FA6] font-mono">{g.token}</p>
