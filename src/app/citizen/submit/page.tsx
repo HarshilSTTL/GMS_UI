@@ -185,6 +185,8 @@ export default function SubmitGrievance() {
   const [domain, setDomain] = useState<Domain | null>(null);
   const [sub, setSub] = useState<Sub | null>(null);
   const [form, setForm] = useState({ title: '', description: '', district: '', taluka: '', ward: '', specificLocation: '' });
+  const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
+  const [uploadingFiles, setUploadingFiles] = useState(false);
   const [result, setResult] = useState<{ token: string; id: string } | null>(null);
   const [listening, setListening] = useState(false);
   const [detecting, setDetecting] = useState(false);
@@ -261,6 +263,34 @@ export default function SubmitGrievance() {
     if (!form.district) return toast.error('Please select a district');
     setSubmitting(true);
     try {
+      let attachmentUrls: string[] = [];
+
+      // Upload files to Cloudinary if any
+      if (selectedFiles.length > 0) {
+        setUploadingFiles(true);
+        for (const file of selectedFiles) {
+          const uploadForm = new FormData();
+          uploadForm.append('file', file);
+          uploadForm.append('grievanceId', 'pending');
+
+          const uploadRes = await fetch('/api/documents/upload', {
+            method: 'POST',
+            body: uploadForm,
+          });
+
+          if (!uploadRes.ok) {
+            const uploadErr = await uploadRes.json();
+            throw new Error(`File upload failed: ${uploadErr.error}`);
+          }
+
+          const uploadResult = await uploadRes.json();
+          if (uploadResult.success) {
+            attachmentUrls.push(uploadResult.data.url);
+          }
+        }
+        setUploadingFiles(false);
+      }
+
       const location = [form.specificLocation, form.ward, form.taluka, form.district].filter(Boolean).join(', ');
 
       const payload = {
@@ -278,6 +308,7 @@ export default function SubmitGrievance() {
         location,
         ward: form.ward,
         district: form.district,
+        attachments: attachmentUrls.length > 0 ? attachmentUrls : undefined,
       };
 
       const res = await fetch('/api/citizen/grievances', {
@@ -609,6 +640,41 @@ export default function SubmitGrievance() {
                 </div>
               </div>
             </div>
+
+            {/* Documents */}
+            <div>
+              <label className="block text-[11px] font-semibold text-[#3D5068] mb-2">
+                📎 Attach Documents <span className="text-[#7A8FA6] font-normal">(Optional)</span>
+              </label>
+              <label className="flex items-center gap-3 p-4 border-2 border-dashed border-[#DDE3EE] rounded-[10px] cursor-pointer hover:border-[#F4811F] hover:bg-[#FFF8F0]/50 transition-colors">
+                <span className="text-[16px]">📎</span>
+                <span className="text-[12px] text-[#7A8FA6]">Click to select files or drag and drop</span>
+                <input
+                  type="file"
+                  multiple
+                  accept="image/*,.pdf,.doc,.docx"
+                  onChange={e => setSelectedFiles([...selectedFiles, ...(e.target.files ? Array.from(e.target.files) : [])])}
+                  className="hidden"
+                />
+              </label>
+
+              {selectedFiles.length > 0 && (
+                <div className="bg-[#F0F7FF] border border-[#B3E5FC] rounded-lg p-3 mt-2 space-y-2">
+                  <p className="text-[11px] font-bold text-[#0277BD]">Selected: {selectedFiles.length} file(s)</p>
+                  {selectedFiles.map((file, idx) => (
+                    <div key={idx} className="flex items-center justify-between bg-white p-2 rounded border border-[#B3E5FC]">
+                      <p className="text-[11px] text-[#0F1A2E] truncate">{file.name}</p>
+                      <button
+                        onClick={() => setSelectedFiles(selectedFiles.filter((_, i) => i !== idx))}
+                        className="text-[10px] text-[#FF8A80] hover:text-red-700 font-semibold"
+                      >
+                        Remove
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
           </div>
 
           <div className="flex gap-2 mt-4">
@@ -668,6 +734,18 @@ export default function SubmitGrievance() {
                 </div>
               ))}
             </div>
+
+            {selectedFiles.length > 0 && (
+              <div className="pt-3 border-t border-[#DDE3EE] space-y-1.5">
+                <p className="text-[10px] font-bold text-[#7A8FA6]">ATTACHMENTS ({selectedFiles.length})</p>
+                {selectedFiles.map((file, idx) => (
+                  <div key={idx} className="text-[10px] text-[#0E1C2F] flex items-center gap-2">
+                    <span>📎</span>
+                    <span>{file.name}</span>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
 
           <div className="rounded-[10px] p-3 text-[11px] mb-4" style={{ background: '#E0F7FA', color: '#0891B2' }}>
