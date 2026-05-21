@@ -368,5 +368,35 @@
     "isRead": false,
     "type": "status_update",
     "grievanceId": "c33"
+  },
+  {
+    "id": "n38",
+    "userId": "u5",
+    "title": "Grievance Acknowledged",
+    "message": "Your grievance GJ-2026-63277 has been acknowledged.",
+    "timestamp": "2026-05-21T07:07:38.227Z",
+    "isRead": false,
+    "type": "status_update",
+    "grievanceId": "c32"
+  },
+  {
+    "id": "n39",
+    "userId": "u5",
+    "title": "Grievance Resolved",
+    "message": "Your grievance GJ-2026-97328 has been resolved. Please provide your feedback.",
+    "timestamp": "2026-05-21T07:08:56.341Z",
+    "isRead": false,
+    "type": "resolution",
+    "grievanceId": "c22"
+  },
+  {
+    "id": "n40",
+    "userId": "u_dummy_01",
+    "title": "Grievance Resolved",
+    "message": "Your grievance DEMO-2026-00001 has been resolved. Please provide your feedback.",
+    "timestamp": "2026-05-21T07:09:30.556Z",
+    "isRead": false,
+    "type": "resolution",
+    "grievanceId": "demo_c1"
   }
 ]

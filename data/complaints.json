@@ -1941,11 +1941,11 @@
     "description": "There is a large pothole on the main road in Ward 12 that is causing accidents. Multiple vehicles have been damaged. The pothole needs immediate repair before someone gets seriously hurt.",
     "category": "Roads & Pavements",
     "department": "Roads & Buildings",
-    "status": "open",
+    "status": "resolved",
     "priority": "high",
     "channel": "web",
     "slaStatus": "ok",
-    "slaDaysLeft": 5,
+    "slaDaysLeft": 0,
     "citizenId": "u_dummy_01",
     "citizenName": "Demo Citizen",
     "citizenPhone": "+91 91234 56789",
@@ -1965,13 +1965,22 @@
         "actorRole": "citizen",
         "timestamp": "2026-05-13T10:00:00Z",
         "description": "Grievance submitted via web portal"
+      },
+      {
+        "id": "tl-demo_c1-2",
+        "type": "resolved",
+        "title": "Grievance Resolved",
+        "actor": "Ravi Varma",
+        "actorRole": "nodal_officer",
+        "timestamp": "2026-05-21T07:09:30.556Z",
+        "description": "Grievance has been resolved."
       }
     ],
     "feedback": null,
     "rating": null,
     "createdAt": "2026-05-13T10:00:00Z",
-    "updatedAt": "2026-05-20T15:51:26.193Z",
-    "resolvedAt": null
+    "updatedAt": "2026-05-21T07:09:30.555Z",
+    "resolvedAt": "2026-05-21T07:09:30.555Z"
   },
   {
     "id": "demo_c2",
@@ -2128,11 +2137,11 @@
     "description": "ASDF",
     "category": "Health & Medical — Ambulance Service",
     "department": "HFW",
-    "status": "open",
+    "status": "resolved",
     "priority": "critical",
     "channel": "web",
     "slaStatus": "ok",
-    "slaDaysLeft": 10,
+    "slaDaysLeft": 0,
     "citizenId": "u5",
     "citizenName": "Rajesh Patel",
     "citizenPhone": "9876543210",
@@ -2161,13 +2170,22 @@
         "actorRole": "nodal_officer",
         "timestamp": "2026-05-20T15:51:16.450Z",
         "description": "Grouped as primary: Health & Medical — Ambulance Service — null cluster (g1779292276415)"
+      },
+      {
+        "id": "tl-c22-3",
+        "type": "resolved",
+        "title": "Grievance Resolved",
+        "actor": "Ravi Varma",
+        "actorRole": "nodal_officer",
+        "timestamp": "2026-05-21T07:08:56.341Z",
+        "description": "Grievance has been resolved."
       }
     ],
     "feedback": null,
     "rating": null,
     "createdAt": "2026-05-14T04:29:48.326Z",
-    "updatedAt": "2026-05-20T15:51:16.450Z",
-    "resolvedAt": null
+    "updatedAt": "2026-05-21T07:08:56.341Z",
+    "resolvedAt": "2026-05-21T07:08:56.341Z"
   },
   {
     "id": "c23",
@@ -2680,7 +2698,7 @@
     "description": "test 05",
     "category": "MNREGA / Labour Issue",
     "department": "AGR",
-    "status": "pending",
+    "status": "acknowledged",
     "priority": "medium",
     "channel": "web",
     "slaStatus": "ok",
@@ -2713,12 +2731,21 @@
         "actorRole": "nodal_officer",
         "timestamp": "2026-05-21T01:37:55.535Z",
         "description": "test 0505"
+      },
+      {
+        "id": "tl-c32-3",
+        "type": "acknowledged",
+        "title": "Grievance Acknowledged",
+        "actor": "Ravi Varma",
+        "actorRole": "nodal_officer",
+        "timestamp": "2026-05-21T07:07:38.227Z",
+        "description": "Grievance has been acknowledged and is being reviewed."
       }
     ],
     "feedback": null,
     "rating": null,
     "createdAt": "2026-05-21T01:37:22.433Z",
-    "updatedAt": "2026-05-21T01:37:55.535Z",
+    "updatedAt": "2026-05-21T07:07:38.226Z",
     "resolvedAt": null
   },
   {
