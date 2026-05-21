@@ -359,7 +359,7 @@ export default function SubmitGrievance() {
       let attachmentUrls: string[] = [];
 
       // Use the appropriate file array based on mode
-      const filesToUpload = quickMode ? quickModeFiles : selectedFiles;
+      const filesToUpload = mode === 'quick' ? quickModeFiles : selectedFiles;
 
       // Upload files to Cloudinary if any
       if (filesToUpload.length > 0) {
@@ -799,8 +799,7 @@ export default function SubmitGrievance() {
                     <select
                       value={voiceLang}
                       onChange={e => setVoiceLang(e.target.value as 'en-IN' | 'gu-IN' | 'hi-IN')}
-                      className="px-2.5 py-1.5 border-2 border-[#DDE3EE] rounded-[6px] text-[9px] outline-none focus:border-[#F4811F] appearance-none bg-white pr-6"
-                      disabled={!listening}
+                      className="px-2.5 py-1.5 border-2 border-[#DDE3EE] rounded-[6px] text-[9px] outline-none focus:border-[#F4811F] appearance-none bg-white pr-6 transition-colors"
                     >
                       <option value="en-IN">EN</option>
                       <option value="gu-IN">GU</option>
