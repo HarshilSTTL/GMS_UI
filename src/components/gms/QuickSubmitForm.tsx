@@ -113,21 +113,13 @@ export function QuickSubmitForm({
   };
 
   return (
-    <div className="bg-white rounded-[14px] p-5 shadow-[0_1px_3px_rgba(14,28,47,0.08),0_4px_16px_rgba(14,28,47,0.06)]">
-      <div className="flex items-center gap-3 mb-4">
-        <button
-          onClick={onBack}
-          className="w-8 h-8 rounded-lg bg-[#F0F2F7] flex items-center justify-center hover:bg-[#DDE3EE] transition-colors"
-        >
-          <ArrowLeft size={16} className="text-[#3D5068]" />
-        </button>
-        <div>
-          <h2 className="text-[14px] font-bold text-[#0E1C2F]">Quick Submit Grievance</h2>
-          <p className="text-[11px] text-[#7A8FA6]">Fill all details in one page</p>
-        </div>
+    <div className="bg-white rounded-[14px] p-6 shadow-[0_1px_3px_rgba(14,28,47,0.08),0_4px_16px_rgba(14,28,47,0.06)]">
+      <div className="mb-6">
+        <h2 className="text-[16px] font-bold text-[#0F1A2E] mb-1">⚡ Quick Submit Grievance</h2>
+        <p className="text-[12px] text-[#7A8FA6]">Fill all details in one page — faster submission</p>
       </div>
 
-      <div className="space-y-4 max-h-[calc(100vh-200px)] overflow-y-auto pr-2">
+      <div className="space-y-5 max-h-[calc(100vh-300px)] overflow-y-auto pr-2">
         {/* Category & Sub-Category */}
         {domains && domains.length > 0 && (
           <>
@@ -300,20 +292,28 @@ export function QuickSubmitForm({
         </div>
 
         {/* Documents */}
-        <div>
-          <label className="block text-[11px] font-semibold text-[#3D5068] mb-2">
-            📎 Attach Documents <span className="text-[#7A8FA6] font-normal">(Optional)</span>
+        <div className="border-t border-[#E5E7EB] pt-3">
+          <label className="block text-[11px] font-semibold text-[#3D5068] mb-3 flex items-center gap-1.5">
+            📎 Attach Documents
+            <span className="text-[#7A8FA6] font-normal text-[10px]">(Optional but recommended)</span>
           </label>
-          <label className="flex items-center gap-3 p-4 border-2 border-dashed border-[#DDE3EE] rounded-[10px] cursor-pointer hover:border-[#F4811F] hover:bg-[#FFF8F0]/50 transition-colors">
-            <span className="text-[16px]">📎</span>
-            <span className="text-[12px] text-[#7A8FA6]">Click to select files or drag and drop</span>
+
+          <label className="flex flex-col items-center justify-center p-5 border-2 border-dashed border-[#DDE3EE] rounded-[12px] cursor-pointer hover:border-[#F4811F] hover:bg-[#FFF8F0] transition-all">
+            <span className="text-[20px] mb-2">📎</span>
+            <span className="text-[12px] font-semibold text-[#3D5068] text-center">
+              Click to upload or drag and drop
+            </span>
+            <span className="text-[10px] text-[#7A8FA6] text-center mt-1">
+              PNG, JPG, PDF, DOC, DOCX (Max 5MB each)
+            </span>
             <input
               type="file"
               multiple
               accept="image/*,.pdf,.doc,.docx"
               onChange={e => {
                 if (onFilesChange) {
-                  onFilesChange([...selectedFiles, ...(e.target.files ? Array.from(e.target.files) : [])]);
+                  const newFiles = e.target.files ? Array.from(e.target.files) : [];
+                  onFilesChange([...selectedFiles, ...newFiles]);
                 }
               }}
               className="hidden"
@@ -321,20 +321,32 @@ export function QuickSubmitForm({
           </label>
 
           {selectedFiles.length > 0 && (
-            <div className="bg-[#F0F7FF] border border-[#B3E5FC] rounded-lg p-3 mt-2 space-y-2">
-              <p className="text-[11px] font-bold text-[#0277BD]">Selected: {selectedFiles.length} file(s)</p>
+            <div className="bg-[#E0F7FA] border border-[#B2EBF2] rounded-lg p-4 mt-3 space-y-2">
+              <div className="flex items-center justify-between mb-2">
+                <p className="text-[11px] font-bold text-[#0891B2]">✓ {selectedFiles.length} file(s) selected</p>
+                <button
+                  onClick={() => {
+                    if (onFilesChange) {
+                      onFilesChange([]);
+                    }
+                  }}
+                  className="text-[10px] text-[#0891B2] hover:text-[#01579B] font-semibold"
+                >
+                  Clear all
+                </button>
+              </div>
               {selectedFiles.map((file, idx) => (
-                <div key={idx} className="flex items-center justify-between bg-white p-2 rounded border border-[#B3E5FC]">
-                  <p className="text-[11px] text-[#0F1A2E] truncate">{file.name}</p>
+                <div key={idx} className="flex items-center justify-between bg-white p-2.5 rounded-lg border border-[#B2EBF2]">
+                  <p className="text-[11px] text-[#0F1A2E] truncate flex-1">{file.name}</p>
                   <button
                     onClick={() => {
                       if (onFilesChange) {
                         onFilesChange(selectedFiles.filter((_, i) => i !== idx));
                       }
                     }}
-                    className="text-[10px] text-[#FF8A80] hover:text-red-700 font-semibold"
+                    className="text-[10px] text-[#FF8A80] hover:text-red-700 font-semibold ml-2 flex-shrink-0"
                   >
-                    Remove
+                    ✕
                   </button>
                 </div>
               ))}
@@ -343,16 +355,27 @@ export function QuickSubmitForm({
         </div>
       </div>
 
-      <div className="flex gap-2 mt-4">
-        <button onClick={onBack} className="flex-1 py-2.5 rounded-[10px] text-[12px] font-semibold border border-[#DDE3EE] text-[#3D5068] bg-white">Back</button>
+      <div className="flex gap-3 mt-6 pt-4 border-t border-[#E5E7EB]">
+        <button
+          onClick={onBack}
+          className="flex-1 py-2.5 rounded-[10px] text-[12px] font-semibold border border-[#DDE3EE] text-[#3D5068] bg-white hover:bg-[#F4F2EE] transition-colors"
+        >
+          Back
+        </button>
         <button
           onClick={handleSubmit}
           disabled={submitting}
-          className="flex-1 py-2.5 rounded-[10px] text-[12px] font-bold text-white disabled:opacity-60"
-          style={{ background: '#16A34A' }}>
-          {submitting
-            ? <span className="flex items-center justify-center gap-2"><span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" /> Submitting...</span>
-            : 'Submit Grievance'}
+          className="flex-1 py-2.5 rounded-[10px] text-[12px] font-bold text-white transition-all hover:shadow-lg disabled:opacity-60"
+          style={{ background: '#16A34A' }}
+        >
+          {submitting ? (
+            <span className="flex items-center justify-center gap-2">
+              <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+              Submitting...
+            </span>
+          ) : (
+            '✓ Submit Grievance'
+          )}
         </button>
       </div>
     </div>

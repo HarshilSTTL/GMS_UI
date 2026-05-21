@@ -1,11 +1,11 @@
 'use client';
-import { useState, useRef, useCallback } from 'react';
+import { useState, useRef, useCallback, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import {
   ArrowLeft, ArrowRight, CheckCircle, ChevronDown,
   Mic, MicOff, Navigation, Bot, X, Send,
   Hospital, Droplet, Route, Building2, Leaf,
-  Printer, ClipboardList,
+  Printer, ClipboardList, AlertCircle, FileCheck, MapPin,
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { useAuthStore } from '@/stores';
@@ -177,31 +177,122 @@ function AIChatbot() {
   );
 }
 
+// ── Form State Management ─────────────────────────────────────────────────────
+interface FormData {
+  title: string;
+  description: string;
+  district: string;
+  taluka: string;
+  ward: string;
+  specificLocation: string;
+}
+
+interface FormErrors {
+  [key: string]: string;
+}
+
 // ── Main Page ─────────────────────────────────────────────────────────────────
 export default function SubmitGrievance() {
   const router = useRouter();
   const { user } = useAuthStore();
 
+  // Submission modes
+  const [mode, setMode] = useState<'detailed' | 'quick'>('detailed');
+  const [modeTabFocus, setModeTabFocus] = useState<'detailed' | 'quick'>('detailed');
+
+  // Form state
   const [step, setStep] = useState(1);
   const [domain, setDomain] = useState<Domain | null>(null);
   const [sub, setSub] = useState<Sub | null>(null);
-  const [form, setForm] = useState({ title: '', description: '', district: '', taluka: '', ward: '', specificLocation: '' });
+  const [form, setForm] = useState<FormData>({
+    title: '',
+    description: '',
+    district: '',
+    taluka: '',
+    ward: '',
+    specificLocation: '',
+  });
+  const [errors, setErrors] = useState<FormErrors>({});
+
+  // File management
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
   const [uploadingFiles, setUploadingFiles] = useState(false);
+
+  // Submission states
   const [result, setResult] = useState<{ token: string; id: string } | null>(null);
+  const [submitting, setSubmitting] = useState(false);
+
+  // Voice & location
   const [listening, setListening] = useState(false);
   const [detecting, setDetecting] = useState(false);
-  const [submitting, setSubmitting] = useState(false);
-  const [quickMode, setQuickMode] = useState(false);
   const [voiceLang, setVoiceLang] = useState<'en-IN' | 'gu-IN' | 'hi-IN'>('en-IN');
-  const [quickModeFiles, setQuickModeFiles] = useState<File[]>([]);
-  const recogRef = useRef<any>(null);
 
-  function update(field: string, value: string) {
-    if (field === 'district') { setForm(f => ({ ...f, district: value, taluka: '', ward: '' })); return; }
-    if (field === 'taluka') { setForm(f => ({ ...f, taluka: value, ward: '' })); return; }
+  // Quick mode files
+  const [quickModeFiles, setQuickModeFiles] = useState<File[]>([]);
+
+  // Refs
+  const recogRef = useRef<any>(null);
+  const modeTabsRef = useRef<{ detailed: HTMLButtonElement | null; quick: HTMLButtonElement | null }>({ detailed: null, quick: null });
+
+  // Validation
+  const validateStep = (stepNum: number): boolean => {
+    const newErrors: FormErrors = {};
+
+    if (stepNum === 1 && !domain) {
+      newErrors.domain = 'Please select a category';
+    }
+    if (stepNum === 2 && !sub) {
+      newErrors.sub = 'Please select an issue type';
+    }
+    if (stepNum === 3) {
+      if (!form.title.trim()) newErrors.title = 'Title is required';
+      if (!form.description.trim()) newErrors.description = 'Description is required';
+      if (!form.district) newErrors.district = 'District is required';
+    }
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
+  // Form update with error clearing
+  const update = (field: string, value: string) => {
+    if (errors[field]) {
+      setErrors(e => {
+        const newE = { ...e };
+        delete newE[field];
+        return newE;
+      });
+    }
+
+    if (field === 'district') {
+      setForm(f => ({ ...f, district: value, taluka: '', ward: '' }));
+      return;
+    }
+    if (field === 'taluka') {
+      setForm(f => ({ ...f, taluka: value, ward: '' }));
+      return;
+    }
     setForm(f => ({ ...f, [field]: value }));
-  }
+  };
+
+  // Keyboard navigation for tabs
+  const handleModeTabKeyDown = (e: React.KeyboardEvent<HTMLButtonElement>, tabKey: 'detailed' | 'quick') => {
+    if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') {
+      e.preventDefault();
+      setModeTabFocus(tabKey === 'detailed' ? 'quick' : 'detailed');
+    } else if (e.key === 'ArrowRight' || e.key === 'ArrowDown') {
+      e.preventDefault();
+      setModeTabFocus(tabKey === 'detailed' ? 'quick' : 'detailed');
+    }
+  };
+
+  useEffect(() => {
+    if (modeTabFocus === 'detailed') {
+      modeTabsRef.current.detailed?.focus();
+    } else {
+      modeTabsRef.current.quick?.focus();
+    }
+  }, [modeTabFocus]);
 
   const toggleVoice = useCallback(() => {
     if (listening) { recogRef.current?.stop(); setListening(false); return; }
@@ -355,185 +446,285 @@ export default function SubmitGrievance() {
   }
 
   return (
-    <div className="min-h-screen bg-[#F0F2F7]">
-      {/* Fixed Tabs Header */}
+    <div className="min-h-screen bg-[#F4F2EE]">
+      {/* ── Perfect Tab Navigation Header ── */}
       {result === null && (
-        <div className="sticky top-0 z-40 bg-white border-b border-[#E5E7EB]">
-          <div className="max-w-2xl mx-auto px-4 sm:px-6 flex items-center">
-            <div className="flex gap-0">
+        <div className="sticky top-0 z-40 bg-white border-b border-[#E5E7EB] shadow-sm">
+          <div className="max-w-4xl mx-auto px-4 sm:px-6">
+            <div
+              className="flex relative"
+              role="tablist"
+              aria-label="Grievance submission mode"
+            >
+              {/* Detailed Submit Tab */}
               <button
-                onClick={() => { setQuickMode(false); setStep(1); setDomain(null); setSub(null); setQuickModeFiles([]); }}
+                ref={el => { if (el) modeTabsRef.current.detailed = el; }}
+                onClick={() => { setMode('detailed'); setStep(1); setDomain(null); setSub(null); setQuickModeFiles([]); setErrors({}); }}
+                onKeyDown={(e) => handleModeTabKeyDown(e, 'detailed')}
+                role="tab"
+                aria-selected={mode === 'detailed'}
+                aria-controls="detailed-panel"
                 className={cn(
-                  'px-6 py-3 text-[13px] font-semibold transition-all border-b-2',
-                  !quickMode
-                    ? 'border-[#F4811F] text-[#F4811F]'
-                    : 'border-transparent text-[#7A8FA6] hover:text-[#0F1A2E]'
+                  'px-6 py-4 text-[13px] font-semibold transition-colors relative',
+                  mode === 'detailed'
+                    ? 'text-[#F4811F]'
+                    : 'text-[#7A8FA6] hover:text-[#3D5068]'
                 )}
               >
-                Detailed Submit
+                📋 Detailed Submit
+                {mode === 'detailed' && (
+                  <div
+                    className="absolute bottom-0 left-0 right-0 h-1 bg-[#F4811F] transition-all duration-300"
+                    style={{
+                      borderRadius: '1px 1px 0 0',
+                    }}
+                  />
+                )}
               </button>
+
+              {/* Quick Submit Tab */}
               <button
-                onClick={() => { setQuickMode(true); setStep(1); setDomain(null); setSub(null); }}
+                ref={el => { if (el) modeTabsRef.current.quick = el; }}
+                onClick={() => { setMode('quick'); setStep(1); setDomain(null); setSub(null); setErrors({}); }}
+                onKeyDown={(e) => handleModeTabKeyDown(e, 'quick')}
+                role="tab"
+                aria-selected={mode === 'quick'}
+                aria-controls="quick-panel"
                 className={cn(
-                  'px-6 py-3 text-[13px] font-semibold transition-all border-b-2',
-                  quickMode
-                    ? 'border-[#F4811F] text-[#F4811F]'
-                    : 'border-transparent text-[#7A8FA6] hover:text-[#0F1A2E]'
+                  'px-6 py-4 text-[13px] font-semibold transition-colors relative',
+                  mode === 'quick'
+                    ? 'text-[#F4811F]'
+                    : 'text-[#7A8FA6] hover:text-[#3D5068]'
                 )}
               >
-                Quick Submit
+                ⚡ Quick Submit
+                {mode === 'quick' && (
+                  <div
+                    className="absolute bottom-0 left-0 right-0 h-1 bg-[#F4811F] transition-all duration-300"
+                    style={{
+                      borderRadius: '1px 1px 0 0',
+                    }}
+                  />
+                )}
               </button>
             </div>
           </div>
         </div>
       )}
 
-      <div className="max-w-2xl mx-auto pb-20 px-4 py-6">
-        {/* Header */}
-        <div className="flex items-center gap-3 mb-4">
-          <button
-            onClick={() => quickMode ? setQuickMode(false) : (step > 1 && step < 5 ? setStep(s => s - 1) : router.push('/citizen'))}
-            className="w-8 h-8 rounded-lg bg-white flex items-center justify-center hover:bg-[#DDE3EE] transition-colors border border-[#DDE3EE]"
-          >
-            <ArrowLeft size={16} className="text-[#3D5068]" />
-          </button>
-          <div>
-            <h1 className="text-[16px] font-bold text-[#0E1C2F]">← Submit Grievance</h1>
-            <p className="text-[11px] text-[#7A8FA6]">ફરિયાદ નોંધો — File a complaint</p>
+      <div className="max-w-4xl mx-auto pb-20 px-4 py-8">
+        {/* ── Page Header ── */}
+        <div className="mb-8">
+          <div className="flex items-center gap-3 mb-6">
+            <button
+              onClick={() => {
+                if (mode === 'quick' && result === null) {
+                  setMode('detailed');
+                } else if (step > 1 && step < 5 && mode === 'detailed') {
+                  setStep(s => s - 1);
+                } else {
+                  router.push('/citizen');
+                }
+              }}
+              className="w-10 h-10 rounded-lg bg-white flex items-center justify-center hover:bg-[#E5E7EB] transition-colors border border-[#DDE3EE]"
+              aria-label="Go back"
+            >
+              <ArrowLeft size={18} className="text-[#3D5068]" />
+            </button>
+            <div>
+              <h1 className="text-[20px] font-bold text-[#0F1A2E]">Submit Grievance</h1>
+              <p className="text-[12px] text-[#7A8FA6]">ફરિયાદ નોંધો — Help us resolve your concern</p>
+            </div>
           </div>
-        </div>
 
-      {/* Grievance Form heading */}
-      {result === null && (
-        <div className="mb-4">
-          <h2 className="text-[14px] font-bold text-[#0E1C2F]">Grievance Form</h2>
-        </div>
-      )}
-
-      {/* Step bar */}
-      {step < 5 && !quickMode && (
-        <div className="flex items-center mb-5">
-          {STEPS.map((label, idx) => (
-            <div key={idx} className="flex items-center flex-1">
-              <div
-                className="w-7 h-7 rounded-full flex items-center justify-center text-[11px] font-bold flex-shrink-0 transition-all"
-                style={{
-                  background: step > idx + 1 ? '#16A34A' : step === idx + 1 ? '#F4811F' : '#DDE3EE',
-                  color: step >= idx + 1 ? '#fff' : '#7A8FA6',
-                }}
-              >
-                {step > idx + 1 ? <CheckCircle size={14} /> : idx + 1}
+          {/* Progress Indicator - Only for Detailed Mode */}
+          {mode === 'detailed' && result === null && (
+            <div className="bg-white rounded-[12px] p-4 border border-[#E5E7EB]">
+              <div className="flex items-center gap-2">
+                {STEPS.map((label, idx) => (
+                  <div key={idx} className="flex items-center flex-1">
+                    <div
+                      className="w-8 h-8 rounded-full flex items-center justify-center text-[11px] font-bold flex-shrink-0 transition-all"
+                      style={{
+                        background: step > idx + 1 ? '#16A34A' : step === idx + 1 ? '#F4811F' : '#E5E7EB',
+                        color: step >= idx + 1 ? '#fff' : '#7A8FA6',
+                      }}
+                    >
+                      {step > idx + 1 ? <CheckCircle size={14} /> : idx + 1}
+                    </div>
+                    {idx < STEPS.length - 1 && (
+                      <div
+                        className={`flex-1 h-1 mx-1 rounded-full transition-all ${
+                          step > idx + 1 ? 'bg-[#16A34A]' : 'bg-[#E5E7EB]'
+                        }`}
+                      />
+                    )}
+                  </div>
+                ))}
               </div>
-              <span className="hidden sm:block text-[10px] font-medium ml-1 mr-2 text-[#7A8FA6]">{label}</span>
-              {idx < STEPS.length - 1 && (
-                <div className={`flex-1 h-0.5 mr-1 ${step > idx + 1 ? 'bg-[#16A34A]' : 'bg-[#DDE3EE]'}`} />
-              )}
+              <p className="text-[11px] text-[#7A8FA6] mt-3">
+                Step {step} of {STEPS.length} • {STEPS[step - 1]}
+              </p>
             </div>
-          ))}
+          )}
         </div>
-      )}
 
-      {/* ── Quick Submit Mode ── */}
-      {quickMode && result === null && (
-        <QuickSubmitForm
-          form={form}
-          onFormChange={update}
-          onBack={() => { setQuickMode(false); setDomain(null); setSub(null); }}
-          onSubmit={handleSubmit}
-          onDomainChange={setDomain}
-          onSubChange={setSub}
-          domain={domain}
-          sub={sub}
-          domains={DOMAINS}
-          submitting={submitting}
-          listening={listening}
-          detecting={detecting}
-          lang={voiceLang}
-          onLanguageChange={setVoiceLang}
-          onToggleVoice={toggleVoice}
-          onDetectLocation={detectLocation}
-          selectedFiles={quickModeFiles}
-          onFilesChange={setQuickModeFiles}
-        />
-      )}
+        {/* ── Quick Submit Mode ── */}
+        {mode === 'quick' && result === null && (
+          <div id="quick-panel" role="tabpanel" aria-labelledby="quick-tab">
+            <QuickSubmitForm
+              form={form}
+              onFormChange={update}
+              onBack={() => { setMode('detailed'); setDomain(null); setSub(null); setErrors({}); }}
+              onSubmit={handleSubmit}
+              onDomainChange={setDomain}
+              onSubChange={setSub}
+              domain={domain}
+              sub={sub}
+              domains={DOMAINS}
+              submitting={submitting}
+              listening={listening}
+              detecting={detecting}
+              lang={voiceLang}
+              onLanguageChange={setVoiceLang}
+              onToggleVoice={toggleVoice}
+              onDetectLocation={detectLocation}
+              selectedFiles={quickModeFiles}
+              onFilesChange={setQuickModeFiles}
+            />
+          </div>
+        )}
 
       {/* ── Step 1: Domain ── */}
-      {step === 1 && !quickMode && (
-        <div className="bg-white rounded-[14px] p-5 shadow-[0_1px_3px_rgba(14,28,47,0.08),0_4px_16px_rgba(14,28,47,0.06)]">
-          <h2 className="text-[14px] font-bold text-[#0E1C2F] mb-1">Select Category</h2>
-          <p className="text-[11px] text-[#7A8FA6] mb-4">વિભાગ પસંદ કરો — Choose the service domain</p>
-          <div className="grid grid-cols-1 gap-3">
-            {DOMAINS.map(d => {
-              const Icon = d.icon;
-              const selected = domain?.id === d.id;
-              return (
-                <button key={d.id} onClick={() => setDomain(d)}
-                  className="flex items-center gap-4 p-4 rounded-[12px] border-2 text-left transition-all"
-                  style={{ borderColor: selected ? d.color : '#DDE3EE', background: selected ? d.bg : '#fff' }}>
-                  <div className="w-12 h-12 rounded-[12px] flex items-center justify-center flex-shrink-0"
-                    style={{ background: selected ? d.color : d.bg }}>
-                    <Icon size={22} style={{ color: selected ? '#fff' : d.color }} />
-                  </div>
-                  <div className="flex-1">
-                    <p className="text-[13px] font-bold text-[#0E1C2F]">{d.label}</p>
-                    <p className="text-[11px]" style={{ color: d.color }}>{d.labelGu}</p>
-                    <p className="text-[10px] text-[#7A8FA6] mt-0.5">{d.subs.length} sub-categories</p>
-                  </div>
-                  {selected && <CheckCircle size={18} style={{ color: d.color, flexShrink: 0 }} />}
-                </button>
-              );
-            })}
-          </div>
-          <div className="flex justify-end mt-4">
-            <button
-              onClick={() => { if (!domain) return toast.error('Please select a category'); setStep(2); }}
-              className="px-6 py-2.5 rounded-[10px] text-[12px] font-semibold text-white flex items-center gap-2"
-              style={{ background: '#F4811F' }}
-            >
-              Next <ArrowRight size={14} />
-            </button>
+      {step === 1 && mode === 'detailed' && result === null && (
+        <div id="detailed-panel" role="tabpanel" aria-labelledby="detailed-tab">
+          <div className="bg-white rounded-[14px] p-6 shadow-[0_1px_3px_rgba(14,28,47,0.08),0_4px_16px_rgba(14,28,47,0.06)]">
+            <div className="mb-6">
+              <h2 className="text-[16px] font-bold text-[#0F1A2E] mb-2">Select Category</h2>
+              <p className="text-[12px] text-[#7A8FA6]">વિભાગ પસંદ કરો — Choose the service domain for your grievance</p>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-6">
+              {DOMAINS.map(d => {
+                const Icon = d.icon;
+                const selected = domain?.id === d.id;
+                return (
+                  <button
+                    key={d.id}
+                    onClick={() => { setDomain(d); setErrors({}); }}
+                    className="flex items-center gap-3 p-4 rounded-[12px] border-2 text-left transition-all hover:shadow-md"
+                    style={{
+                      borderColor: selected ? d.color : '#E5E7EB',
+                      background: selected ? d.bg : '#fff',
+                    }}
+                    aria-pressed={selected}
+                  >
+                    <div
+                      className="w-10 h-10 rounded-[10px] flex items-center justify-center flex-shrink-0 transition-transform"
+                      style={{
+                        background: selected ? d.color : d.bg,
+                        transform: selected ? 'scale(1.1)' : 'scale(1)',
+                      }}
+                    >
+                      <Icon size={20} style={{ color: selected ? '#fff' : d.color }} />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-[13px] font-bold text-[#0F1A2E]">{d.label}</p>
+                      <p className="text-[10px]" style={{ color: d.color }}>
+                        {d.labelGu} • {d.subs.length} types
+                      </p>
+                    </div>
+                    {selected && <CheckCircle size={16} style={{ color: d.color, flexShrink: 0 }} />}
+                  </button>
+                );
+              })}
+            </div>
+
+            <div className="flex justify-end">
+              <button
+                onClick={() => {
+                  if (!validateStep(1)) return;
+                  setStep(2);
+                }}
+                className="px-6 py-2.5 rounded-[10px] text-[12px] font-semibold text-white flex items-center gap-2 transition-all hover:shadow-lg"
+                style={{ background: '#F4811F' }}
+              >
+                Next <ArrowRight size={14} />
+              </button>
+            </div>
           </div>
         </div>
       )}
 
       {/* ── Step 2: Sub-category ── */}
-      {step === 2 && domain && !quickMode && (
-        <div className="bg-white rounded-[14px] p-5 shadow-[0_1px_3px_rgba(14,28,47,0.08),0_4px_16px_rgba(14,28,47,0.06)]">
-          <div className="flex items-center gap-2 mb-1">
-            <div className="w-6 h-6 rounded-lg flex items-center justify-center" style={{ background: domain.bg }}>
-              <domain.icon size={14} style={{ color: domain.color }} />
+      {step === 2 && domain && mode === 'detailed' && result === null && (
+        <div className="bg-white rounded-[14px] p-6 shadow-[0_1px_3px_rgba(14,28,47,0.08),0_4px_16px_rgba(14,28,47,0.06)]">
+          <div className="flex items-center gap-2 mb-6">
+            <div
+              className="w-8 h-8 rounded-lg flex items-center justify-center"
+              style={{ background: domain.bg }}
+            >
+              <domain.icon size={16} style={{ color: domain.color }} />
             </div>
-            <h2 className="text-[14px] font-bold text-[#0E1C2F]">{domain.label}</h2>
+            <div>
+              <h2 className="text-[16px] font-bold text-[#0F1A2E]">{domain.label}</h2>
+              <p className="text-[12px] text-[#7A8FA6]">પ્રકાર પસંદ કરો — Select the specific issue type</p>
+            </div>
           </div>
-          <p className="text-[11px] text-[#7A8FA6] mb-4">પ્રકાર પસંદ કરો — Select the specific issue type</p>
-          <div className="space-y-2">
+
+          <div className="space-y-2 mb-6 max-h-[60vh] overflow-y-auto pr-2">
             {domain.subs.map(s => {
               const selected = sub?.id === s.id;
               return (
-                <button key={s.id} onClick={() => setSub(s)}
-                  className="w-full flex items-center gap-3 p-3 rounded-[10px] border-2 text-left transition-all"
-                  style={{ borderColor: selected ? domain.color : '#DDE3EE', background: selected ? domain.bg : '#fff' }}>
-                  <div className="flex-1">
-                    <p className="text-[12px] font-semibold text-[#0E1C2F]">{s.label}</p>
-                    <p className="text-[10px]" style={{ color: domain.color }}>{s.labelGu}</p>
+                <button
+                  key={s.id}
+                  onClick={() => { setSub(s); setErrors({}); }}
+                  className="w-full flex items-center gap-3 p-3 rounded-[10px] border-2 text-left transition-all hover:shadow-sm"
+                  style={{
+                    borderColor: selected ? domain.color : '#E5E7EB',
+                    background: selected ? domain.bg : '#fff',
+                  }}
+                  aria-pressed={selected}
+                >
+                  <div className="flex-1 min-w-0">
+                    <p className="text-[12px] font-semibold text-[#0F1A2E]">{s.label}</p>
+                    <p className="text-[10px]" style={{ color: domain.color }}>
+                      {s.labelGu}
+                    </p>
                   </div>
                   <div className="flex items-center gap-2 flex-shrink-0">
-                    <span className="text-[9px] font-bold px-2 py-0.5 rounded-full"
-                      style={{ background: PRIORITY_BG[s.priority], color: PRIORITY_COLORS[s.priority] }}>
-                      {s.priority.toUpperCase()}
-                    </span>
-                    <span className="text-[9px] text-[#7A8FA6]">{s.sla}d SLA</span>
-                    {selected && <CheckCircle size={14} style={{ color: domain.color }} />}
+                    <div className="text-right">
+                      <p
+                        className="text-[8px] font-bold px-2 py-0.5 rounded-full whitespace-nowrap"
+                        style={{
+                          background: PRIORITY_BG[s.priority],
+                          color: PRIORITY_COLORS[s.priority],
+                        }}
+                      >
+                        {s.priority.toUpperCase()}
+                      </p>
+                      <p className="text-[9px] text-[#7A8FA6] mt-0.5">{s.sla}d SLA</p>
+                    </div>
+                    {selected && <CheckCircle size={14} style={{ color: domain.color, flexShrink: 0 }} />}
                   </div>
                 </button>
               );
             })}
           </div>
-          <div className="flex gap-2 mt-4">
-            <button onClick={() => setStep(1)} className="flex-1 py-2.5 rounded-[10px] text-[12px] font-semibold border border-[#DDE3EE] text-[#3D5068] bg-white">Back</button>
+
+          <div className="flex gap-2">
             <button
-              onClick={() => { if (!sub) return toast.error('Please select a sub-category'); setStep(3); }}
-              className="flex-1 flex items-center justify-center gap-2 py-2.5 rounded-[10px] text-[12px] font-semibold text-white"
+              onClick={() => setStep(1)}
+              className="flex-1 py-2.5 rounded-[10px] text-[12px] font-semibold border border-[#DDE3EE] text-[#3D5068] bg-white hover:bg-[#F4F2EE] transition-colors"
+            >
+              Back
+            </button>
+            <button
+              onClick={() => {
+                if (!validateStep(2)) return;
+                setStep(3);
+              }}
+              className="flex-1 flex items-center justify-center gap-2 py-2.5 rounded-[10px] text-[12px] font-semibold text-white transition-all hover:shadow-lg"
               style={{ background: '#F4811F' }}
             >
               Next <ArrowRight size={14} />
@@ -543,43 +734,77 @@ export default function SubmitGrievance() {
       )}
 
       {/* ── Step 3: Issue Details ── */}
-      {step === 3 && !quickMode && (
-        <div className="bg-white rounded-[14px] p-5 shadow-[0_1px_3px_rgba(14,28,47,0.08),0_4px_16px_rgba(14,28,47,0.06)]">
-          <h2 className="text-[14px] font-bold text-[#0E1C2F] mb-1">Issue Details</h2>
-          <p className="text-[11px] text-[#7A8FA6] mb-4">સમસ્યાની વિગત — Describe your issue</p>
-          <div className="space-y-4">
+      {step === 3 && mode === 'detailed' && result === null && (
+        <div className="bg-white rounded-[14px] p-6 shadow-[0_1px_3px_rgba(14,28,47,0.08),0_4px_16px_rgba(14,28,47,0.06)]">
+          <div className="mb-6">
+            <h2 className="text-[16px] font-bold text-[#0F1A2E] mb-2">Issue Details</h2>
+            <p className="text-[12px] text-[#7A8FA6]">સમસ્યાની વિગત — Describe your issue in detail</p>
+          </div>
+          <div className="space-y-5">
             {/* Title */}
             <div>
-              <label className="block text-[11px] font-semibold text-[#3D5068] mb-1">
-                Title * <span className="text-[#7A8FA6] font-normal">({form.title.length}/80)</span>
-              </label>
+              <div className="flex items-center justify-between mb-2">
+                <label className="block text-[11px] font-semibold text-[#3D5068]">
+                  📝 Title *
+                </label>
+                <span className="text-[10px] text-[#7A8FA6]">
+                  {form.title.length}/80
+                </span>
+              </div>
               <input
                 value={form.title}
                 onChange={e => e.target.value.length <= 80 && update('title', e.target.value)}
                 placeholder="Brief title for your grievance..."
-                className="w-full px-3 py-2.5 border-2 border-[#DDE3EE] rounded-[10px] text-[12px] outline-none focus:border-[#F4811F]"
+                className={cn(
+                  'w-full px-3 py-2.5 border-2 rounded-[10px] text-[12px] outline-none transition-colors',
+                  errors.title
+                    ? 'border-[#DC2626] bg-[#FFF5F5] focus:border-[#DC2626]'
+                    : 'border-[#DDE3EE] focus:border-[#F4811F]'
+                )}
               />
+              {errors.title && (
+                <p className="text-[10px] text-[#DC2626] mt-1.5 flex items-center gap-1">
+                  <AlertCircle size={12} /> {errors.title}
+                </p>
+              )}
             </div>
 
             {/* Description + Voice */}
             <div>
-              <div className="flex items-center justify-between mb-1">
-                <label className="block text-[11px] font-semibold text-[#3D5068]">Description *</label>
+              <div className="flex items-center justify-between mb-2">
+                <label className="block text-[11px] font-semibold text-[#3D5068]">
+                  💬 Description *
+                </label>
                 <div className="flex items-center gap-2">
-                  <button onClick={toggleVoice}
-                    className="flex items-center gap-1.5 px-3 py-1 rounded-[8px] text-[10px] font-semibold transition-all"
-                    style={{ background: listening ? '#FEE2E2' : '#F0F2F7', color: listening ? '#DC2626' : '#3D5068' }}>
-                    {listening ? <><MicOff size={12} /> Recording...</> : <><Mic size={12} /> Voice Input</>}
+                  <button
+                    onClick={toggleVoice}
+                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-[8px] text-[10px] font-semibold transition-all"
+                    style={{
+                      background: listening ? '#FEE2E2' : '#F0F2F7',
+                      color: listening ? '#DC2626' : '#3D5068',
+                    }}
+                    aria-pressed={listening}
+                  >
+                    {listening ? (
+                      <>
+                        <MicOff size={12} /> Recording...
+                      </>
+                    ) : (
+                      <>
+                        <Mic size={12} /> Voice
+                      </>
+                    )}
                   </button>
                   <div className="relative">
                     <select
                       value={voiceLang}
                       onChange={e => setVoiceLang(e.target.value as 'en-IN' | 'gu-IN' | 'hi-IN')}
-                      className="px-2.5 py-1 border-2 border-[#DDE3EE] rounded-[6px] text-[9px] outline-none focus:border-[#F4811F] appearance-none bg-white pr-6"
+                      className="px-2.5 py-1.5 border-2 border-[#DDE3EE] rounded-[6px] text-[9px] outline-none focus:border-[#F4811F] appearance-none bg-white pr-6"
+                      disabled={!listening}
                     >
-                      <option value="en-IN">🇬🇧 EN</option>
-                      <option value="gu-IN">🇮🇳 GU</option>
-                      <option value="hi-IN">🇮🇳 HI</option>
+                      <option value="en-IN">EN</option>
+                      <option value="gu-IN">GU</option>
+                      <option value="hi-IN">HI</option>
                     </select>
                     <ChevronDown size={10} className="absolute right-1.5 top-1/2 -translate-y-1/2 text-[#7A8FA6] pointer-events-none" />
                   </div>
@@ -589,36 +814,71 @@ export default function SubmitGrievance() {
                 value={form.description}
                 onChange={e => update('description', e.target.value)}
                 rows={4}
-                placeholder="Explain the issue in detail. When did it start? Who is affected?"
-                className="w-full px-3 py-2.5 border-2 border-[#DDE3EE] rounded-[10px] text-[12px] outline-none focus:border-[#F4811F] resize-none"
-                style={listening ? { borderColor: '#DC2626', background: '#FFF5F5' } : {}}
+                placeholder="Explain the issue in detail. When did it start? Who is affected? What action is needed?"
+                className={cn(
+                  'w-full px-3 py-2.5 border-2 rounded-[10px] text-[12px] outline-none transition-colors resize-none',
+                  errors.description
+                    ? 'border-[#DC2626] bg-[#FFF5F5] focus:border-[#DC2626]'
+                    : listening
+                      ? 'border-[#DC2626] bg-[#FFF5F5] focus:border-[#DC2626]'
+                      : 'border-[#DDE3EE] focus:border-[#F4811F]'
+                )}
               />
-              {listening && (
-                <p className="text-[10px] text-[#DC2626] mt-0.5 flex items-center gap-1">
-                  <span className="inline-block w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse" />
-                  Listening in {voiceLang === 'en-IN' ? 'English' : voiceLang === 'gu-IN' ? 'Gujarati' : 'Hindi'}...
-                </p>
-              )}
+              <div className="flex items-center justify-between mt-1.5">
+                {listening && (
+                  <p className="text-[10px] text-[#DC2626] flex items-center gap-1">
+                    <span className="inline-block w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse" />
+                    Listening in {voiceLang === 'en-IN' ? 'English' : voiceLang === 'gu-IN' ? 'Gujarati' : 'Hindi'}...
+                  </p>
+                )}
+                {errors.description && (
+                  <p className="text-[10px] text-[#DC2626] flex items-center gap-1">
+                    <AlertCircle size={12} /> {errors.description}
+                  </p>
+                )}
+              </div>
             </div>
 
             {/* Location */}
-            <div>
-              <div className="flex items-center justify-between mb-2">
-                <label className="block text-[11px] font-semibold text-[#3D5068]">Location *</label>
-                <button onClick={detectLocation} disabled={detecting}
-                  className="flex items-center gap-1.5 px-3 py-1 rounded-[8px] text-[10px] font-semibold transition-all"
-                  style={{ background: '#E0F7FA', color: '#0891B2' }}>
-                  {detecting
-                    ? <><span className="w-3 h-3 border border-teal-500 border-t-transparent rounded-full animate-spin" /> Detecting...</>
-                    : <><Navigation size={11} /> Detect GPS</>}
+            <div className="bg-[#F4F2EE] rounded-[12px] p-4 -mx-2">
+              <div className="flex items-center justify-between mb-3">
+                <label className="block text-[11px] font-semibold text-[#3D5068] flex items-center gap-1.5">
+                  <MapPin size={14} /> Location *
+                </label>
+                <button
+                  onClick={detectLocation}
+                  disabled={detecting}
+                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-[8px] text-[10px] font-semibold transition-all bg-[#E0F7FA] text-[#0891B2] hover:bg-[#B2EBF2] disabled:opacity-60"
+                >
+                  {detecting ? (
+                    <>
+                      <span className="w-2.5 h-2.5 border-2 border-teal-500 border-t-transparent rounded-full animate-spin" />
+                      Detecting...
+                    </>
+                  ) : (
+                    <>
+                      <Navigation size={11} /> Detect GPS
+                    </>
+                  )}
                 </button>
               </div>
+
               <div className="grid grid-cols-2 gap-2 mb-2">
                 <div>
-                  <label className="block text-[10px] font-semibold text-[#3D5068] mb-1">District *</label>
+                  <label className="block text-[10px] font-semibold text-[#3D5068] mb-1.5">
+                    District *
+                  </label>
                   <div className="relative">
-                    <select value={form.district} onChange={e => update('district', e.target.value)}
-                      className="w-full px-3 py-2 border-2 border-[#DDE3EE] rounded-[10px] text-[11px] outline-none focus:border-[#F4811F] appearance-none bg-white">
+                    <select
+                      value={form.district}
+                      onChange={e => update('district', e.target.value)}
+                      className={cn(
+                        'w-full px-3 py-2 border-2 rounded-[10px] text-[11px] outline-none appearance-none bg-white transition-colors',
+                        errors.district
+                          ? 'border-[#DC2626] focus:border-[#DC2626]'
+                          : 'border-[#DDE3EE] focus:border-[#F4811F]'
+                      )}
+                    >
                       <option value="">Select District</option>
                       {GUJARAT_DISTRICTS.map(d => <option key={d} value={d}>{d}</option>)}
                     </select>
@@ -626,10 +886,14 @@ export default function SubmitGrievance() {
                   </div>
                 </div>
                 <div>
-                  <label className="block text-[10px] font-semibold text-[#3D5068] mb-1">Taluka</label>
+                  <label className="block text-[10px] font-semibold text-[#3D5068] mb-1.5">Taluka</label>
                   <div className="relative">
-                    <select value={form.taluka} onChange={e => update('taluka', e.target.value)} disabled={!form.district}
-                      className="w-full px-3 py-2 border-2 border-[#DDE3EE] rounded-[10px] text-[11px] outline-none focus:border-[#F4811F] appearance-none bg-white disabled:opacity-50">
+                    <select
+                      value={form.taluka}
+                      onChange={e => update('taluka', e.target.value)}
+                      disabled={!form.district}
+                      className="w-full px-3 py-2 border-2 border-[#DDE3EE] rounded-[10px] text-[11px] outline-none focus:border-[#F4811F] appearance-none bg-white disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                    >
                       <option value="">Select Taluka</option>
                       {(TALUKAS[form.district] || []).map(t => <option key={t} value={t}>{t}</option>)}
                     </select>
@@ -637,12 +901,17 @@ export default function SubmitGrievance() {
                   </div>
                 </div>
               </div>
+
               <div className="grid grid-cols-2 gap-2">
                 <div>
-                  <label className="block text-[10px] font-semibold text-[#3D5068] mb-1">Ward / Village</label>
+                  <label className="block text-[10px] font-semibold text-[#3D5068] mb-1.5">Ward / Village</label>
                   <div className="relative">
-                    <select value={form.ward} onChange={e => update('ward', e.target.value)} disabled={!form.district}
-                      className="w-full px-3 py-2 border-2 border-[#DDE3EE] rounded-[10px] text-[11px] outline-none focus:border-[#F4811F] appearance-none bg-white disabled:opacity-50">
+                    <select
+                      value={form.ward}
+                      onChange={e => update('ward', e.target.value)}
+                      disabled={!form.district}
+                      className="w-full px-3 py-2 border-2 border-[#DDE3EE] rounded-[10px] text-[11px] outline-none focus:border-[#F4811F] appearance-none bg-white disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                    >
                       <option value="">Select Ward</option>
                       {WARDS.map(w => <option key={w} value={w}>{w}</option>)}
                     </select>
@@ -650,12 +919,12 @@ export default function SubmitGrievance() {
                   </div>
                 </div>
                 <div>
-                  <label className="block text-[10px] font-semibold text-[#3D5068] mb-1">Specific Location</label>
+                  <label className="block text-[10px] font-semibold text-[#3D5068] mb-1.5">Street / Landmark</label>
                   <input
                     value={form.specificLocation}
                     onChange={e => update('specificLocation', e.target.value)}
-                    placeholder="Street / Landmark"
-                    className="w-full px-3 py-2 border-2 border-[#DDE3EE] rounded-[10px] text-[11px] outline-none focus:border-[#F4811F]"
+                    placeholder="e.g., Main Road, Intersection"
+                    className="w-full px-3 py-2 border-2 border-[#DDE3EE] rounded-[10px] text-[11px] outline-none focus:border-[#F4811F] transition-colors"
                   />
                 </div>
               </div>
@@ -663,32 +932,53 @@ export default function SubmitGrievance() {
 
             {/* Documents */}
             <div>
-              <label className="block text-[11px] font-semibold text-[#3D5068] mb-2">
-                📎 Attach Documents <span className="text-[#7A8FA6] font-normal">(Optional)</span>
+              <label className="block text-[11px] font-semibold text-[#3D5068] mb-3 flex items-center gap-1.5">
+                📎 Attach Documents
+                <span className="text-[#7A8FA6] font-normal text-[10px]">(Optional but recommended)</span>
               </label>
-              <label className="flex items-center gap-3 p-4 border-2 border-dashed border-[#DDE3EE] rounded-[10px] cursor-pointer hover:border-[#F4811F] hover:bg-[#FFF8F0]/50 transition-colors">
-                <span className="text-[16px]">📎</span>
-                <span className="text-[12px] text-[#7A8FA6]">Click to select files or drag and drop</span>
+
+              <label className="flex flex-col items-center justify-center p-6 border-2 border-dashed border-[#DDE3EE] rounded-[12px] cursor-pointer hover:border-[#F4811F] hover:bg-[#FFF8F0] transition-all">
+                <FileCheck size={24} className="text-[#7A8FA6] mb-2" />
+                <span className="text-[12px] font-semibold text-[#3D5068] text-center">
+                  Click to upload or drag and drop
+                </span>
+                <span className="text-[10px] text-[#7A8FA6] text-center mt-1">
+                  PNG, JPG, PDF, DOC, DOCX (Max 5MB each)
+                </span>
                 <input
                   type="file"
                   multiple
                   accept="image/*,.pdf,.doc,.docx"
-                  onChange={e => setSelectedFiles([...selectedFiles, ...(e.target.files ? Array.from(e.target.files) : [])])}
+                  onChange={e => {
+                    const newFiles = e.target.files ? Array.from(e.target.files) : [];
+                    setSelectedFiles([...selectedFiles, ...newFiles]);
+                  }}
                   className="hidden"
                 />
               </label>
 
               {selectedFiles.length > 0 && (
-                <div className="bg-[#F0F7FF] border border-[#B3E5FC] rounded-lg p-3 mt-2 space-y-2">
-                  <p className="text-[11px] font-bold text-[#0277BD]">Selected: {selectedFiles.length} file(s)</p>
+                <div className="bg-[#E0F7FA] border border-[#B2EBF2] rounded-lg p-4 mt-3 space-y-2">
+                  <div className="flex items-center justify-between mb-2">
+                    <p className="text-[11px] font-bold text-[#0277BD]">✓ {selectedFiles.length} file(s) selected</p>
+                    <button
+                      onClick={() => setSelectedFiles([])}
+                      className="text-[10px] text-[#0277BD] hover:text-[#01579B] font-semibold"
+                    >
+                      Clear all
+                    </button>
+                  </div>
                   {selectedFiles.map((file, idx) => (
-                    <div key={idx} className="flex items-center justify-between bg-white p-2 rounded border border-[#B3E5FC]">
-                      <p className="text-[11px] text-[#0F1A2E] truncate">{file.name}</p>
+                    <div
+                      key={idx}
+                      className="flex items-center justify-between bg-white p-2.5 rounded-lg border border-[#B2EBF2]"
+                    >
+                      <p className="text-[11px] text-[#0F1A2E] truncate flex-1">{file.name}</p>
                       <button
                         onClick={() => setSelectedFiles(selectedFiles.filter((_, i) => i !== idx))}
-                        className="text-[10px] text-[#FF8A80] hover:text-red-700 font-semibold"
+                        className="text-[10px] text-[#FF8A80] hover:text-red-700 font-semibold ml-2 flex-shrink-0"
                       >
-                        Remove
+                        ✕
                       </button>
                     </div>
                   ))}
@@ -697,16 +987,19 @@ export default function SubmitGrievance() {
             </div>
           </div>
 
-          <div className="flex gap-2 mt-4">
-            <button onClick={() => setStep(2)} className="flex-1 py-2.5 rounded-[10px] text-[12px] font-semibold border border-[#DDE3EE] text-[#3D5068] bg-white">Back</button>
+          <div className="flex gap-3 mt-6 pt-6 border-t border-[#E5E7EB]">
+            <button
+              onClick={() => setStep(2)}
+              className="flex-1 py-2.5 rounded-[10px] text-[12px] font-semibold border border-[#DDE3EE] text-[#3D5068] bg-white hover:bg-[#F4F2EE] transition-colors"
+            >
+              Back
+            </button>
             <button
               onClick={() => {
-                if (!form.title.trim()) return toast.error('Please enter a title');
-                if (!form.description.trim()) return toast.error('Please describe the issue');
-                if (!form.district) return toast.error('Please select a district');
+                if (!validateStep(3)) return;
                 setStep(4);
               }}
-              className="flex-1 flex items-center justify-center gap-2 py-2.5 rounded-[10px] text-[12px] font-semibold text-white"
+              className="flex-1 flex items-center justify-center gap-2 py-2.5 rounded-[10px] text-[12px] font-semibold text-white transition-all hover:shadow-lg"
               style={{ background: '#F4811F' }}
             >
               Review <ArrowRight size={14} />
@@ -716,70 +1009,115 @@ export default function SubmitGrievance() {
       )}
 
       {/* ── Step 4: Review & Submit ── */}
-      {step === 4 && domain && sub && !quickMode && (
-        <div className="bg-white rounded-[14px] p-5 shadow-[0_1px_3px_rgba(14,28,47,0.08),0_4px_16px_rgba(14,28,47,0.06)]">
-          <h2 className="text-[14px] font-bold text-[#0E1C2F] mb-1">Review & Submit</h2>
-          <p className="text-[11px] text-[#7A8FA6] mb-4">સમીક્ષા — Verify details before submitting</p>
+      {step === 4 && domain && sub && mode === 'detailed' && result === null && (
+        <div className="space-y-4">
+          <div className="bg-white rounded-[14px] p-6 shadow-[0_1px_3px_rgba(14,28,47,0.08),0_4px_16px_rgba(14,28,47,0.06)]">
+            <div className="mb-6">
+              <h2 className="text-[16px] font-bold text-[#0F1A2E] mb-2">Review Your Grievance</h2>
+              <p className="text-[12px] text-[#7A8FA6]">સમીક્ષા — Please verify all details before submitting</p>
+            </div>
 
-          <div className="rounded-[12px] p-4 mb-4" style={{ border: '2px dashed #DDE3EE', background: '#FAFBFC' }}>
-            <div className="flex flex-wrap gap-1.5 mb-3">
-              <span className="flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-bold text-white" style={{ background: domain.color }}>
-                <domain.icon size={10} /> {domain.label}
+            {/* Category & Priority Tags */}
+            <div className="flex flex-wrap gap-2 mb-6">
+              <span
+                className="flex items-center gap-1.5 px-3 py-2 rounded-full text-[11px] font-bold text-white"
+                style={{ background: domain.color }}
+              >
+                <domain.icon size={12} /> {domain.label}
               </span>
-              <span className="px-2.5 py-1 rounded-full text-[10px] font-bold"
-                style={{ background: PRIORITY_BG[sub.priority], color: PRIORITY_COLORS[sub.priority] }}>
-                {sub.priority.toUpperCase()}
+              <span
+                className="px-3 py-2 rounded-full text-[11px] font-bold"
+                style={{ background: PRIORITY_BG[sub.priority], color: PRIORITY_COLORS[sub.priority] }}
+              >
+                {sub.priority.toUpperCase()} PRIORITY
               </span>
-              <span className="px-2.5 py-1 rounded-full text-[10px] font-semibold bg-[#F0F2F7] text-[#3D5068]">
-                SLA: {sub.sla} days
+              <span className="px-3 py-2 rounded-full text-[11px] font-semibold bg-[#E0F7FA] text-[#0891B2]">
+                ⏱️ SLA: {sub.sla} days
               </span>
             </div>
 
-            <p className="text-[13px] font-bold text-[#0E1C2F] mb-1">{form.title}</p>
-            <p className="text-[11px] text-[#3D5068] mb-3 leading-relaxed">{form.description}</p>
+            {/* Title & Description */}
+            <div className="bg-[#F4F2EE] rounded-[12px] p-4 mb-4">
+              <p className="text-[12px] font-bold text-[#0F1A2E] mb-2">{form.title}</p>
+              <p className="text-[12px] text-[#3D5068] leading-relaxed whitespace-pre-wrap">{form.description}</p>
+            </div>
 
-            <div className="space-y-1.5 pt-3 border-t border-[#DDE3EE]">
+            {/* Details Grid */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-4">
               {[
-                { label: 'Sub-Category', value: sub.label },
-                { label: 'Department', value: domain.code },
-                { label: 'District', value: form.district || '—' },
-                { label: 'Taluka', value: form.taluka || '—' },
-                { label: 'Ward', value: form.ward || '—' },
-                { label: 'Location', value: form.specificLocation || '—' },
-                { label: 'Channel', value: 'Web Portal' },
-              ].map(item => (
-                <div key={item.label} className="flex justify-between">
-                  <span className="text-[10px] text-[#7A8FA6]">{item.label}</span>
-                  <span className="text-[10px] font-semibold text-[#0E1C2F]">{item.value}</span>
+                { label: 'Issue Type', value: sub.label, icon: '📋' },
+                { label: 'Department', value: domain.code, icon: '🏢' },
+                { label: 'District', value: form.district || '—', icon: '📍' },
+                { label: 'Taluka', value: form.taluka || '—', icon: '🗺️' },
+                { label: 'Ward', value: form.ward || '—', icon: '🏘️' },
+                { label: 'Channel', value: 'Web Portal', icon: '💻' },
+              ].map((item, idx) => (
+                <div key={idx} className="bg-white border border-[#E5E7EB] rounded-[10px] p-3">
+                  <p className="text-[10px] text-[#7A8FA6] mb-1">{item.icon} {item.label}</p>
+                  <p className="text-[11px] font-semibold text-[#0F1A2E]">{item.value}</p>
                 </div>
               ))}
             </div>
 
-            {selectedFiles.length > 0 && (
-              <div className="pt-3 border-t border-[#DDE3EE] space-y-1.5">
-                <p className="text-[10px] font-bold text-[#7A8FA6]">ATTACHMENTS ({selectedFiles.length})</p>
-                {selectedFiles.map((file, idx) => (
-                  <div key={idx} className="text-[10px] text-[#0E1C2F] flex items-center gap-2">
-                    <span>📎</span>
-                    <span>{file.name}</span>
-                  </div>
-                ))}
+            {/* Specific Location */}
+            {form.specificLocation && (
+              <div className="bg-white border border-[#E5E7EB] rounded-[10px] p-3 mb-4">
+                <p className="text-[10px] text-[#7A8FA6] mb-1">📌 Specific Location</p>
+                <p className="text-[11px] font-semibold text-[#0F1A2E]">{form.specificLocation}</p>
               </div>
             )}
+
+            {/* Attachments */}
+            {selectedFiles.length > 0 && (
+              <div className="bg-[#E0F7FA] border border-[#B2EBF2] rounded-[10px] p-4 mb-4">
+                <p className="text-[11px] font-bold text-[#0891B2] mb-2.5">📎 {selectedFiles.length} File(s) Attached</p>
+                <div className="space-y-1.5">
+                  {selectedFiles.map((file, idx) => (
+                    <p key={idx} className="text-[10px] text-[#0277BD]">
+                      • {file.name}
+                    </p>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Info Banner */}
+            <div className="bg-[#E0F7FA] border border-[#B2EBF2] rounded-[10px] p-4">
+              <p className="text-[11px] text-[#0891B2] font-semibold mb-1.5">✓ What happens next?</p>
+              <ul className="text-[10px] text-[#0891B2] space-y-1">
+                <li>• Your grievance will be assigned a unique tracking token</li>
+                <li>• The department will respond within {sub.sla} days (SLA)</li>
+                <li>• You'll receive SMS updates on every status change</li>
+                <li>• Auto-escalation applies if not resolved within SLA</li>
+              </ul>
+            </div>
           </div>
 
-          <div className="rounded-[10px] p-3 text-[11px] mb-4" style={{ background: '#E0F7FA', color: '#0891B2' }}>
-            📩 You will receive an SMS confirmation with your grievance token. Use it to track status anytime.
-          </div>
-
-          <div className="flex gap-2">
-            <button onClick={() => setStep(3)} className="flex-1 py-2.5 rounded-[10px] text-[12px] font-semibold border border-[#DDE3EE] text-[#3D5068] bg-white">Back</button>
-            <button onClick={handleSubmit} disabled={submitting}
-              className="flex-1 flex items-center justify-center gap-2 py-2.5 rounded-[10px] text-[12px] font-bold text-white disabled:opacity-60"
-              style={{ background: '#16A34A' }}>
-              {submitting
-                ? <><span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" /> Submitting...</>
-                : <><Send size={14} /> Submit Grievance</>}
+          {/* Action Buttons */}
+          <div className="flex gap-3">
+            <button
+              onClick={() => setStep(3)}
+              disabled={submitting}
+              className="flex-1 py-2.5 rounded-[10px] text-[12px] font-semibold border border-[#DDE3EE] text-[#3D5068] bg-white hover:bg-[#F4F2EE] transition-colors disabled:opacity-60"
+            >
+              Back
+            </button>
+            <button
+              onClick={handleSubmit}
+              disabled={submitting}
+              className="flex-1 flex items-center justify-center gap-2 py-2.5 rounded-[10px] text-[12px] font-bold text-white transition-all hover:shadow-lg disabled:opacity-60"
+              style={{ background: '#16A34A' }}
+            >
+              {submitting ? (
+                <>
+                  <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                  Submitting...
+                </>
+              ) : (
+                <>
+                  <Send size={14} /> Submit Grievance
+                </>
+              )}
             </button>
           </div>
         </div>
@@ -788,89 +1126,135 @@ export default function SubmitGrievance() {
       {/* ── Step 5: Success ── */}
       {result && domain && sub && (
         <div className="space-y-4">
-          <div className="rounded-[16px] p-6 text-center text-white" style={{ background: 'linear-gradient(135deg, #16A34A 0%, #15803D 100%)' }}>
-            <div className="w-16 h-16 rounded-full bg-white/20 flex items-center justify-center mx-auto mb-3">
-              <CheckCircle size={36} className="text-white" />
+          {/* Success Banner */}
+          <div
+            className="rounded-[16px] p-8 text-center text-white shadow-lg"
+            style={{
+              background: 'linear-gradient(135deg, #16A34A 0%, #15803D 100%)',
+            }}
+          >
+            <div className="w-16 h-16 rounded-full bg-white/20 flex items-center justify-center mx-auto mb-4">
+              <CheckCircle size={36} className="text-white animate-bounce" />
             </div>
-            <h2 className="text-[18px] font-black mb-1">Grievance Filed!</h2>
-            <p className="text-[12px] text-green-100 mb-4">ફરિયાદ સફળતાપૂર્વક નોંધવામાં આવી</p>
-            <div className="inline-block px-5 py-2 rounded-[10px] text-[13px] font-black tracking-widest"
-              style={{ border: '2px dashed #FFF', background: 'rgba(255,255,255,0.15)' }}>
-              {result.token}
+            <h2 className="text-[22px] font-black mb-2">Grievance Successfully Filed!</h2>
+            <p className="text-[13px] text-green-100 mb-6">ફરિયાદ સફળતાપૂર્વક નોંધવામાં આવી</p>
+
+            {/* Token */}
+            <div className="bg-white/15 rounded-[12px] px-6 py-3 mb-4 inline-block">
+              <p className="text-[10px] text-green-100 mb-1.5">Your Grievance Token</p>
+              <p className="text-[18px] font-black tracking-widest font-mono">{result.token}</p>
             </div>
-            <p className="text-[10px] text-green-100 mt-2">Your grievance token — save it for tracking</p>
+            <p className="text-[11px] text-green-100">Save this token to track your grievance anytime</p>
           </div>
 
-          <div className="grid grid-cols-3 gap-2">
+          {/* Status Cards */}
+          <div className="grid grid-cols-3 gap-3">
             {[
-              { label: 'Status', value: 'Pending', color: '#D97706', bg: '#FEF3C7' },
-              { label: 'Priority', value: sub.priority.charAt(0).toUpperCase() + sub.priority.slice(1), color: PRIORITY_COLORS[sub.priority], bg: PRIORITY_BG[sub.priority] },
-              { label: 'SLA', value: `${sub.sla} Days`, color: '#0891B2', bg: '#E0F7FA' },
+              { label: '📊 Status', value: 'Pending', color: '#D97706', bg: '#FEF3C7' },
+              {
+                label: '🎯 Priority',
+                value: sub.priority.charAt(0).toUpperCase() + sub.priority.slice(1),
+                color: PRIORITY_COLORS[sub.priority],
+                bg: PRIORITY_BG[sub.priority],
+              },
+              { label: '⏱️ SLA', value: `${sub.sla} Days`, color: '#0891B2', bg: '#E0F7FA' },
             ].map(p => (
-              <div key={p.label} className="rounded-[10px] p-2.5 text-center" style={{ background: p.bg }}>
-                <p className="text-[9px] text-[#7A8FA6] mb-0.5">{p.label}</p>
-                <p className="text-[12px] font-bold" style={{ color: p.color }}>{p.value}</p>
+              <div key={p.label} className="rounded-[12px] p-4 text-center" style={{ background: p.bg }}>
+                <p className="text-[10px] text-[#7A8FA6] mb-1">{p.label.split(' ')[1]}</p>
+                <p className="text-[13px] font-bold" style={{ color: p.color }}>
+                  {p.value}
+                </p>
               </div>
             ))}
           </div>
 
-          <div className="bg-white rounded-[14px] p-4 shadow-[0_1px_3px_rgba(14,28,47,0.08),0_4px_16px_rgba(14,28,47,0.06)]">
-            <h3 className="text-[12px] font-bold text-[#0E1C2F] mb-3">Complaint Details</h3>
-            <div className="space-y-2">
+          {/* Complaint Details */}
+          <div className="bg-white rounded-[14px] p-6 shadow-[0_1px_3px_rgba(14,28,47,0.08),0_4px_16px_rgba(14,28,47,0.06)]">
+            <h3 className="text-[13px] font-bold text-[#0F1A2E] mb-4 flex items-center gap-1.5">
+              📋 Complaint Details
+            </h3>
+            <div className="space-y-3">
               {[
-                { label: 'Category', value: domain.label },
-                { label: 'Issue', value: sub.label },
-                { label: 'Title', value: form.title },
-                { label: 'District', value: form.district },
-                { label: 'Department', value: domain.code },
-                { label: 'Filed By', value: user?.name || 'Citizen' },
-                { label: 'Channel', value: 'Web Portal' },
+                { label: '📁 Category', value: domain.label },
+                { label: '🔍 Issue Type', value: sub.label },
+                { label: '📝 Title', value: form.title },
+                { label: '📍 District', value: form.district },
+                { label: '🏢 Department', value: domain.code },
+                { label: '👤 Filed By', value: user?.name || 'Citizen' },
+                { label: '💻 Channel', value: 'Web Portal' },
               ].map(row => (
-                <div key={row.label} className="flex justify-between py-1.5 border-b border-[#F0F2F7] last:border-0">
-                  <span className="text-[10px] text-[#7A8FA6]">{row.label}</span>
-                  <span className="text-[10px] font-semibold text-[#0E1C2F] text-right max-w-[55%]">{row.value}</span>
+                <div key={row.label} className="flex justify-between py-2 border-b border-[#F4F2EE] last:border-0">
+                  <span className="text-[11px] text-[#7A8FA6]">{row.label.split(' ')[0]} {row.label.split(' ').slice(1).join(' ')}</span>
+                  <span className="text-[11px] font-semibold text-[#0F1A2E] text-right">{row.value}</span>
                 </div>
               ))}
             </div>
           </div>
 
-          <div className="rounded-[12px] p-4" style={{ background: '#E0F7FA', border: '1px solid #B2EBF2' }}>
-            <h3 className="text-[12px] font-bold mb-2" style={{ color: '#0891B2' }}>What happens next?</h3>
-            <div className="space-y-2">
+          {/* What Happens Next */}
+          <div className="bg-[#E0F7FA] border border-[#B2EBF2] rounded-[14px] p-6">
+            <h3 className="text-[13px] font-bold text-[#0891B2] mb-4 flex items-center gap-1.5">
+              ✓ What Happens Next?
+            </h3>
+            <div className="space-y-3">
               {[
-                { n: 1, text: 'Your grievance has been assigned a token and registered.' },
-                { n: 2, text: `The concerned department (${domain.code}) will review within ${sub.sla} days.` },
+                {
+                  n: 1,
+                  text: 'Your grievance has been registered and assigned a token for tracking.',
+                },
+                {
+                  n: 2,
+                  text: `The ${domain.code} department will review your grievance within ${sub.sla} days.`,
+                },
                 { n: 3, text: 'You will receive SMS updates on every status change.' },
-                { n: 4, text: 'If not resolved in time, it will be auto-escalated.' },
+                {
+                  n: 4,
+                  text: 'If not resolved within SLA, your grievance will be automatically escalated.',
+                },
               ].map(s => (
-                <div key={s.n} className="flex items-start gap-2">
-                  <span className="w-5 h-5 rounded-full flex-shrink-0 flex items-center justify-center text-[9px] font-bold text-white" style={{ background: '#0891B2' }}>{s.n}</span>
-                  <p className="text-[11px]" style={{ color: '#0E5060' }}>{s.text}</p>
+                <div key={s.n} className="flex gap-3">
+                  <span
+                    className="w-6 h-6 rounded-full flex-shrink-0 flex items-center justify-center text-[10px] font-bold text-white"
+                    style={{ background: '#0891B2' }}
+                  >
+                    {s.n}
+                  </span>
+                  <p className="text-[11px] text-[#0E5060] pt-0.5">{s.text}</p>
                 </div>
               ))}
             </div>
           </div>
 
-          <div className="flex gap-2">
-            <button onClick={() => window.print()}
-              className="flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-[10px] text-[12px] font-semibold border border-[#DDE3EE] text-[#3D5068] bg-white">
-              <Printer size={14} /> Receipt
+          {/* Action Buttons */}
+          <div className="flex gap-3">
+            <button
+              onClick={() => window.print()}
+              className="flex-1 flex items-center justify-center gap-2 py-3 rounded-[10px] text-[12px] font-semibold border border-[#DDE3EE] text-[#3D5068] bg-white hover:bg-[#F4F2EE] transition-colors"
+            >
+              <Printer size={14} /> Download Receipt
             </button>
-            <button onClick={() => router.push('/citizen/grievances')}
-              className="flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-[10px] text-[12px] font-bold text-white"
-              style={{ background: '#1A3260' }}>
-              <ClipboardList size={14} /> My Grievances
+            <button
+              onClick={() => router.push('/citizen/grievances')}
+              className="flex-1 flex items-center justify-center gap-2 py-3 rounded-[10px] text-[12px] font-bold text-white transition-all hover:shadow-lg"
+              style={{ background: '#1A3260' }}
+            >
+              <ClipboardList size={14} /> View My Grievances
             </button>
           </div>
-          <button onClick={resetForm}
-            className="w-full py-2.5 rounded-[10px] text-[12px] font-semibold border border-[#DDE3EE] text-[#3D5068] bg-white">
-            Submit Another Grievance
+
+          <button
+            onClick={resetForm}
+            className="w-full py-3 rounded-[10px] text-[12px] font-semibold border border-[#DDE3EE] text-[#3D5068] bg-white hover:bg-[#F4F2EE] transition-colors"
+          >
+            ➕ Submit Another Grievance
           </button>
         </div>
       )}
 
-        <AIChatbot />
       </div>
+
+      {/* ── AI Chatbot ── */}
+      <AIChatbot />
     </div>
   );
 }
