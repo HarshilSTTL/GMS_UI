@@ -338,5 +338,15 @@
     "isRead": false,
     "type": "resolution",
     "grievanceId": "c33"
+  },
+  {
+    "id": "n35",
+    "userId": "u5",
+    "title": "Grievance Resolved",
+    "message": "Your grievance GJ-2026-22557 has been resolved. Please provide your feedback.",
+    "timestamp": "2026-05-21T06:52:42.476Z",
+    "isRead": false,
+    "type": "resolution",
+    "grievanceId": "c28"
   }
 ]

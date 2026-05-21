@@ -2461,11 +2461,11 @@
     "description": "anything..",
     "category": "Garbage Not Collected",
     "department": "AMC",
-    "status": "pending",
+    "status": "resolved",
     "priority": "high",
     "channel": "web",
     "slaStatus": "ok",
-    "slaDaysLeft": 7,
+    "slaDaysLeft": 0,
     "citizenId": "u5",
     "citizenName": "Rajesh Patel",
     "citizenPhone": "",
@@ -2503,13 +2503,22 @@
         "actorRole": "nodal_officer",
         "timestamp": "2026-05-21T01:00:39.562Z",
         "description": "please attach relateed document"
+      },
+      {
+        "id": "tl-c28-4",
+        "type": "resolved",
+        "title": "Grievance Resolved",
+        "actor": "Ravi Varma",
+        "actorRole": "nodal_officer",
+        "timestamp": "2026-05-21T06:52:42.476Z",
+        "description": "Grievance has been resolved."
       }
     ],
     "feedback": null,
     "rating": null,
     "createdAt": "2026-05-21T00:47:09.025Z",
-    "updatedAt": "2026-05-21T01:00:39.562Z",
-    "resolvedAt": null
+    "updatedAt": "2026-05-21T06:52:42.476Z",
+    "resolvedAt": "2026-05-21T06:52:42.476Z"
   },
   {
     "id": "c29",

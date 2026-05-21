@@ -249,29 +249,53 @@ export default function ComplaintDetailPage() {
       {/* Action result popup */}
       {popup && <ActionPopup data={popup} onClose={() => setPopup(null)} />}
 
-      {/* Request Document modal */}
+      {/* Seek Information modal */}
       {showDocReqModal && (
         <div className="fixed inset-0 z-[200] flex items-center justify-center p-4" style={{ background: 'rgba(14,28,47,0.55)', backdropFilter: 'blur(3px)' }} onClick={() => setShowDocReqModal(false)}>
-          <div className="bg-white rounded-[18px] w-full max-w-[420px] shadow-[0_8px_40px_rgba(14,28,47,0.22)] overflow-hidden border border-amber-200" onClick={e => e.stopPropagation()}>
-            <div className="px-6 pt-6 pb-4 bg-amber-50">
-              <div className="flex items-center gap-3 mb-3">
-                <div className="w-10 h-10 rounded-full bg-amber-100 flex items-center justify-center text-[20px]">📎</div>
+          <div className="bg-white rounded-[18px] w-full max-w-[500px] shadow-[0_8px_40px_rgba(14,28,47,0.22)] overflow-hidden border border-blue-200" onClick={e => e.stopPropagation()}>
+            <div className="px-6 pt-6 pb-4 bg-blue-50">
+              <h2 className="text-[16px] font-bold text-[#0E1C2F] mb-1">Seek Information from Citizen</h2>
+              <p className="text-[11px] text-[#7A8FA6]">Request additional documents or information. Citizen will be notified to update and resubmit their grievance.</p>
+            </div>
+            <div className="px-6 py-5 space-y-4">
+              <div>
+                <label className="block text-[11px] font-bold text-[#3D5068] mb-2 uppercase tracking-wide">What information do you need? <span className="text-red-500">*</span></label>
+                <textarea
+                  value={docReqNote}
+                  onChange={e => setDocReqNote(e.target.value)}
+                  rows={4}
+                  placeholder="Describe the documents or information needed from the citizen (e.g., 'Please attach photos of the affected area', 'Provide a copy of your utility bill', 'Submit the repair estimate')..."
+                  className="w-full px-3 py-2.5 border border-[#DDE3EE] rounded-lg text-[12px] text-[#0E1C2F] resize-none outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-400/10 transition-colors"
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <h2 className="text-[16px] font-bold text-[#0E1C2F]">Request Additional Document</h2>
-                  <p className="text-[11px] text-[#7A8FA6]">Citizen will be notified to resubmit with the document</p>
+                  <label className="block text-[11px] font-bold text-[#3D5068] mb-1.5 uppercase tracking-wide">Notify citizen via</label>
+                  <select className="w-full px-3 py-2 border border-[#DDE3EE] rounded-lg text-[12px] text-[#3D5068] outline-none focus:border-blue-400 transition-colors">
+                    <option>SMS + Email</option>
+                    <option>SMS only</option>
+                    <option>Email only</option>
+                    <option>WhatsApp</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-[11px] font-bold text-[#3D5068] mb-1.5 uppercase tracking-wide">Set status to</label>
+                  <select className="w-full px-3 py-2 border border-[#DDE3EE] rounded-lg text-[12px] text-[#3D5068] outline-none focus:border-blue-400 transition-colors">
+                    <option>Action Required</option>
+                    <option>Pending Info</option>
+                    <option>Under Review</option>
+                  </select>
                 </div>
               </div>
-            </div>
-            <div className="px-6 py-4">
-              <label className="block text-[11px] font-bold text-[#3D5068] mb-1.5 uppercase tracking-wide">What document is required?</label>
-              <textarea
-                value={docReqNote}
-                onChange={e => setDocReqNote(e.target.value)}
-                rows={4}
-                placeholder="Describe the document needed (e.g. 'Please attach a photo of the affected area' or 'Provide your water bill copy')..."
-                className="w-full px-3 py-2.5 border border-[#DDE3EE] rounded-lg text-[12px] text-[#0E1C2F] resize-none outline-none focus:border-amber-400 focus:ring-2 focus:ring-amber-400/10 transition-colors"
-              />
-              <div className="flex gap-2 mt-4">
+
+              <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
+                <p className="text-[10px] text-blue-700">
+                  📌 <strong>What happens:</strong> The citizen will receive a notification to edit and resubmit their grievance with the requested information. The grievance will be temporarily editable for them.
+                </p>
+              </div>
+
+              <div className="flex gap-2">
                 <button onClick={() => setShowDocReqModal(false)} className="flex-1 py-2.5 rounded-[10px] text-[12px] font-semibold border border-[#DDE3EE] text-[#3D5068] bg-white hover:bg-[#F0F2F7] transition-colors">
                   Cancel
                 </button>
@@ -279,9 +303,9 @@ export default function ComplaintDetailPage() {
                   onClick={handleRequestDocument}
                   disabled={acting || !docReqNote.trim()}
                   className="flex-1 flex items-center justify-center gap-2 py-2.5 rounded-[10px] text-[12px] font-semibold text-white disabled:opacity-50 transition-colors"
-                  style={{ background: '#D97706' }}
+                  style={{ background: '#2563EB' }}
                 >
-                  <Paperclip size={13} /> Send Request
+                  ↗ Send Request & Notify
                 </button>
               </div>
             </div>
@@ -374,8 +398,8 @@ export default function ComplaintDetailPage() {
               </button>
             )}
             {!['resolved', 'closed', 'document_requested'].includes(complaint.status) && (
-              <button onClick={() => { setDocReqNote(''); setShowDocReqModal(true); }} disabled={acting} className="flex items-center gap-1.5 px-3 py-1.5 bg-amber-50 border border-amber-200 text-amber-700 text-[12px] font-semibold rounded-lg hover:bg-amber-100 transition-colors disabled:opacity-50">
-                <Paperclip size={13} /> Request Doc
+              <button onClick={() => { setDocReqNote(''); setShowDocReqModal(true); }} disabled={acting} className="flex items-center gap-1.5 px-3 py-1.5 bg-blue-50 border border-blue-200 text-blue-700 text-[12px] font-semibold rounded-lg hover:bg-blue-100 transition-colors disabled:opacity-50">
+                ↗ Seek Information
               </button>
             )}
             <button onClick={handleReassign} disabled={acting} className="flex items-center gap-1.5 px-3 py-1.5 bg-orange-500 text-white text-[12px] font-semibold rounded-lg hover:bg-orange-600 transition-colors disabled:opacity-50">
