@@ -148,6 +148,30 @@ export default function GrievanceDetail({ params }: { params: Promise<{ id: stri
     const user = JSON.parse(localStorage.getItem('gms-auth') || '{}')?.state?.user;
     setResubmitting(true);
     try {
+      let attachmentUrl: string | undefined;
+
+      // Upload file to Cloudinary if provided
+      if (resubFile) {
+        const uploadForm = new FormData();
+        uploadForm.append('file', resubFile);
+        uploadForm.append('grievanceId', id);
+
+        const uploadRes = await fetch('/api/documents/upload', {
+          method: 'POST',
+          body: uploadForm,
+        });
+
+        const uploadResult = await uploadRes.json();
+        if (!uploadResult.success) {
+          toast.error(`Upload failed: ${uploadResult.error}`);
+          setResubmitting(false);
+          return;
+        }
+
+        attachmentUrl = uploadResult.data.url;
+      }
+
+      // Resubmit with attachment URL
       const res = await fetch(`/api/grievances/${id}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
@@ -155,7 +179,7 @@ export default function GrievanceDetail({ params }: { params: Promise<{ id: stri
           action: 'resubmit_document',
           actorId: user?.id,
           newDescription: resubDesc.trim() || undefined,
-          attachmentName: resubFile?.name || undefined,
+          attachmentUrl: attachmentUrl,
         }),
       });
       const result = await res.json();
@@ -170,11 +194,12 @@ export default function GrievanceDetail({ params }: { params: Promise<{ id: stri
         });
         setResubDone(true);
         setResubFile(null);
+        toast.success('✅ Document resubmitted successfully');
       } else {
         toast.error(result.error || 'Failed to resubmit');
       }
-    } catch {
-      toast.error('An error occurred. Please try again.');
+    } catch (error) {
+      toast.error(`An error occurred: ${error instanceof Error ? error.message : 'Please try again.'}`);
     } finally {
       setResubmitting(false);
     }

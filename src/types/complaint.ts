@@ -77,7 +77,7 @@ export interface Complaint {
     requestedAt: string;
   };
   isResubmitted?: boolean;
-  resubmittedAttachment?: string;
+  resubmittedAttachmentUrl?: string;
 }
 
 export interface ComplaintGroup {

@@ -12,5 +12,19 @@
     "role": "citizen",
     "createdAt": "2026-05-14T02:54:13.962Z",
     "expiresAt": "2026-05-15T02:54:13.962Z"
+  },
+  {
+    "token": "sess_1779283314524_srl32ocs",
+    "userId": "u6",
+    "role": "health_secretary",
+    "createdAt": "2026-05-20T13:21:54.524Z",
+    "expiresAt": "2026-05-21T13:21:54.524Z"
+  },
+  {
+    "token": "sess_1779324738477_cs0uwaeg",
+    "userId": "u5",
+    "role": "citizen",
+    "createdAt": "2026-05-21T00:52:18.478Z",
+    "expiresAt": "2026-05-22T00:52:18.478Z"
   }
 ]

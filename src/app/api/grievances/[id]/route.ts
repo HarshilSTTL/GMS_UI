@@ -323,15 +323,15 @@ export async function PATCH(
 
       // ========== RESUBMIT DOCUMENT ==========
       case 'resubmit_document': {
-        const { newDescription, attachmentName } = rest;
+        const { newDescription, attachmentUrl } = rest;
         if (complaint.status !== 'document_requested') {
           return NextResponse.json({ error: 'Can only resubmit when document is requested.' }, { status: 400 });
         }
         complaint.status = 'in_progress';
         (complaint as any).isResubmitted = true;
         if (newDescription?.trim()) complaint.description = newDescription;
-        if (attachmentName) (complaint as any).resubmittedAttachment = attachmentName;
-        addTimelineEntry(complaint, 'document_resubmitted', 'Document Resubmitted by Citizen', actorName, 'citizen', attachmentName ? `Attached: ${attachmentName}` : 'Citizen resubmitted the grievance with updated information.');
+        if (attachmentUrl) (complaint as any).resubmittedAttachmentUrl = attachmentUrl;
+        addTimelineEntry(complaint, 'document_resubmitted', 'Document Resubmitted by Citizen', actorName, 'citizen', attachmentUrl ? `Document uploaded: ${attachmentUrl}` : 'Citizen resubmitted the grievance with updated information.');
         const officerId = (complaint.assignedTo as any)?.id;
         if (officerId) {
           createNotification(officerId, 'Document Resubmitted', `Citizen has resubmitted documents for grievance ${complaint.token}. Please review.`, id, 'status_update');

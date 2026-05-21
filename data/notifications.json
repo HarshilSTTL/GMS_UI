@@ -148,5 +148,145 @@
     "isRead": false,
     "type": "acknowledgement",
     "grievanceId": "c27"
+  },
+  {
+    "id": "n16",
+    "userId": "u5",
+    "title": "Grievance Escalated",
+    "message": "Your grievance GJ-2026-48365 has been escalated to higher authority.",
+    "timestamp": "2026-05-20T12:07:21.987Z",
+    "isRead": false,
+    "type": "sla_breach",
+    "grievanceId": "c27"
+  },
+  {
+    "id": "n17",
+    "userId": "u5",
+    "title": "Grievance Escalated",
+    "message": "Your grievance GJ-2026-82344 has been escalated to higher authority.",
+    "timestamp": "2026-05-20T12:19:00.224Z",
+    "isRead": false,
+    "type": "sla_breach",
+    "grievanceId": "c26"
+  },
+  {
+    "id": "n18",
+    "userId": "u5",
+    "title": "Grievance Resolved",
+    "message": "Your grievance GJ-2026-48365 has been resolved. Please provide your feedback.",
+    "timestamp": "2026-05-20T13:55:33.919Z",
+    "isRead": false,
+    "type": "resolution",
+    "grievanceId": "c27"
+  },
+  {
+    "id": "n19",
+    "userId": "u5",
+    "title": "Grievance Resolved",
+    "message": "Your grievance GJ-2026-94235 has been resolved. Please provide your feedback.",
+    "timestamp": "2026-05-20T13:55:41.831Z",
+    "isRead": false,
+    "type": "resolution",
+    "grievanceId": "c25"
+  },
+  {
+    "id": "n20",
+    "userId": "u5",
+    "title": "Grievance Resolved",
+    "message": "Your grievance GJ-2026-82344 has been resolved. Please provide your feedback.",
+    "timestamp": "2026-05-20T13:56:05.025Z",
+    "isRead": false,
+    "type": "resolution",
+    "grievanceId": "c26"
+  },
+  {
+    "id": "n21",
+    "userId": "u5",
+    "title": "Grievance Escalated",
+    "message": "Your grievance GJ-2026-56251 has been escalated to higher authority.",
+    "timestamp": "2026-05-20T13:56:09.026Z",
+    "isRead": false,
+    "type": "sla_breach",
+    "grievanceId": "c24"
+  },
+  {
+    "id": "n22",
+    "userId": "u5",
+    "title": "Grievance Update",
+    "message": "Update on GJ-2026-56251: please attach the aadharcard",
+    "timestamp": "2026-05-20T15:46:36.509Z",
+    "isRead": false,
+    "type": "status_update",
+    "grievanceId": "c24"
+  },
+  {
+    "id": "n23",
+    "userId": "u5",
+    "title": "Grievance Update",
+    "message": "Update on GJ-2026-48365: pelase add a aadharcard",
+    "timestamp": "2026-05-20T15:50:39.310Z",
+    "isRead": false,
+    "type": "status_update",
+    "grievanceId": "c27"
+  },
+  {
+    "id": "n24",
+    "userId": "u5",
+    "title": "Grievance Resolved",
+    "message": "Your grievance GJ-2026-56251 has been resolved. Please provide your feedback.",
+    "timestamp": "2026-05-20T15:51:00.761Z",
+    "isRead": false,
+    "type": "resolution",
+    "grievanceId": "c24"
+  },
+  {
+    "id": "n25",
+    "userId": "u_dummy_01",
+    "title": "Grievance Escalated",
+    "message": "Your grievance DEMO-2026-00002 has been escalated to higher authority.",
+    "timestamp": "2026-05-20T15:51:08.867Z",
+    "isRead": false,
+    "type": "sla_breach",
+    "grievanceId": "demo_c2"
+  },
+  {
+    "id": "n26",
+    "userId": "citizen_ashok",
+    "title": "Grievance Update",
+    "message": "Update on GVM-2025-05378: update the document",
+    "timestamp": "2026-05-21T00:39:55.078Z",
+    "isRead": false,
+    "type": "status_update",
+    "grievanceId": "c14"
+  },
+  {
+    "id": "n27",
+    "userId": "u5",
+    "title": "Grievance Update",
+    "message": "Update on GJ-2026-22557: please send proper document",
+    "timestamp": "2026-05-21T00:53:22.032Z",
+    "isRead": false,
+    "type": "status_update",
+    "grievanceId": "c28"
+  },
+  {
+    "id": "n28",
+    "userId": "u5",
+    "title": "Grievance Update",
+    "message": "Update on GJ-2026-22557: please attach relateed document",
+    "timestamp": "2026-05-21T01:00:39.562Z",
+    "isRead": false,
+    "type": "status_update",
+    "grievanceId": "c28"
+  },
+  {
+    "id": "n29",
+    "userId": "u5",
+    "title": "Grievance Update",
+    "message": "Update on GJ-2026-56376: pelase attach the document",
+    "timestamp": "2026-05-21T01:01:52.836Z",
+    "isRead": false,
+    "type": "status_update",
+    "grievanceId": "c29"
   }
 ]

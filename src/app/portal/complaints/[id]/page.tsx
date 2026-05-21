@@ -397,9 +397,18 @@ export default function ComplaintDetailPage() {
           <span className="text-[22px]">📄</span>
           <div className="flex-1">
             <p className="text-[13px] font-bold text-blue-800">Document Resubmitted by Citizen</p>
-            <p className="text-[11px] text-blue-700">
-              The citizen has updated this grievance with additional documents.
-              {complaint.resubmittedAttachment && <> Attachment: <span className="font-semibold">{complaint.resubmittedAttachment}</span></>}
+            <p className="text-[11px] text-blue-700 space-y-2">
+              <div>The citizen has updated this grievance with additional documents.</div>
+              {complaint.resubmittedAttachmentUrl && (
+                <a
+                  href={complaint.resubmittedAttachmentUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-1 text-blue-600 hover:text-blue-800 underline font-semibold"
+                >
+                  <Paperclip size={12} /> View Attachment
+                </a>
+              )}
             </p>
           </div>
         </div>

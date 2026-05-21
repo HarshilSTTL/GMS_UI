@@ -12,5 +12,61 @@
     "userId": "u5",
     "details": "Grievance cg6 escalated. Reason: SLA breached — no response",
     "timestamp": "2026-05-13T06:48:50.045Z"
+  },
+  {
+    "id": "audit-1779278842002",
+    "action": "ESCALATE",
+    "userId": "u1",
+    "details": "Grievance c27 escalated. Reason: undefined",
+    "timestamp": "2026-05-20T12:07:22.002Z"
+  },
+  {
+    "id": "audit-1779279540246",
+    "action": "ESCALATE",
+    "userId": "u1",
+    "details": "Grievance c26 escalated. Reason: undefined",
+    "timestamp": "2026-05-20T12:19:00.246Z"
+  },
+  {
+    "id": "audit-1779285333928",
+    "action": "RESOLVE",
+    "userId": "u1",
+    "details": "Grievance c27 resolved",
+    "timestamp": "2026-05-20T13:55:33.928Z"
+  },
+  {
+    "id": "audit-1779285341839",
+    "action": "RESOLVE",
+    "userId": "u1",
+    "details": "Grievance c25 resolved",
+    "timestamp": "2026-05-20T13:55:41.839Z"
+  },
+  {
+    "id": "audit-1779285365038",
+    "action": "RESOLVE",
+    "userId": "u1",
+    "details": "Grievance c26 resolved",
+    "timestamp": "2026-05-20T13:56:05.038Z"
+  },
+  {
+    "id": "audit-1779285369039",
+    "action": "ESCALATE",
+    "userId": "u1",
+    "details": "Grievance c24 escalated. Reason: undefined",
+    "timestamp": "2026-05-20T13:56:09.039Z"
+  },
+  {
+    "id": "audit-1779292260776",
+    "action": "RESOLVE",
+    "userId": "u1",
+    "details": "Grievance c24 resolved",
+    "timestamp": "2026-05-20T15:51:00.776Z"
+  },
+  {
+    "id": "audit-1779292268876",
+    "action": "ESCALATE",
+    "userId": "u1",
+    "details": "Grievance demo_c2 escalated. Reason: undefined",
+    "timestamp": "2026-05-20T15:51:08.876Z"
   }
 ]

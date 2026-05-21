@@ -26,7 +26,19 @@
       "Bash(git commit -m 'fix: Replace HTML link 404s with API static file server *)",
       "Bash(git reset *)",
       "Bash(git checkout *)",
-      "Bash(git stash *)"
+      "Bash(git stash *)",
+      "PowerShell(taskkill *)",
+      "PowerShell(netstat *)",
+      "PowerShell(Get-NetTCPConnection *)",
+      "PowerShell(Get-Process *)",
+      "Bash(git merge *)",
+      "Bash(git push *)",
+      "Bash(Start-Sleep -Seconds 3)",
+      "Bash(pkill -f \"next dev\")",
+      "Bash(git commit *)",
+      "Bash(git revert *)",
+      "Bash(find src/app/api/citizen -name \"*.ts\")",
+      "Bash(ls src/app/api/citizen/)"
     ]
   }
 }
