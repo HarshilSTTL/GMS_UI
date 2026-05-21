@@ -6,7 +6,7 @@ import { useAuthStore } from '@/stores';
 import { getDefaultPath } from '@/data';
 import {
   Shield, Users, FileText, MapPin, BarChart2, Clock, ChevronRight, Phone, Building2, CheckCircle,
-  Search, Zap, ArrowRight, Mail, Globe, Lock, Activity, Star
+  Search, Zap, ArrowRight, Mail, Globe, Lock, Activity, Star, Smartphone, MessageCircle
 } from 'lucide-react';
 
 const services = [
@@ -57,10 +57,14 @@ export default function RootPage() {
             <a href="#about" className="text-[12px] font-medium text-[#7A8FA6] hover:text-[#0E1C2F] transition-colors">About</a>
             <a href="#services" className="text-[12px] font-medium text-[#7A8FA6] hover:text-[#0E1C2F] transition-colors">Services</a>
             <a href="#track" className="text-[12px] font-medium text-[#7A8FA6] hover:text-[#0E1C2F] transition-colors">Track Complaint</a>
-            <a href="/Swagat 3.0 Mobile - Merged (2).html" target="_blank" rel="noopener noreferrer" className="text-[12px] font-medium text-[#7A8FA6] hover:text-[#0E1C2F] transition-colors">Swagat 3.0</a>
-            <a href="/CitizenVoice_WhatsApp_v1.html" target="_blank" rel="noopener noreferrer" className="text-[12px] font-medium text-[#7A8FA6] hover:text-[#0E1C2F] transition-colors">CitizenVoice</a>
           </div>
           <div className="flex items-center gap-2">
+            <a href="/Swagat 3.0 Mobile - Merged (2).html" target="_blank" rel="noopener noreferrer" className="hidden md:inline-flex items-center gap-1.5 text-[12px] font-semibold text-[#0891B2] bg-blue-50 border border-[#0891B2] px-3 py-1.5 rounded-lg hover:bg-blue-100 transition-colors">
+              <Smartphone size={13} /> Swagat 3.0
+            </a>
+            <a href="/CitizenVoice_WhatsApp_v1.html" target="_blank" rel="noopener noreferrer" className="hidden md:inline-flex items-center gap-1.5 text-[12px] font-semibold text-green-700 bg-green-50 border border-green-600 px-3 py-1.5 rounded-lg hover:bg-green-100 transition-colors">
+              <MessageCircle size={13} /> CitizenVoice
+            </a>
             <Link href="/login" className="text-[12px] font-semibold text-[#3D5068] hover:text-[#0E1C2F] px-3 py-1.5 rounded-lg hover:bg-[#F0F2F7] transition-colors">
               Officer Login
             </Link>
