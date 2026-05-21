@@ -34,6 +34,7 @@ const STEPS = ['Select Category', 'Complaint Details', 'Confirm & Submit'];
 export default function FileComplaint() {
   const router = useRouter();
   const { user } = useAuthStore();
+  const [activeTab, setActiveTab] = useState<'detail' | 'quick'>('detail');
   const [step, setStep] = useState(1);
   const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(false);
@@ -48,6 +49,14 @@ export default function FileComplaint() {
     location: '',
     phone: '',
     attachments: [],
+  });
+  const [quickForm, setQuickForm] = useState({
+    categoryId: '',
+    categoryName: '',
+    department: '',
+    description: '',
+    location: '',
+    phone: '',
   });
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
   const [uploadingFiles, setUploadingFiles] = useState(false);
@@ -96,19 +105,19 @@ export default function FileComplaint() {
     if (validateStep2()) setStep(3);
   }
 
-  async function handleSubmit() {
+  async function submitGrievance(formData: FormData) {
     setError('');
     setLoading(true);
     try {
       let attachmentUrls: string[] = [];
 
-      // Upload files to Cloudinary if any
+      // Upload files to Cloudinary if any (only for detail submit)
       if (selectedFiles.length > 0) {
         setUploadingFiles(true);
         for (const file of selectedFiles) {
           const uploadForm = new FormData();
           uploadForm.append('file', file);
-          uploadForm.append('grievanceId', 'pending'); // Will use actual ID after creation
+          uploadForm.append('grievanceId', 'pending');
 
           const uploadRes = await fetch('/api/documents/upload', {
             method: 'POST',
@@ -128,19 +137,19 @@ export default function FileComplaint() {
         setUploadingFiles(false);
       }
 
-      // Create grievance with attachment URLs
+      // Create grievance
       const res = await fetch('/api/grievances', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           citizenId: user?.id,
-          title: `${form.categoryName} — ${form.location}`,
-          description: form.description,
-          category: form.categoryName,
-          department: form.department,
-          location: form.location,
+          title: `${formData.categoryName} — ${formData.location}`,
+          description: formData.description,
+          category: formData.categoryName,
+          department: formData.department,
+          location: formData.location,
           citizenName: user?.name ?? 'Citizen',
-          citizenPhone: form.phone,
+          citizenPhone: formData.phone,
           citizenEmail: user?.email ?? null,
           status: 'open',
           priority: 'medium',
@@ -169,6 +178,26 @@ export default function FileComplaint() {
     } finally {
       setLoading(false);
     }
+  }
+
+  function handleDetailSubmit() {
+    setError('');
+    setLoading(true);
+    try {
+      if (validateStep2()) {
+        submitGrievance(form);
+      }
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  async function handleQuickSubmit() {
+    if (!quickForm.categoryId || !quickForm.description.trim() || !quickForm.location.trim() || !quickForm.phone.trim()) {
+      setError('Please fill in all required fields.');
+      return;
+    }
+    await submitGrievance(quickForm);
   }
 
   if (submitted) {
@@ -209,38 +238,36 @@ export default function FileComplaint() {
   return (
     <div className="min-h-screen bg-[#F4F2EE] py-6 px-4 sm:px-6">
       <div className="max-w-2xl mx-auto space-y-6">
-        {/* Header */}
-        <div>
-          <h1 className="text-[18px] font-bold text-[#0F1A2E]">File New Complaint</h1>
-          <p className="text-[12px] text-[#7A8FA6] mt-1">Report a grievance to the Gujarat Government</p>
+        {/* Tab Navigation */}
+        <div className="flex gap-4 border-b border-[#E5E7EB]">
+          <button
+            onClick={() => setActiveTab('detail')}
+            className={cn(
+              'px-4 py-3 text-[13px] font-semibold border-b-2 transition-colors',
+              activeTab === 'detail'
+                ? 'text-[#FF8C42] border-[#FF8C42]'
+                : 'text-[#7A8FA6] border-transparent hover:text-[#0F1A2E]'
+            )}
+          >
+            Detail Submit
+          </button>
+          <button
+            onClick={() => setActiveTab('quick')}
+            className={cn(
+              'px-4 py-3 text-[13px] font-semibold border-b-2 transition-colors',
+              activeTab === 'quick'
+                ? 'text-[#FF8C42] border-[#FF8C42]'
+                : 'text-[#7A8FA6] border-transparent hover:text-[#0F1A2E]'
+            )}
+          >
+            Quick Submit
+          </button>
         </div>
 
-        {/* Step Indicator */}
-        <div className="flex items-center gap-0">
-          {STEPS.map((label, i) => {
-            const idx = i + 1;
-            const done = step > idx;
-            const active = step === idx;
-            return (
-              <React.Fragment key={idx}>
-                <div className="flex items-center gap-2 flex-shrink-0">
-                  <div className={cn(
-                    'w-7 h-7 rounded-full flex items-center justify-center text-[11px] font-bold transition-colors',
-                    done ? 'bg-[#22C55E] text-white' : active ? 'bg-[#FF8C42] text-white' : 'bg-[#E5E7EB] text-[#7A8FA6]'
-                  )}>
-                    {done ? <Check size={13} /> : idx}
-                  </div>
-                  <span className={cn(
-                    'text-[11px] font-semibold hidden sm:block',
-                    active ? 'text-[#FF8C42]' : done ? 'text-[#22C55E]' : 'text-[#7A8FA6]'
-                  )}>{label}</span>
-                </div>
-                {i < STEPS.length - 1 && (
-                  <div className={cn('flex-1 h-px mx-2', step > idx ? 'bg-[#22C55E]' : 'bg-[#E5E7EB]')} />
-                )}
-              </React.Fragment>
-            );
-          })}
+        {/* Page Title */}
+        <div>
+          <h1 className="text-[18px] font-bold text-[#0F1A2E]">Submit Grievance</h1>
+          <p className="text-[13px] text-[#7A8FA6] mt-0.5">ફરિયાદ નોંધો — File a complaint</p>
         </div>
 
         {/* Error */}
@@ -251,8 +278,41 @@ export default function FileComplaint() {
           </div>
         )}
 
-        {/* ── STEP 1: Category ── */}
-        {step === 1 && (
+        {/* DETAIL SUBMIT TAB */}
+        {activeTab === 'detail' && (
+          <>
+            {/* Step Indicator */}
+            <div className="flex items-center gap-0">
+              {STEPS.map((label, i) => {
+                const idx = i + 1;
+                const done = step > idx;
+                const active = step === idx;
+                return (
+                  <React.Fragment key={idx}>
+                    <div className="flex items-center gap-2 flex-shrink-0">
+                      <div className={cn(
+                        'w-7 h-7 rounded-full flex items-center justify-center text-[11px] font-bold transition-colors',
+                        done ? 'bg-[#22C55E] text-white' : active ? 'bg-[#FF8C42] text-white' : 'bg-[#E5E7EB] text-[#7A8FA6]'
+                      )}>
+                        {done ? <Check size={13} /> : idx}
+                      </div>
+                      <span className={cn(
+                        'text-[11px] font-semibold hidden sm:block',
+                        active ? 'text-[#FF8C42]' : done ? 'text-[#22C55E]' : 'text-[#7A8FA6]'
+                      )}>{label}</span>
+                    </div>
+                    {i < STEPS.length - 1 && (
+                      <div className={cn('flex-1 h-px mx-2', step > idx ? 'bg-[#22C55E]' : 'bg-[#E5E7EB]')} />
+                    )}
+                  </React.Fragment>
+                );
+              })}
+            </div>
+          </>
+        )}
+
+        {/* ── DETAIL SUBMIT: STEP 1: Category ── */}
+        {activeTab === 'detail' && step === 1 && (
           <div className="space-y-4">
             <div className="bg-white rounded-[14px] border border-[#E5E7EB] p-4 shadow-sm">
               <h2 className="text-[15px] font-bold text-[#0F1A2E] mb-4">Select Complaint Category</h2>
@@ -282,8 +342,8 @@ export default function FileComplaint() {
           </div>
         )}
 
-        {/* ── STEP 2: Details ── */}
-        {step === 2 && (
+        {/* ── DETAIL SUBMIT: STEP 2: Details ── */}
+        {activeTab === 'detail' && step === 2 && (
           <div className="bg-white rounded-[14px] border border-[#E5E7EB] p-4 space-y-4 shadow-sm">
             <div className="flex items-center gap-3">
               <button
@@ -407,8 +467,8 @@ export default function FileComplaint() {
           </div>
         )}
 
-        {/* ── STEP 3: Confirm ── */}
-        {step === 3 && (
+        {/* ── DETAIL SUBMIT: STEP 3: Confirm ── */}
+        {activeTab === 'detail' && step === 3 && (
           <div className="bg-white rounded-[14px] border border-[#E5E7EB] p-4 space-y-4 shadow-sm">
             <div className="flex items-center gap-3">
               <button
@@ -459,7 +519,7 @@ export default function FileComplaint() {
                 Edit
               </button>
               <button
-                onClick={handleSubmit}
+                onClick={() => submitGrievance(form)}
                 disabled={loading}
                 className="flex-1 px-4 py-2.5 bg-[#22C55E] text-white rounded-[6px] text-[12px] font-semibold hover:bg-[#16A34A] transition-colors disabled:opacity-60 flex items-center justify-center gap-2"
               >
@@ -467,6 +527,106 @@ export default function FileComplaint() {
                   <><span className="w-3.5 h-3.5 border-2 border-white/30 border-t-white rounded-full animate-spin" /> Submitting...</>
                 ) : 'Submit Complaint'}
               </button>
+            </div>
+          </div>
+        )}
+
+        {/* ── QUICK SUBMIT TAB ── */}
+        {activeTab === 'quick' && (
+          <div className="bg-white rounded-[14px] border border-[#E5E7EB] p-4 space-y-4 shadow-sm">
+            <h2 className="text-[15px] font-bold text-[#0F1A2E]">Quick Complaint Filing</h2>
+            <p className="text-[12px] text-[#7A8FA6]">Submit a complaint with just the essential details</p>
+
+            {/* Category Selection */}
+            <div>
+              <label className="block text-[11px] font-bold text-[#0F1A2E] mb-2">
+                Select Complaint Category <span className="text-[#FF8A80]">*</span>
+              </label>
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                {categories.map(cat => (
+                  <button
+                    key={cat.id}
+                    onClick={() => {
+                      setQuickForm({ ...quickForm, categoryId: cat.id, categoryName: cat.name, department: cat.department });
+                      setError('');
+                    }}
+                    className={cn(
+                      'text-left p-2 border-2 rounded-[10px] transition-all',
+                      quickForm.categoryId === cat.id
+                        ? 'border-[#FF8C42] bg-[#FFF8F0]'
+                        : 'border-[#E5E7EB] hover:border-[#FF8C42] hover:bg-[#FFF8F0]/40'
+                    )}
+                  >
+                    <div className="mb-1.5 flex items-center justify-center w-7 h-7 rounded-lg bg-[#F4F2EE]">
+                      {cat.iconName
+                        ? <GmsIcon name={cat.iconName} size={16} className="text-[#FF8C42]" />
+                        : <ClipboardList size={16} className="text-[#FF8C42]" />}
+                    </div>
+                    <p className="text-[11px] font-semibold text-[#0F1A2E] leading-tight">{cat.name}</p>
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Description */}
+            <div>
+              <label className="block text-[11px] font-bold text-[#0F1A2E] mb-1.5">
+                Complaint Description <span className="text-[#FF8A80]">*</span>
+              </label>
+              <textarea
+                value={quickForm.description}
+                onChange={e => { setQuickForm({ ...quickForm, description: e.target.value }); setError(''); }}
+                placeholder="Briefly describe your complaint..."
+                rows={4}
+                className="w-full p-3 border border-[#E5E7EB] rounded-lg text-[12px] text-[#0F1A2E] outline-none focus:border-[#FF8C42] focus:ring-2 focus:ring-[#FF8C42]/10 placeholder:text-[#7A8FA6] resize-none"
+              />
+            </div>
+
+            {/* Location */}
+            <div>
+              <label className="block text-[11px] font-bold text-[#0F1A2E] mb-1.5">
+                Location / Address <span className="text-[#FF8A80]">*</span>
+              </label>
+              <input
+                type="text"
+                value={quickForm.location}
+                onChange={e => { setQuickForm({ ...quickForm, location: e.target.value }); setError(''); }}
+                placeholder="Ward, Street, Landmark, District..."
+                className="w-full px-3 py-2.5 border border-[#E5E7EB] rounded-lg text-[12px] text-[#0F1A2E] outline-none focus:border-[#FF8C42] focus:ring-2 focus:ring-[#FF8C42]/10 placeholder:text-[#7A8FA6]"
+              />
+            </div>
+
+            {/* Phone */}
+            <div>
+              <label className="block text-[11px] font-bold text-[#0F1A2E] mb-1.5">
+                Mobile Number <span className="text-[#FF8A80]">*</span>
+              </label>
+              <input
+                type="tel"
+                value={quickForm.phone}
+                onChange={e => { setQuickForm({ ...quickForm, phone: e.target.value }); setError(''); }}
+                placeholder="+91 98765 43210"
+                className="w-full px-3 py-2.5 border border-[#E5E7EB] rounded-lg text-[12px] text-[#0F1A2E] outline-none focus:border-[#FF8C42] focus:ring-2 focus:ring-[#FF8C42]/10 placeholder:text-[#7A8FA6]"
+              />
+            </div>
+
+            {/* Submit Button */}
+            <div className="flex gap-3 pt-2">
+              <button
+                onClick={handleQuickSubmit}
+                disabled={loading}
+                className="w-full px-4 py-2.5 bg-[#FF8C42] text-white rounded-[6px] text-[12px] font-semibold hover:bg-[#E67E22] transition-colors disabled:opacity-60 flex items-center justify-center gap-2"
+              >
+                {loading ? (
+                  <><span className="w-3.5 h-3.5 border-2 border-white/30 border-t-white rounded-full animate-spin" /> Submitting...</>
+                ) : 'Submit Complaint'}
+              </button>
+            </div>
+
+            <div className="bg-[#F0F7FF] border border-[#B3E5FC] rounded-lg p-3">
+              <p className="text-[11px] text-[#0277BD]">
+                ⚡ Quick submit skips detailed documentation. You can add more details after filing.
+              </p>
             </div>
           </div>
         )}

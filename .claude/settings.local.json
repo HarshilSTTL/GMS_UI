@@ -38,7 +38,8 @@
       "Bash(git commit *)",
       "Bash(git revert *)",
       "Bash(find src/app/api/citizen -name \"*.ts\")",
-      "Bash(ls src/app/api/citizen/)"
+      "Bash(ls src/app/api/citizen/)",
+      "Bash(git check-ignore *)"
     ]
   }
 }
