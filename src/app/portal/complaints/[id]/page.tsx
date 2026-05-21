@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { toast } from 'sonner';
-import { ArrowLeft, Send, RotateCcw, AlertTriangle, CheckCircle, Link2, User, Paperclip } from 'lucide-react';
+import { ArrowLeft, Send, RotateCcw, AlertTriangle, CheckCircle, Link2, User, Paperclip, FileText, Download } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { StatusBadge, PriorityBadge, ChannelBadge, SLABadge } from '@/components/gms/StatusBadge';
 import { ActionPopup, ActionPopupData } from '@/components/gms/ActionPopup';
@@ -435,6 +435,50 @@ export default function ComplaintDetailPage() {
               </div>
             </div>
           </div>
+
+          {/* Documents Section */}
+          {(complaint.attachments?.length || complaint.resubmittedAttachmentUrl) && (
+            <div className="bg-white border border-[#DDE3EE] rounded-[14px] overflow-hidden shadow-[0_1px_3px_rgba(14,28,47,0.06)]">
+              <div className="px-4 py-3 border-b border-[#DDE3EE]">
+                <span className="text-[12px] font-bold text-[#0E1C2F] flex items-center gap-2">
+                  <Paperclip size={14} className="text-blue-600" /> Attached Documents
+                </span>
+              </div>
+              <div className="p-4 space-y-2">
+                {complaint.attachments?.map((url: string, idx: number) => (
+                  <a
+                    key={idx}
+                    href={url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center gap-3 p-3 bg-[#F0F2F7] hover:bg-[#E5E7EB] rounded-lg transition-colors border border-[#DDE3EE]"
+                  >
+                    <FileText size={16} className="text-blue-600 flex-shrink-0" />
+                    <div className="flex-1 min-w-0">
+                      <p className="text-[12px] font-semibold text-[#0E1C2F] truncate">Document {idx + 1}</p>
+                      <p className="text-[10px] text-[#7A8FA6]">Filed with grievance</p>
+                    </div>
+                    <Download size={14} className="text-[#7A8FA6] flex-shrink-0" />
+                  </a>
+                ))}
+                {complaint.resubmittedAttachmentUrl && (
+                  <a
+                    href={complaint.resubmittedAttachmentUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center gap-3 p-3 bg-green-50 hover:bg-green-100 rounded-lg transition-colors border border-green-200"
+                  >
+                    <FileText size={16} className="text-green-600 flex-shrink-0" />
+                    <div className="flex-1 min-w-0">
+                      <p className="text-[12px] font-semibold text-green-800 truncate">Resubmitted Document</p>
+                      <p className="text-[10px] text-green-700">Uploaded by citizen</p>
+                    </div>
+                    <Download size={14} className="text-green-600 flex-shrink-0" />
+                  </a>
+                )}
+              </div>
+            </div>
+          )}
 
           {/* AI suggestion */}
           <div className="bg-gradient-to-br from-blue-50 to-teal-50 border border-blue-200 rounded-xl px-4 py-3.5 flex gap-3">

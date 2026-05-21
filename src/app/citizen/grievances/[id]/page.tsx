@@ -15,6 +15,8 @@ interface Grievance {
   documentRequest?: { note: string; requestedBy: string; requestedByName: string; requestedAt: string };
   isResubmitted?: boolean;
   resubmittedAttachment?: string;
+  attachments?: string[];
+  resubmittedAttachmentUrl?: string;
 }
 
 const STATUS_CONFIG: Record<string, { label: string; color: string; bg: string }> = {
@@ -329,6 +331,38 @@ export default function GrievanceDetail({ params }: { params: Promise<{ id: stri
               </div>
             )}
           </div>
+
+          {/* Documents Section */}
+          {(g.attachments?.length || g.resubmittedAttachmentUrl) && (
+            <div className="bg-white rounded-[14px] p-5 shadow-[0_1px_3px_rgba(14,28,47,0.08),0_4px_16px_rgba(14,28,47,0.06)]">
+              <h2 className="text-[14px] font-bold text-[#0E1C2F] mb-4 flex items-center gap-2">
+                <Paperclip size={16} className="text-[#F4811F]" />
+                Attachments
+              </h2>
+              <div className="space-y-2">
+                {g.attachments?.map((url, idx) => (
+                  <a key={idx} href={url} target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 p-3 bg-[#F8F9FB] rounded-[10px] hover:bg-[#F0F2F7] transition-colors border border-[#DDE3EE]">
+                    <FileText size={16} className="text-blue-600 flex-shrink-0" />
+                    <div className="flex-1 min-w-0">
+                      <p className="text-[12px] font-semibold text-[#0E1C2F] truncate">Document {idx + 1}</p>
+                      <p className="text-[10px] text-[#7A8FA6]">Filed with grievance</p>
+                    </div>
+                    <Download size={14} className="text-[#7A8FA6] flex-shrink-0" />
+                  </a>
+                ))}
+                {g.resubmittedAttachmentUrl && (
+                  <a href={g.resubmittedAttachmentUrl} target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 p-3 bg-green-50 rounded-[10px] hover:bg-green-100 transition-colors border border-green-200">
+                    <FileText size={16} className="text-green-600 flex-shrink-0" />
+                    <div className="flex-1 min-w-0">
+                      <p className="text-[12px] font-semibold text-green-800 truncate">Resubmitted Document</p>
+                      <p className="text-[10px] text-green-700">Uploaded by you</p>
+                    </div>
+                    <Download size={14} className="text-green-600 flex-shrink-0" />
+                  </a>
+                )}
+              </div>
+            </div>
+          )}
 
           {/* Timeline */}
           <div className="bg-white rounded-[14px] p-5 shadow-[0_1px_3px_rgba(14,28,47,0.08),0_4px_16px_rgba(14,28,47,0.06)]">
