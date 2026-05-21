@@ -449,8 +449,8 @@ export default function SubmitGrievance() {
     <div className="min-h-screen bg-[#F4F2EE]">
       {/* ── Perfect Tab Navigation Header ── */}
       {result === null && (
-        <div className="sticky top-0 z-40 bg-white border-b border-[#E5E7EB] shadow-sm">
-          <div className="max-w-4xl mx-auto px-4 sm:px-6">
+        <div className="sticky top-0 z-40 bg-white border-b border-[#E5E7EB] shadow-sm py-0">
+          <div className="max-w-4xl mx-auto px-4 sm:px-6 py-0">
             <div
               className="flex relative"
               role="tablist"
@@ -465,7 +465,7 @@ export default function SubmitGrievance() {
                 aria-selected={mode === 'detailed'}
                 aria-controls="detailed-panel"
                 className={cn(
-                  'px-6 py-4 text-[13px] font-semibold transition-colors relative',
+                  'px-6 py-2.5 text-[13px] font-semibold transition-colors relative',
                   mode === 'detailed'
                     ? 'text-[#F4811F]'
                     : 'text-[#7A8FA6] hover:text-[#3D5068]'
@@ -491,7 +491,7 @@ export default function SubmitGrievance() {
                 aria-selected={mode === 'quick'}
                 aria-controls="quick-panel"
                 className={cn(
-                  'px-6 py-4 text-[13px] font-semibold transition-colors relative',
+                  'px-6 py-2.5 text-[13px] font-semibold transition-colors relative',
                   mode === 'quick'
                     ? 'text-[#F4811F]'
                     : 'text-[#7A8FA6] hover:text-[#3D5068]'
