@@ -6,7 +6,7 @@ import { toast } from 'sonner';
 interface AIFeature {
   id: string;
   name: string;
-  description: string;
+  description: string; 
   modelName: string;
   active: boolean;
   threshold: number;
