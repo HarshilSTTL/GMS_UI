@@ -116,6 +116,8 @@ export default function ComplaintDetailPage() {
   const [popup, setPopup] = useState<ActionPopupData | null>(null);
   const [showDocReqModal, setShowDocReqModal] = useState(false);
   const [docReqNote, setDocReqNote] = useState('');
+  const [showResolveModal, setShowResolveModal] = useState(false);
+  const [resolveNotes, setResolveNotes] = useState('');
 
   const user = JSON.parse(localStorage.getItem('gms-auth') || '{}')?.state?.user;
 
@@ -157,8 +159,14 @@ export default function ComplaintDetailPage() {
   }
 
   async function handleResolve() {
+    if (!resolveNotes.trim()) {
+      setPopup({ type: 'error', title: 'Resolution notes required', description: 'Please enter resolution notes before marking this grievance as resolved.' });
+      return;
+    }
     try {
-      const updated = await patchAction('resolve');
+      const updated = await patchAction('resolve', { resolutionNotes: resolveNotes });
+      setShowResolveModal(false);
+      setResolveNotes('');
       setPopup({
         type: 'resolve',
         token: complaint.token,
@@ -281,6 +289,47 @@ export default function ComplaintDetailPage() {
         </div>
       )}
 
+      {/* Resolve Grievance modal */}
+      {showResolveModal && (
+        <div className="fixed inset-0 z-[200] flex items-center justify-center p-4" style={{ background: 'rgba(14,28,47,0.55)', backdropFilter: 'blur(3px)' }} onClick={() => setShowResolveModal(false)}>
+          <div className="bg-white rounded-[18px] w-full max-w-[420px] shadow-[0_8px_40px_rgba(14,28,47,0.22)] overflow-hidden border border-green-200" onClick={e => e.stopPropagation()}>
+            <div className="px-6 pt-6 pb-4 bg-green-50">
+              <div className="flex items-center gap-3 mb-3">
+                <div className="w-10 h-10 rounded-full bg-green-100 flex items-center justify-center text-[20px]">✅</div>
+                <div>
+                  <h2 className="text-[16px] font-bold text-[#0E1C2F]">Mark Grievance as Resolved</h2>
+                  <p className="text-[11px] text-[#7A8FA6]">Please document how this grievance was resolved</p>
+                </div>
+              </div>
+            </div>
+            <div className="px-6 py-4">
+              <label className="block text-[11px] font-bold text-[#3D5068] mb-1.5 uppercase tracking-wide">Resolution Details <span className="text-red-500">*</span></label>
+              <textarea
+                value={resolveNotes}
+                onChange={e => setResolveNotes(e.target.value)}
+                rows={5}
+                placeholder="Describe how you resolved this grievance. Include actions taken, outcome, and any follow-up required..."
+                className="w-full px-3 py-2.5 border border-[#DDE3EE] rounded-lg text-[12px] text-[#0E1C2F] resize-none outline-none focus:border-green-400 focus:ring-2 focus:ring-green-400/10 transition-colors"
+              />
+              <p className="text-[10px] text-[#7A8FA6] mt-1.5">This resolution summary will be sent to the citizen and added to the grievance record.</p>
+              <div className="flex gap-2 mt-4">
+                <button onClick={() => setShowResolveModal(false)} className="flex-1 py-2.5 rounded-[10px] text-[12px] font-semibold border border-[#DDE3EE] text-[#3D5068] bg-white hover:bg-[#F0F2F7] transition-colors">
+                  Cancel
+                </button>
+                <button
+                  onClick={handleResolve}
+                  disabled={acting || !resolveNotes.trim()}
+                  className="flex-1 flex items-center justify-center gap-2 py-2.5 rounded-[10px] text-[12px] font-semibold text-white disabled:opacity-50 transition-colors"
+                  style={{ background: '#16A34A' }}
+                >
+                  <CheckCircle size={13} /> Confirm Resolution
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Back + breadcrumb */}
       <div className="flex items-center gap-2 mb-4">
         <Link href="/portal/complaints" className="flex items-center gap-1.5 text-[12px] text-[#7A8FA6] hover:text-[#3D5068] transition-colors">
@@ -341,7 +390,7 @@ export default function ComplaintDetailPage() {
               </button>
             )}
             {complaint.status !== 'resolved' && complaint.status !== 'closed' && (
-              <button onClick={handleResolve} disabled={acting} className="flex items-center gap-1.5 px-3 py-1.5 bg-green-600 text-white text-[12px] font-semibold rounded-lg hover:bg-green-700 transition-colors disabled:opacity-50">
+              <button onClick={() => setShowResolveModal(true)} disabled={acting} className="flex items-center gap-1.5 px-3 py-1.5 bg-green-600 text-white text-[12px] font-semibold rounded-lg hover:bg-green-700 transition-colors disabled:opacity-50">
                 <CheckCircle size={13} /> {acting ? 'Resolving…' : 'Resolve'}
               </button>
             )}

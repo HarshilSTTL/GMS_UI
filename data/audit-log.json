@@ -68,5 +68,19 @@
     "userId": "u1",
     "details": "Grievance demo_c2 escalated. Reason: undefined",
     "timestamp": "2026-05-20T15:51:08.876Z"
+  },
+  {
+    "id": "audit-1779346061563",
+    "action": "RESOLVE",
+    "userId": "u1",
+    "details": "Grievance c34 resolved",
+    "timestamp": "2026-05-21T06:47:41.563Z"
+  },
+  {
+    "id": "audit-1779346145544",
+    "action": "RESOLVE",
+    "userId": "u1",
+    "details": "Grievance c33 resolved",
+    "timestamp": "2026-05-21T06:49:05.544Z"
   }
 ]

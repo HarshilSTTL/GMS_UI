@@ -2710,11 +2710,11 @@
     "description": "test 07",
     "category": "MNREGA / Labour Issue",
     "department": "AGR",
-    "status": "pending",
+    "status": "resolved",
     "priority": "medium",
     "channel": "web",
     "slaStatus": "ok",
-    "slaDaysLeft": 7,
+    "slaDaysLeft": 0,
     "citizenId": "u5",
     "citizenName": "Rajesh Patel",
     "citizenPhone": "",
@@ -2734,13 +2734,22 @@
         "actorRole": "citizen",
         "timestamp": "2026-05-21T02:22:47.296Z",
         "description": "Filed via web. Token: GJ-2026-83005"
+      },
+      {
+        "id": "tl-c33-2",
+        "type": "resolved",
+        "title": "Grievance Resolved",
+        "actor": "Ravi Varma",
+        "actorRole": "nodal_officer",
+        "timestamp": "2026-05-21T06:49:05.535Z",
+        "description": "Grievance has been resolved."
       }
     ],
     "feedback": null,
     "rating": null,
     "createdAt": "2026-05-21T02:22:47.296Z",
-    "updatedAt": "2026-05-21T02:22:47.296Z",
-    "resolvedAt": null
+    "updatedAt": "2026-05-21T06:49:05.535Z",
+    "resolvedAt": "2026-05-21T06:49:05.535Z"
   },
   {
     "id": "c34",
@@ -2749,11 +2758,11 @@
     "description": "test 08",
     "category": "PHC/Dispensary Issue",
     "department": "HFW",
-    "status": "pending",
+    "status": "resolved",
     "priority": "high",
     "channel": "web",
     "slaStatus": "ok",
-    "slaDaysLeft": 7,
+    "slaDaysLeft": 0,
     "citizenId": "u5",
     "citizenName": "Rajesh Patel",
     "citizenPhone": "",
@@ -2773,12 +2782,21 @@
         "actorRole": "citizen",
         "timestamp": "2026-05-21T02:23:21.659Z",
         "description": "Filed via web. Token: GJ-2026-52803"
+      },
+      {
+        "id": "tl-c34-2",
+        "type": "resolved",
+        "title": "Grievance Resolved",
+        "actor": "Ravi Varma",
+        "actorRole": "nodal_officer",
+        "timestamp": "2026-05-21T06:47:41.556Z",
+        "description": "Grievance has been resolved."
       }
     ],
     "feedback": null,
     "rating": null,
     "createdAt": "2026-05-21T02:23:21.659Z",
-    "updatedAt": "2026-05-21T02:23:21.659Z",
-    "resolvedAt": null
+    "updatedAt": "2026-05-21T06:47:41.555Z",
+    "resolvedAt": "2026-05-21T06:47:41.555Z"
   }
 ]

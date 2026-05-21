@@ -6,7 +6,13 @@
       "Bash(git commit -m ' *)",
       "Bash(git push *)",
       "Bash(git commit -m 'fix: Close missing div wrapper in submit page *)",
-      "Bash(git restore *)"
+      "Bash(git restore *)",
+      "Bash(npm run *)",
+      "Bash(git commit -m 'fix: Fix quickMode reference and language dropdown issues *)",
+      "Bash(git commit -m 'fix: Remove top padding from submit grievance container *)",
+      "Bash(git commit -m 'fix: Remove vertical padding from tab header container *)",
+      "Bash(Select-Object Name)",
+      "Bash(curl -s http://localhost:3000)"
     ]
   }
 }

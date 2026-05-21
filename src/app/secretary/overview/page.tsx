@@ -227,16 +227,22 @@ export default function SecretaryOverviewPage() {
           <div className="px-4 pb-4 pt-2">
             <div className="flex items-end gap-1.5 h-16">
               {CHANNELS.map((c, i) => {
-                const heightPct = Math.round((c.vol / 487) * 100);
+                const maxVol = Math.max(...CHANNELS.map(ch => ch.vol));
+                const heightPct = Math.round((c.vol / maxVol) * 100);
                 return (
-                  <div key={c.name} className="flex-1 flex flex-col items-center justify-end gap-1">
+                  <div key={c.name} className="flex-1 flex flex-col items-end justify-end gap-1 h-full">
                     <div
-                      className="w-full rounded-t overflow-hidden"
-                      style={{ height: '100%', display: 'flex', alignItems: 'flex-end' }}
+                      className="w-full rounded-t overflow-hidden flex items-flex-end"
+                      style={{
+                        height: '100%',
+                        display: 'flex',
+                        alignItems: 'flex-end',
+                        justifyContent: 'center',
+                      }}
                     >
                       <div
                         style={{
-                          width: '100%',
+                          width: '80%',
                           height: animated ? `${heightPct}%` : '0%',
                           minHeight: animated ? 4 : 0,
                           background: c.fg,
