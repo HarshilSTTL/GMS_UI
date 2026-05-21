@@ -252,12 +252,19 @@ export default function ComplaintDetailPage() {
       {/* Seek Information modal */}
       {showDocReqModal && (
         <div className="fixed inset-0 z-[200] flex items-center justify-center p-4" style={{ background: 'rgba(14,28,47,0.55)', backdropFilter: 'blur(3px)' }} onClick={() => setShowDocReqModal(false)}>
-          <div className="bg-white rounded-[18px] w-full max-w-[500px] shadow-[0_8px_40px_rgba(14,28,47,0.22)] overflow-hidden border border-blue-200" onClick={e => e.stopPropagation()}>
-            <div className="px-6 pt-6 pb-4 bg-blue-50">
-              <h2 className="text-[16px] font-bold text-[#0E1C2F] mb-1">Seek Information from Citizen</h2>
-              <p className="text-[11px] text-[#7A8FA6]">Request additional documents or information. Citizen will be notified to update and resubmit their grievance.</p>
+          <div className="bg-white rounded-[14px] w-full max-w-[600px] shadow-xl overflow-hidden border border-[#E5E7EB]" onClick={e => e.stopPropagation()}>
+            {/* Header */}
+            <div className="px-6 pt-5 pb-3 bg-gradient-to-r from-blue-50 to-cyan-50 border-b border-blue-100">
+              <div className="flex items-center justify-between mb-2">
+                <h2 className="text-[16px] font-bold text-[#0E1C2F]">Seek Information from Citizen</h2>
+                <span className="text-[11px] font-semibold px-3 py-1 bg-blue-100 text-blue-700 rounded-full">Document Request</span>
+              </div>
+              <p className="text-[11px] text-[#7A8FA6]">Request additional documents or information. Citizen will be notified and can edit their grievance to add the required details.</p>
             </div>
+
+            {/* Content */}
             <div className="px-6 py-5 space-y-4">
+              {/* Information Request */}
               <div>
                 <label className="block text-[11px] font-bold text-[#3D5068] mb-2 uppercase tracking-wide">What information do you need? <span className="text-red-500">*</span></label>
                 <textarea
@@ -265,47 +272,54 @@ export default function ComplaintDetailPage() {
                   onChange={e => setDocReqNote(e.target.value)}
                   rows={4}
                   placeholder="Describe the documents or information needed from the citizen (e.g., 'Please attach photos of the affected area', 'Provide a copy of your utility bill', 'Submit the repair estimate')..."
-                  className="w-full px-3 py-2.5 border border-[#DDE3EE] rounded-lg text-[12px] text-[#0E1C2F] resize-none outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-400/10 transition-colors"
+                  className="w-full px-4 py-3 border-2 border-[#DDE3EE] rounded-[10px] text-[12px] text-[#0E1C2F] resize-none outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-400/20 transition-all"
                 />
+                <p className="text-[10px] text-[#7A8FA6] mt-1.5">Be specific about what you need (photos, documents, utility bills, etc.)</p>
               </div>
 
-              <div className="grid grid-cols-2 gap-3">
+              {/* Two-column layout */}
+              <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-[11px] font-bold text-[#3D5068] mb-1.5 uppercase tracking-wide">Notify citizen via</label>
-                  <select className="w-full px-3 py-2 border border-[#DDE3EE] rounded-lg text-[12px] text-[#3D5068] outline-none focus:border-blue-400 transition-colors">
-                    <option>SMS + Email</option>
-                    <option>SMS only</option>
-                    <option>Email only</option>
-                    <option>WhatsApp</option>
+                  <label className="block text-[11px] font-bold text-[#3D5068] mb-2 uppercase tracking-wide">Notify citizen via</label>
+                  <select className="w-full px-3 py-2.5 border-2 border-[#DDE3EE] rounded-[10px] text-[12px] text-[#3D5068] font-medium outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-400/20 transition-all">
+                    <option value="SMS + Email">📱 SMS + 📧 Email</option>
+                    <option value="SMS">📱 SMS only</option>
+                    <option value="Email">📧 Email only</option>
+                    <option value="WhatsApp">💬 WhatsApp</option>
                   </select>
                 </div>
                 <div>
-                  <label className="block text-[11px] font-bold text-[#3D5068] mb-1.5 uppercase tracking-wide">Set status to</label>
-                  <select className="w-full px-3 py-2 border border-[#DDE3EE] rounded-lg text-[12px] text-[#3D5068] outline-none focus:border-blue-400 transition-colors">
-                    <option>Action Required</option>
-                    <option>Pending Info</option>
-                    <option>Under Review</option>
+                  <label className="block text-[11px] font-bold text-[#3D5068] mb-2 uppercase tracking-wide">Mark status as</label>
+                  <select className="w-full px-3 py-2.5 border-2 border-[#DDE3EE] rounded-[10px] text-[12px] text-[#3D5068] font-medium outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-400/20 transition-all">
+                    <option value="document_requested">🔔 Action Required</option>
+                    <option value="pending_info">⏳ Pending Information</option>
+                    <option value="under_review">🔍 Under Review</option>
                   </select>
                 </div>
               </div>
 
-              <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
-                <p className="text-[10px] text-blue-700">
-                  📌 <strong>What happens:</strong> The citizen will receive a notification to edit and resubmit their grievance with the requested information. The grievance will be temporarily editable for them.
+              {/* Info box */}
+              <div className="bg-blue-50 border-2 border-blue-200 rounded-[10px] p-4">
+                <p className="text-[11px] text-blue-800 leading-relaxed">
+                  <strong className="text-blue-900">✓ What happens:</strong> The citizen receives a notification with your request. They can log in and edit their grievance to add the requested documents or information. The grievance becomes editable for them temporarily.
                 </p>
               </div>
 
-              <div className="flex gap-2">
-                <button onClick={() => setShowDocReqModal(false)} className="flex-1 py-2.5 rounded-[10px] text-[12px] font-semibold border border-[#DDE3EE] text-[#3D5068] bg-white hover:bg-[#F0F2F7] transition-colors">
+              {/* Action buttons */}
+              <div className="flex gap-3 pt-2">
+                <button
+                  onClick={() => setShowDocReqModal(false)}
+                  className="flex-1 py-2.5 rounded-[10px] text-[12px] font-semibold border-2 border-[#DDE3EE] text-[#3D5068] bg-white hover:bg-[#F8F9FA] transition-colors"
+                >
                   Cancel
                 </button>
                 <button
                   onClick={handleRequestDocument}
                   disabled={acting || !docReqNote.trim()}
-                  className="flex-1 flex items-center justify-center gap-2 py-2.5 rounded-[10px] text-[12px] font-semibold text-white disabled:opacity-50 transition-colors"
+                  className="flex-1 flex items-center justify-center gap-2 py-2.5 rounded-[10px] text-[12px] font-bold text-white disabled:opacity-50 transition-colors hover:shadow-lg"
                   style={{ background: '#2563EB' }}
                 >
-                  ↗ Send Request & Notify
+                  ↗ Send Request & Notify Citizen
                 </button>
               </div>
             </div>
