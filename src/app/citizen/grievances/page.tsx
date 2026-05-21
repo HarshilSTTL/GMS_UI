@@ -211,25 +211,27 @@ export default function CitizenGrievances() {
                 const pc = PRIORITY_CONFIG[g.priority] || PRIORITY_CONFIG.medium;
                 const slaColor = g.slaDaysLeft < 0 ? '#DC2626' : g.slaDaysLeft <= 2 ? '#D97706' : '#16A34A';
                 return (
-                  <tr key={g.id} className={`border-b border-[#F0F2F7] last:border-0 hover:bg-[#F8F9FB] transition-colors ${g.status === 'document_requested' ? 'bg-amber-50' : ''}`}>
-                    <td className="px-4 py-3">
-                      <p className="text-[12px] font-semibold text-[#0E1C2F]">{g.title}</p>
-                      <p className="text-[10px] text-[#7A8FA6] font-mono">{g.token}</p>
-                    </td>
-                    <td className="px-4 py-3 text-[11px] text-[#3D5068]">{g.category}</td>
-                    <td className="px-4 py-3">
-                      <span className="inline-flex items-center text-[10px] font-semibold px-2.5 py-1 rounded-full" style={{ color: sc.color, background: sc.bg }}>{sc.label}</span>
-                      {g.slaDaysLeft < 0 && <span className="ml-1.5 text-[9px] font-bold text-red-500">BREACHED</span>}
-                    </td>
-                    <td className="px-4 py-3">
-                      <span className="text-[9px] font-bold px-2 py-0.5 rounded" style={{ color: pc.color, background: pc.color + '18', textTransform: 'uppercase' }}>{pc.label}</span>
-                    </td>
-                    <td className="px-4 py-3 text-[11px] text-[#7A8FA6]">{new Date(g.submittedDate).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: '2-digit' })}</td>
-                    <td className="px-4 py-3 text-[11px] text-[#3D5068]">{g.officer === 'Unassigned' ? <span className="text-[#7A8FA6] italic">Pending</span> : g.officer}</td>
-                    <td className="px-4 py-3 text-center">
-                      <Link href={`/citizen/grievances/${g.id}`} className="text-[11px] text-blue-600 font-semibold hover:underline">View</Link>
-                    </td>
-                  </tr>
+                  <Link key={g.id} href={`/citizen/grievances/${g.id}`} className="group">
+                    <tr className={`border-b border-[#F0F2F7] last:border-0 hover:bg-[#F8F9FB] transition-colors cursor-pointer ${g.status === 'document_requested' ? 'bg-amber-50' : ''}`}>
+                      <td className="px-4 py-3">
+                        <p className="text-[12px] font-semibold text-[#0E1C2F]">{g.title}</p>
+                        <p className="text-[10px] text-[#7A8FA6] font-mono">{g.token}</p>
+                      </td>
+                      <td className="px-4 py-3 text-[11px] text-[#3D5068]">{g.category}</td>
+                      <td className="px-4 py-3">
+                        <span className="inline-flex items-center text-[10px] font-semibold px-2.5 py-1 rounded-full" style={{ color: sc.color, background: sc.bg }}>{sc.label}</span>
+                        {g.slaDaysLeft < 0 && <span className="ml-1.5 text-[9px] font-bold text-red-500">BREACHED</span>}
+                      </td>
+                      <td className="px-4 py-3">
+                        <span className="text-[9px] font-bold px-2 py-0.5 rounded" style={{ color: pc.color, background: pc.color + '18', textTransform: 'uppercase' }}>{pc.label}</span>
+                      </td>
+                      <td className="px-4 py-3 text-[11px] text-[#7A8FA6]">{new Date(g.submittedDate).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: '2-digit' })}</td>
+                      <td className="px-4 py-3 text-[11px] text-[#3D5068]">{g.officer === 'Unassigned' ? <span className="text-[#7A8FA6] italic">Pending</span> : g.officer}</td>
+                      <td className="px-4 py-3 text-center">
+                        <span className="text-[11px] text-blue-600 font-semibold group-hover:underline">View</span>
+                      </td>
+                    </tr>
+                  </Link>
                 );
               })}
               {filtered.length === 0 && (
