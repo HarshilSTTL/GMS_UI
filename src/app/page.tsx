@@ -90,27 +90,29 @@ export default function RootPage() {
               <p className="text-[14px] text-blue-200 leading-relaxed mb-8 max-w-md">
                 The Gujarat Grievance Management System empowers citizens to file, track, and resolve complaints with complete transparency. AI-powered, SLA-driven, and built for accountability.
               </p>
-              <div className="flex flex-wrap gap-3 mb-8">
-                <Link href="/citizen-login" className="inline-flex items-center gap-2 bg-[#F4811F] hover:bg-[#E0721A] text-white rounded-lg px-6 py-3 text-[13px] font-semibold transition-colors shadow-lg shadow-orange-500/25">
-                  <Phone size={16} /> Citizen Login
+              {/* Primary Action Buttons */}
+              <div className="flex flex-wrap gap-3 mb-6">
+                <Link href="/citizen-login" className="inline-flex items-center gap-2.5 bg-[#F4811F] hover:bg-[#E0721A] active:bg-[#D06C15] text-white rounded-[10px] px-6 py-3.5 text-[13px] font-bold transition-all shadow-lg shadow-orange-500/30 hover:shadow-orange-500/40 hover:scale-105">
+                  <Phone size={17} /> Citizen Login
                 </Link>
-                <Link href="/citizen-register" className="inline-flex items-center gap-2 bg-white/10 hover:bg-white/20 text-white rounded-lg px-6 py-3 text-[13px] font-semibold transition-colors border border-white/20">
+                <Link href="/citizen-register" className="inline-flex items-center gap-2.5 bg-white/15 hover:bg-white/25 active:bg-white/35 text-white rounded-[10px] px-6 py-3.5 text-[13px] font-bold transition-all border border-white/30 backdrop-blur-sm hover:border-white/50">
                   Register as Citizen
                 </Link>
-                <Link href="/login" className="inline-flex items-center gap-2 bg-white/5 hover:bg-white/10 text-blue-200 rounded-lg px-6 py-3 text-[13px] font-semibold transition-colors border border-white/10">
-                  <Building2 size={16} /> Officer Portal
+                <Link href="/login" className="inline-flex items-center gap-2.5 bg-[#1A56C4]/20 hover:bg-[#1A56C4]/30 active:bg-[#1A56C4]/40 text-blue-100 rounded-[10px] px-6 py-3.5 text-[13px] font-bold transition-all border border-blue-300/40 backdrop-blur-sm hover:border-blue-300/60">
+                  <Building2 size={17} /> Officer Portal
                 </Link>
               </div>
-              {/* Secondary Actions */}
+
+              {/* Secondary Action Buttons */}
               <div className="flex flex-wrap gap-3">
-                <a href="/Swagat 3.0 Mobile - Merged (2).html" target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 bg-blue-600/20 hover:bg-blue-600/30 text-blue-200 rounded-lg px-5 py-2.5 text-[12px] font-semibold transition-colors border border-blue-400/30">
-                  <Smartphone size={15} /> Mobile App
+                <a href="/Swagat 3.0 Mobile - Merged (2).html" target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 bg-[#0891B2]/20 hover:bg-[#0891B2]/30 active:bg-[#0891B2]/40 text-cyan-100 rounded-[10px] px-5 py-3 text-[12px] font-semibold transition-all border border-cyan-300/40 backdrop-blur-sm hover:border-cyan-300/60 hover:scale-105">
+                  <Smartphone size={16} className="flex-shrink-0" /> Mobile App
                 </a>
-                <a href="/CitizenVoice_WhatsApp_v1.html" target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 bg-green-600/20 hover:bg-green-600/30 text-green-200 rounded-lg px-5 py-2.5 text-[12px] font-semibold transition-colors border border-green-400/30">
-                  <MessageCircle size={15} /> WhatsApp
+                <a href="/CitizenVoice_WhatsApp_v1.html" target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 bg-[#16A34A]/20 hover:bg-[#16A34A]/30 active:bg-[#16A34A]/40 text-green-100 rounded-[10px] px-5 py-3 text-[12px] font-semibold transition-all border border-green-300/40 backdrop-blur-sm hover:border-green-300/60 hover:scale-105">
+                  <MessageCircle size={16} className="flex-shrink-0" /> WhatsApp
                 </a>
-                <Link href="/citizen-login" className="inline-flex items-center gap-2 bg-purple-600/20 hover:bg-purple-600/30 text-purple-200 rounded-lg px-5 py-2.5 text-[12px] font-semibold transition-colors border border-purple-400/30">
-                  <Sparkles size={15} /> AI Assistance
+                <Link href="/citizen-login" className="inline-flex items-center gap-2 bg-[#7C3AED]/20 hover:bg-[#7C3AED]/30 active:bg-[#7C3AED]/40 text-purple-100 rounded-[10px] px-5 py-3 text-[12px] font-semibold transition-all border border-purple-300/40 backdrop-blur-sm hover:border-purple-300/60 hover:scale-105">
+                  <Sparkles size={16} className="flex-shrink-0" /> AI Assistance
                 </Link>
               </div>
               {/* Track Complaint Mini-Form */}
