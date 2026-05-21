@@ -1,0 +1,797 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Gujarat CM Dashboard</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{--navy:#0A1628;--navy2:#0F2040;--navy3:#162A52;--gold:#C9A84C;--gold2:#F0C96A;--gold-dim:rgba(201,168,76,0.15);--teal:#00B4B4;--teal-dim:rgba(0,180,180,0.12);--red:#E84040;--red-dim:rgba(232,64,64,0.12);--amber:#F0A030;--amber-dim:rgba(240,160,48,0.12);--green:#28C880;--green-dim:rgba(40,200,128,0.12);--blue:#3A8FE8;--blue-dim:rgba(58,143,232,0.12);--t1:#F0EDE8;--t2:#A8A090;--t3:#6A6460;--bdr:rgba(255,255,255,0.07);--sur:rgba(255,255,255,0.04);--sur2:rgba(255,255,255,0.07)}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;font-family:'DM Sans',sans-serif;background:var(--navy);color:var(--t1);overflow-x:hidden}
+.shell{display:flex;height:100vh}
+.sidebar{width:220px;flex-shrink:0;background:var(--navy2);border-right:1px solid var(--bdr);display:flex;flex-direction:column}
+.main{flex:1;overflow-y:auto;display:flex;flex-direction:column}
+.logo-area{padding:20px 18px 16px;border-bottom:1px solid var(--bdr)}
+.logo-emblem{width:36px;height:36px;background:var(--gold-dim);border:1px solid var(--gold);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:18px;margin-bottom:8px}
+.logo-title{font-family:'DM Serif Display',serif;font-size:13px;color:var(--gold);line-height:1.3}
+.logo-sub{font-size:10px;color:var(--t3);margin-top:2px}
+.nav-section{padding:14px 12px 8px}
+.nav-label{font-size:9px;font-weight:600;letter-spacing:1.2px;text-transform:uppercase;color:var(--t3);padding:0 6px;margin-bottom:6px}
+.nav-item{display:flex;align-items:center;gap:9px;padding:8px 10px;border-radius:8px;cursor:pointer;font-size:12px;color:var(--t2);transition:all 0.15s;margin-bottom:2px;border:1px solid transparent}
+.nav-item:hover{background:var(--sur2);color:var(--t1)}
+.nav-item.active{background:var(--gold-dim);color:var(--gold);border-color:rgba(201,168,76,0.25)}
+.nav-icon{width:16px;text-align:center;font-size:13px}
+.nav-badge{margin-left:auto;font-size:9px;background:var(--red);color:white;border-radius:10px;padding:1px 5px;font-weight:600}
+.status-area{margin-top:auto;padding:14px;border-top:1px solid var(--bdr)}
+.status-dot{width:7px;height:7px;border-radius:50%;background:var(--green);display:inline-block;margin-right:6px;box-shadow:0 0 6px var(--green)}
+.topbar{display:flex;align-items:center;justify-content:space-between;padding:14px 24px;background:var(--navy2);border-bottom:1px solid var(--bdr);flex-shrink:0}
+.topbar-title{font-family:'DM Serif Display',serif;font-size:18px;color:var(--t1)}
+.topbar-sub{font-size:11px;color:var(--t3);margin-top:1px}
+.topbar-right{display:flex;align-items:center;gap:10px}
+.chip{font-size:11px;padding:5px 12px;border-radius:20px;border:1px solid}
+.chip-live{border-color:var(--green);color:var(--green);background:var(--green-dim)}
+.chip-date{border-color:var(--bdr);color:var(--t2);background:var(--sur)}
+.chip-role{border-color:var(--gold);color:var(--gold);background:var(--gold-dim);font-weight:500}
+.content{padding:20px 24px;flex:1}
+.view{display:none}
+.view.active{display:block}
+.sec-title{font-size:10px;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:var(--t3);margin-bottom:12px}
+.kpi-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(155px,1fr));gap:12px;margin-bottom:20px}
+.kpi-card{background:var(--sur);border:1px solid var(--bdr);border-radius:12px;padding:14px 16px;position:relative;overflow:hidden}
+.kpi-accent{position:absolute;top:0;left:0;right:0;height:2px}
+.kpi-label{font-size:10px;color:var(--t3);margin-bottom:8px;text-transform:uppercase;letter-spacing:0.5px}
+.kpi-value{font-size:28px;font-weight:300;color:var(--t1);line-height:1;font-family:'DM Serif Display',serif}
+.kpi-meta{font-size:10px;margin-top:6px}
+.up{color:var(--green)}.down{color:var(--red)}.warn{color:var(--amber)}.neu{color:var(--t3)}
+.pg{display:grid;gap:14px;margin-bottom:20px}
+.g2{grid-template-columns:1fr 1fr}
+.g3{grid-template-columns:1fr 1fr 1fr}
+.g4{grid-template-columns:1fr 1fr 1fr 1fr}
+.panel{background:var(--sur);border:1px solid var(--bdr);border-radius:12px;overflow:hidden}
+.ph{padding:12px 16px;border-bottom:1px solid var(--bdr);display:flex;align-items:center;justify-content:space-between}
+.pt{font-size:12px;font-weight:500;color:var(--t1)}
+.pa{font-size:10px;color:var(--teal);cursor:pointer;border:1px solid rgba(0,180,180,0.3);padding:3px 9px;border-radius:20px}
+.pb{padding:14px 16px}
+.dt{width:100%;border-collapse:collapse;font-size:11px}
+.dt th{color:var(--t3);font-size:9px;font-weight:600;letter-spacing:0.8px;text-transform:uppercase;text-align:left;padding:8px 10px;border-bottom:1px solid var(--bdr)}
+.dt td{padding:9px 10px;border-bottom:1px solid rgba(255,255,255,0.04);color:var(--t1);vertical-align:middle}
+.dt tr:last-child td{border-bottom:none}
+.dt tr:hover td{background:var(--sur2)}
+.fr td{border-left:2px solid var(--red)!important}
+.fa td{border-left:2px solid var(--amber)!important}
+.badge{font-size:9px;font-weight:600;padding:2px 8px;border-radius:20px;display:inline-block}
+.br{background:var(--red-dim);color:var(--red);border:1px solid rgba(232,64,64,0.3)}
+.ba{background:var(--amber-dim);color:var(--amber);border:1px solid rgba(240,160,48,0.3)}
+.bg{background:var(--green-dim);color:var(--green);border:1px solid rgba(40,200,128,0.3)}
+.bb{background:var(--blue-dim);color:var(--blue);border:1px solid rgba(58,143,232,0.3)}
+.bt{background:var(--teal-dim);color:var(--teal);border:1px solid rgba(0,180,180,0.3)}
+.bgo{background:var(--gold-dim);color:var(--gold);border:1px solid rgba(201,168,76,0.3)}
+.pr{margin-bottom:10px}
+.prl{display:flex;justify-content:space-between;font-size:10px;margin-bottom:4px;color:var(--t2)}
+.prt{background:rgba(255,255,255,0.06);border-radius:3px;height:5px;overflow:hidden}
+.prf{height:100%;border-radius:3px}
+.al{display:flex;gap:10px;padding:10px;border-radius:8px;margin-bottom:8px;border:1px solid}
+.al:last-child{margin-bottom:0}
+.al-r{background:var(--red-dim);border-color:rgba(232,64,64,0.25)}
+.al-a{background:var(--amber-dim);border-color:rgba(240,160,48,0.25)}
+.al-g{background:var(--green-dim);border-color:rgba(40,200,128,0.25)}
+.al-icon{font-size:14px;flex-shrink:0;margin-top:1px}
+.al-title{font-size:11px;color:var(--t1);line-height:1.4;font-weight:500}
+.al-meta{font-size:10px;color:var(--t3);margin-top:3px}
+.ac{background:var(--sur2);border:1px solid var(--bdr);border-radius:10px;padding:12px 14px;margin-bottom:10px;display:flex;gap:12px;cursor:pointer;transition:border-color 0.15s}
+.ac:hover{border-color:rgba(201,168,76,0.3)}
+.ac-pri{width:3px;border-radius:3px;flex-shrink:0}
+.ac-title{font-size:12px;color:var(--t1);font-weight:500;line-height:1.4;margin-bottom:4px}
+.ac-tgt{font-size:10px;color:var(--teal);margin-bottom:4px}
+.ac-desc{font-size:10px;color:var(--t3);line-height:1.5}
+.tab-bar{display:flex;gap:0;border-bottom:1px solid var(--bdr);margin-bottom:14px;overflow-x:auto}
+.tb{font-size:11px;padding:8px 14px;cursor:pointer;color:var(--t3);border-bottom:2px solid transparent;background:none;border-top:none;border-left:none;border-right:none;transition:all 0.15s;white-space:nowrap}
+.tb.active{color:var(--gold);border-bottom-color:var(--gold)}
+.ri{display:flex;align-items:center;gap:8px;padding:8px 0;border-bottom:1px solid rgba(255,255,255,0.04)}
+.ri:last-child{border-bottom:none}
+.rn{font-size:11px;color:var(--t3);min-width:18px;font-family:'DM Serif Display',serif}
+.rname{font-size:11px;color:var(--t1);flex:1}
+.rbw{width:70px;background:rgba(255,255,255,0.06);border-radius:2px;height:4px;overflow:hidden}
+.rb{height:100%;border-radius:2px}
+.rv{font-size:11px;font-weight:500;min-width:36px;text-align:right}
+.dr{display:flex;align-items:center;gap:8px;padding:9px 0;border-bottom:1px solid rgba(255,255,255,0.04)}
+.dr:last-child{border-bottom:none}
+.di{width:28px;height:28px;border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:13px;flex-shrink:0}
+.dn{font-size:11px;color:var(--t1);flex:1;font-weight:500}
+.ds{font-size:9px;color:var(--t3)}
+.dsc{font-size:14px;font-weight:600;font-family:'DM Serif Display',serif;min-width:36px;text-align:right}
+.hm-cell{border-radius:3px;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:600;height:26px}
+::-webkit-scrollbar{width:4px;height:4px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:rgba(255,255,255,0.12);border-radius:4px}
+</style>
+</head>
+<body>
+<div class="shell">
+<div class="sidebar">
+  <div class="logo-area">
+    <div class="logo-emblem">🏛</div>
+    <div class="logo-title">Gujarat CM<br>Intelligence Centre</div>
+    <div class="logo-sub">State Governance Dashboard</div>
+  </div>
+  <div class="nav-section">
+    <div class="nav-label">Views</div>
+    <div class="nav-item active" id="nav-overview" onclick="SW('overview')"><span class="nav-icon">⬡</span>State Overview</div>
+    <div class="nav-item" id="nav-departments" onclick="SW('departments')"><span class="nav-icon">🏢</span>All Departments</div>
+    <div class="nav-item" id="nav-districts" onclick="SW('districts')"><span class="nav-icon">📍</span>Districts Heat Map<span class="nav-badge">3</span></div>
+    <div class="nav-item" id="nav-csat" onclick="SW('csat')"><span class="nav-icon">★</span>CSAT Analysis</div>
+    <div class="nav-item" id="nav-trends" onclick="SW('trends')"><span class="nav-icon">↗</span>Trend Intelligence</div>
+    <div class="nav-item" id="nav-actions" onclick="SW('actions')"><span class="nav-icon">⚡</span>AI Action Board<span class="nav-badge">7</span></div>
+    <div class="nav-item" id="nav-critical" onclick="SW('critical')"><span class="nav-icon">🔴</span>Critical Complaints</div>
+    <div class="nav-item" id="nav-breached" onclick="SW('breached')"><span class="nav-icon">⚠</span>SLA Breached</div>
+  </div>
+  <div class="status-area">
+    <div><span class="status-dot"></span><span style="font-size:11px;color:var(--t2)">Live · Updated now</span></div>
+    <div style="font-size:10px;color:var(--t3);margin-top:4px" id="sideDate"></div>
+  </div>
+</div>
+
+<div class="main">
+  <div class="topbar">
+    <div>
+      <div class="topbar-title">Gujarat State Grievance Command Centre</div>
+      <div class="topbar-sub">Hon'ble Chief Minister's Office · All Departments · 33 Districts · Integrated GMS Intelligence</div>
+    </div>
+    <div class="topbar-right">
+      <span class="chip chip-role">CM View</span>
+      <span class="chip chip-live">● Live</span>
+      <span class="chip chip-date" id="topDate"></span>
+    </div>
+  </div>
+
+  <div class="content">
+
+    <!-- OVERVIEW -->
+    <div id="view-overview" class="view active">
+      <div class="sec-title">State-wide grievance pulse — all departments · all 33 districts</div>
+      <div class="kpi-grid">
+        <div class="kpi-card"><div class="kpi-accent" style="background:var(--blue)"></div><div class="kpi-label">Total open</div><div class="kpi-value">18,492</div><div class="kpi-meta down">▲ 847 from last week</div></div>
+        <div class="kpi-card"><div class="kpi-accent" style="background:var(--green)"></div><div class="kpi-label">Resolved this month</div><div class="kpi-value">24,187</div><div class="kpi-meta up">▲ 12% vs last month</div></div>
+        <div class="kpi-card"><div class="kpi-accent" style="background:var(--amber)"></div><div class="kpi-label">State SLA %</div><div class="kpi-value">78%</div><div class="kpi-meta warn">Target 85% · Gap −7%</div></div>
+        <div class="kpi-card"><div class="kpi-accent" style="background:var(--red)"></div><div class="kpi-label">Critical open</div><div class="kpi-value">312</div><div class="kpi-meta down">▲ 47 unresolved >3d</div></div>
+        <div class="kpi-card"><div class="kpi-accent" style="background:var(--gold)"></div><div class="kpi-label">State CSAT</div><div class="kpi-value">3.6</div><div class="kpi-meta warn">Target 4.0 · 9 depts below</div></div>
+        <div class="kpi-card"><div class="kpi-accent" style="background:var(--teal)"></div><div class="kpi-label">Auto-classify rate</div><div class="kpi-value">91%</div><div class="kpi-meta up">▲ 3% this quarter</div></div>
+        <div class="kpi-card"><div class="kpi-accent" style="background:var(--red)"></div><div class="kpi-label">Districts CSAT &lt;3.5</div><div class="kpi-value">11</div><div class="kpi-meta down">Needs CM directive</div></div>
+        <div class="kpi-card"><div class="kpi-accent" style="background:var(--amber)"></div><div class="kpi-label">L3 Escalations</div><div class="kpi-value">83</div><div class="kpi-meta down">▲ 22 this week</div></div>
+      </div>
+      <div class="pg g2">
+        <div class="panel">
+          <div class="ph"><span class="pt">Department performance</span><span class="pa" onclick="SW('departments')">All depts →</span></div>
+          <div class="pb" id="deptSnap"></div>
+        </div>
+        <div class="panel">
+          <div class="ph"><span class="pt">Complaint category breakdown</span></div>
+          <div class="pb">
+            <div style="position:relative;height:190px;margin-bottom:10px"><canvas id="catPie"></canvas></div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:4px" id="catLeg"></div>
+          </div>
+        </div>
+      </div>
+      <div class="pg g2">
+        <div class="panel">
+          <div class="ph"><span class="pt">Districts needing immediate attention</span><span class="pa" onclick="SW('districts')">Full map →</span></div>
+          <div class="pb" style="padding:0"><table class="dt" id="critDistTbl"></table></div>
+        </div>
+        <div class="panel">
+          <div class="ph"><span class="pt">12-month state complaint trend</span></div>
+          <div class="pb"><div style="position:relative;height:200px"><canvas id="ovTrend"></canvas></div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- DEPARTMENTS -->
+    <div id="view-departments" class="view">
+      <div class="sec-title">All departments — performance matrix</div>
+      <div class="pg g2" style="margin-bottom:14px">
+        <div class="panel">
+          <div class="ph"><span class="pt">SLA adherence by department</span></div>
+          <div class="pb"><div style="position:relative;height:280px"><canvas id="dSlaBar"></canvas></div></div>
+        </div>
+        <div class="panel">
+          <div class="ph"><span class="pt">CSAT score by department</span></div>
+          <div class="pb"><div style="position:relative;height:280px"><canvas id="dCsatBar"></canvas></div></div>
+        </div>
+      </div>
+      <div class="panel">
+        <div class="ph"><span class="pt">Department scorecard — full matrix</span></div>
+        <div class="pb" style="padding:0"><table class="dt" id="dScoreTbl"></table></div>
+      </div>
+    </div>
+
+    <!-- DISTRICTS -->
+    <div id="view-districts" class="view">
+      <div class="sec-title">District intelligence — 33 districts</div>
+      <div class="pg g2" style="margin-bottom:14px">
+        <div class="panel">
+          <div class="ph"><span class="pt">CSAT ranking — bottom 15 districts</span></div>
+          <div class="pb" id="csatRankList"></div>
+        </div>
+        <div class="panel">
+          <div class="ph"><span class="pt">Complaint volume — top 15 districts</span></div>
+          <div class="pb" id="volRankList"></div>
+        </div>
+      </div>
+      <div class="panel" style="margin-bottom:14px">
+        <div class="ph"><span class="pt">District × Department complaint heatmap</span><span style="font-size:10px;color:var(--t3);margin-left:8px">Higher = more complaints</span></div>
+        <div class="pb"><div id="hmContainer" style="overflow-x:auto"></div>
+          <div style="display:flex;gap:6px;margin-top:8px;align-items:center;font-size:9px;color:var(--t3)">
+            <span>Low</span>
+            <div style="background:#1a3a6a;width:18px;height:10px;border-radius:2px"></div>
+            <div style="background:#1a5f8a;width:18px;height:10px;border-radius:2px"></div>
+            <div style="background:#d97706;width:18px;height:10px;border-radius:2px"></div>
+            <div style="background:#dc2626;width:18px;height:10px;border-radius:2px"></div>
+            <div style="background:#991b1b;width:18px;height:10px;border-radius:2px"></div>
+            <span>High</span>
+          </div>
+        </div>
+      </div>
+      <div class="panel">
+        <div class="ph"><span class="pt">Full district data table — all 33 districts</span></div>
+        <div class="pb" style="padding:0"><table class="dt" id="fullDistTbl"></table></div>
+      </div>
+    </div>
+
+    <!-- CSAT -->
+    <div id="view-csat" class="view">
+      <div class="sec-title">CSAT deep-dive — citizen satisfaction intelligence</div>
+      <div class="kpi-grid" style="grid-template-columns:repeat(4,1fr)">
+        <div class="kpi-card"><div class="kpi-accent" style="background:var(--red)"></div><div class="kpi-label">Districts below 3.5</div><div class="kpi-value">11</div><div class="kpi-meta down">Urgent intervention</div></div>
+        <div class="kpi-card"><div class="kpi-accent" style="background:var(--amber)"></div><div class="kpi-label">Depts below 3.5</div><div class="kpi-value">5</div><div class="kpi-meta warn">Needs monitoring</div></div>
+        <div class="kpi-card"><div class="kpi-accent" style="background:var(--green)"></div><div class="kpi-label">Best CSAT district</div><div class="kpi-value">4.4</div><div class="kpi-meta up">Gandhinagar</div></div>
+        <div class="kpi-card"><div class="kpi-accent" style="background:var(--red)"></div><div class="kpi-label">Worst CSAT district</div><div class="kpi-value">2.9</div><div class="kpi-meta down">Dahod — action needed</div></div>
+      </div>
+      <div class="pg g2">
+        <div class="panel">
+          <div class="ph"><span class="pt">CSAT trend — state average (12 months)</span></div>
+          <div class="pb"><div style="position:relative;height:200px"><canvas id="csatTrendC"></canvas></div></div>
+        </div>
+        <div class="panel">
+          <div class="ph"><span class="pt">CSAT distribution — all 33 districts</span></div>
+          <div class="pb"><div style="position:relative;height:200px"><canvas id="csatDistC"></canvas></div></div>
+        </div>
+      </div>
+      <div class="panel" style="margin-top:14px">
+        <div class="ph"><span class="pt">Bottom 15 districts — CSAT below threshold (4.0 target)</span></div>
+        <div class="pb" style="padding:0"><table class="dt" id="csatTbl"></table></div>
+      </div>
+    </div>
+
+    <!-- TRENDS -->
+    <div id="view-trends" class="view">
+      <div class="sec-title">Trend intelligence — patterns and performance trajectories</div>
+      <div class="panel" style="margin-bottom:14px">
+        <div class="ph"><span class="pt">12-month complaint volume — top 5 departments</span></div>
+        <div class="pb"><div style="position:relative;height:260px"><canvas id="multiTrendC"></canvas></div></div>
+      </div>
+      <div class="pg g2">
+        <div class="panel">
+          <div class="ph"><span class="pt">SLA adherence trend vs 85% target</span></div>
+          <div class="pb"><div style="position:relative;height:200px"><canvas id="slaTrendC"></canvas></div></div>
+        </div>
+        <div class="panel">
+          <div class="ph"><span class="pt">Intake vs resolution — monthly</span></div>
+          <div class="pb"><div style="position:relative;height:200px"><canvas id="resTrendC"></canvas></div></div>
+        </div>
+      </div>
+      <div class="panel" style="margin-top:14px">
+        <div class="ph"><span class="pt">Seasonal patterns — complaints by month and category</span></div>
+        <div class="pb"><div style="position:relative;height:220px"><canvas id="seasonC"></canvas></div></div>
+      </div>
+    </div>
+
+    <!-- ACTIONS -->
+    <div id="view-actions" class="view">
+      <div class="sec-title">AI-generated actionable directives — for CM review and dispatch</div>
+      <div style="background:rgba(201,168,76,0.06);border:1px solid rgba(201,168,76,0.2);border-radius:10px;padding:12px 16px;margin-bottom:14px;display:flex;gap:10px">
+        <span style="font-size:16px;flex-shrink:0">⚡</span>
+        <div>
+          <div style="font-size:12px;font-weight:500;color:var(--gold);margin-bottom:3px">AI Action Intelligence — 7 directives generated</div>
+          <div style="font-size:11px;color:var(--t2);line-height:1.6">System-generated based on SLA breach patterns, CSAT decline signals, cross-department anomaly detection, and district distress scoring. Each directive includes the target officer, corrective action, and measurable impact.</div>
+        </div>
+      </div>
+      <div class="tab-bar">
+        <button class="tb active" onclick="AT('all',this)">All (7)</button>
+        <button class="tb" onclick="AT('critical',this)">Critical (3)</button>
+        <button class="tb" onclick="AT('sla',this)">SLA Breach (2)</button>
+        <button class="tb" onclick="AT('csat',this)">CSAT Alert (2)</button>
+      </div>
+      <div id="actionBoard"></div>
+    </div>
+
+    <!-- CRITICAL -->
+    <div id="view-critical" class="view">
+      <div class="sec-title">Critical complaints — requiring CM-level awareness</div>
+      <div class="panel">
+        <div class="ph"><span class="pt">Live critical escalations — all departments and districts</span></div>
+        <div class="pb" style="padding:0"><table class="dt" id="critTbl"></table></div>
+      </div>
+    </div>
+
+    <!-- BREACHED -->
+    <div id="view-breached" class="view">
+      <div class="sec-title">SLA breached — departments and districts below 75% target</div>
+      <div class="pg g2">
+        <div class="panel">
+          <div class="ph"><span class="pt">Departments with SLA below 75%</span></div>
+          <div class="pb" id="brcDepts"></div>
+        </div>
+        <div class="panel">
+          <div class="ph"><span class="pt">Districts with SLA below 75%</span></div>
+          <div class="pb" id="brcDists"></div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+</div>
+
+<script>
+// ── DATA ─────────────────────────────────────────────────────────────────────
+var MN = ['Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec','Jan','Feb','Mar'];
+
+var DEPTS = [
+  {id:'hfwd', name:'Health & Family Welfare', icon:'🏥', open:2847, resolved:3241, sla:81, csat:3.8, critical:47, trend:[2100,2200,2350,2400,2500,2600,2700,2750,2800,2820,2840,2847], color:'#3A8FE8'},
+  {id:'edu',  name:'Education Department',    icon:'📚', open:2341, resolved:2890, sla:84, csat:3.9, critical:28, trend:[1900,2000,2050,2100,2150,2200,2250,2280,2310,2330,2340,2341], color:'#28C880'},
+  {id:'revn', name:'Revenue & Land Records',  icon:'🏡', open:3120, resolved:2780, sla:72, csat:3.4, critical:62, trend:[2400,2500,2700,2800,2900,2950,3000,3050,3080,3100,3110,3120], color:'#F0A030'},
+  {id:'pwd',  name:'Roads & Buildings (PWD)', icon:'🛣', open:1890, resolved:2100, sla:76, csat:3.5, critical:31, trend:[1500,1600,1650,1700,1750,1780,1800,1830,1850,1870,1880,1890], color:'#C9A84C'},
+  {id:'water',name:'Water Supply & Sanitation',icon:'💧',open:2210, resolved:1980, sla:69, csat:3.2, critical:54, trend:[1700,1800,1900,2000,2050,2080,2100,2130,2160,2190,2200,2210], color:'#00B4B4'},
+  {id:'agri', name:'Agriculture Department',  icon:'🌾', open:1540, resolved:1720, sla:88, csat:4.1, critical:12, trend:[1200,1250,1300,1350,1380,1400,1420,1450,1480,1510,1530,1540], color:'#639922'},
+  {id:'soc',  name:'Social Justice',          icon:'🤝', open:1280, resolved:1450, sla:82, csat:3.7, critical:19, trend:[1000,1050,1100,1120,1150,1180,1200,1220,1240,1260,1270,1280], color:'#7F77DD'},
+  {id:'lab',  name:'Labour & Employment',     icon:'⚙', open:980,  resolved:1120, sla:86, csat:4.0, critical:8,  trend:[800,820,850,880,900,920,940,950,960,970,975,980],            color:'#D85A30'},
+  {id:'food', name:'Food & Civil Supplies',   icon:'🌽', open:1420, resolved:1380, sla:74, csat:3.3, critical:38, trend:[1100,1150,1200,1250,1300,1320,1350,1380,1400,1410,1415,1420], color:'#E84040'},
+  {id:'home', name:'Home / Police Department',icon:'🛡', open:870,  resolved:920,  sla:89, csat:3.6, critical:21, trend:[700,720,740,760,780,800,820,840,850,860,865,870],            color:'#888780'}
+];
+
+var DISTS = [
+  {name:'Ahmedabad',  div:'Central',     open:1842, csat:4.1, sla:88, crit:18, top:'Revenue',      trend:'up'},
+  {name:'Surat',      div:'South',       open:1614, csat:3.4, sla:62, crit:24, top:'Water Supply', trend:'down'},
+  {name:'Rajkot',     div:'Saurashtra',  open:1287, csat:3.8, sla:79, crit:14, top:'Health',       trend:'stable'},
+  {name:'Vadodara',   div:'Central',     open:1190, csat:4.0, sla:85, crit:9,  top:'Education',    trend:'up'},
+  {name:'Gandhinagar',div:'Central',     open:743,  csat:4.4, sla:93, crit:4,  top:'Revenue',      trend:'up'},
+  {name:'Bhavnagar',  div:'Saurashtra',  open:891,  csat:3.7, sla:77, crit:12, top:'Health',       trend:'stable'},
+  {name:'Jamnagar',   div:'Saurashtra',  open:834,  csat:3.9, sla:82, crit:8,  top:'Water Supply', trend:'stable'},
+  {name:'Kutch',      div:'Kutch',       open:967,  csat:3.5, sla:72, crit:16, top:'Roads',        trend:'down'},
+  {name:'Banaskantha',div:'North',       open:1021, csat:3.3, sla:68, crit:19, top:'Water Supply', trend:'down'},
+  {name:'Sabarkantha',div:'North',       open:723,  csat:3.6, sla:80, crit:7,  top:'Agriculture',  trend:'stable'},
+  {name:'Surendranagar',div:'Saurashtra',open:678,  csat:3.2, sla:65, crit:22, top:'Health',       trend:'down'},
+  {name:'Mahesana',   div:'North',       open:612,  csat:3.7, sla:78, crit:9,  top:'Revenue',      trend:'stable'},
+  {name:'Patan',      div:'North',       open:498,  csat:3.4, sla:71, crit:11, top:'Water Supply', trend:'down'},
+  {name:'Anand',      div:'Central',     open:567,  csat:4.0, sla:87, crit:5,  top:'Education',    trend:'up'},
+  {name:'Kheda',      div:'Central',     open:534,  csat:3.8, sla:83, crit:6,  top:'Agriculture',  trend:'stable'},
+  {name:'Bharuch',    div:'South',       open:589,  csat:3.6, sla:76, crit:10, top:'Revenue',      trend:'stable'},
+  {name:'Navsari',    div:'South',       open:445,  csat:3.9, sla:84, crit:4,  top:'Roads',        trend:'up'},
+  {name:'Valsad',     div:'South',       open:467,  csat:3.7, sla:80, crit:7,  top:'Water Supply', trend:'stable'},
+  {name:'Tapi',       div:'South',       open:312,  csat:3.3, sla:69, crit:8,  top:'Agriculture',  trend:'down'},
+  {name:'Dang',       div:'South',       open:198,  csat:3.1, sla:61, crit:12, top:'Health',       trend:'down'},
+  {name:'Narmada',    div:'South',       open:287,  csat:3.2, sla:64, crit:9,  top:'Water Supply', trend:'down'},
+  {name:'Chhota Udaipur',div:'East',     open:354,  csat:3.0, sla:58, crit:14, top:'Health',       trend:'down'},
+  {name:'Panchmahal', div:'East',        open:478,  csat:3.2, sla:67, crit:11, top:'Revenue',      trend:'down'},
+  {name:'Dahod',      div:'East',        open:512,  csat:2.9, sla:54, crit:18, top:'Health',       trend:'down'},
+  {name:'Mahisagar',  div:'East',        open:334,  csat:3.1, sla:63, crit:10, top:'Water Supply', trend:'down'},
+  {name:'Aravalli',   div:'North',       open:389,  csat:3.5, sla:74, crit:8,  top:'Agriculture',  trend:'stable'},
+  {name:'Gir Somnath',div:'Saurashtra',  open:434,  csat:3.8, sla:81, crit:6,  top:'Roads',        trend:'stable'},
+  {name:'Amreli',     div:'Saurashtra',  open:398,  csat:3.6, sla:77, crit:9,  top:'Agriculture',  trend:'stable'},
+  {name:'Botad',      div:'Saurashtra',  open:312,  csat:3.5, sla:75, crit:5,  top:'Water Supply', trend:'stable'},
+  {name:'Devbhoomi Dwarka',div:'Saurashtra',open:287,csat:3.7,sla:79, crit:4,  top:'Roads',        trend:'stable'},
+  {name:'Morbi',      div:'Saurashtra',  open:423,  csat:3.6, sla:80, crit:7,  top:'Health',       trend:'stable'},
+  {name:'Porbandar',  div:'Saurashtra',  open:278,  csat:3.9, sla:85, crit:3,  top:'Roads',        trend:'up'},
+  {name:'Devgadh Baria',div:'East',      open:198,  csat:3.3, sla:66, crit:7,  top:'Health',       trend:'down'}
+];
+
+var ACTIONS = [
+  {type:'critical', title:'Deploy emergency health team to Dahod — CSAT 2.9, SLA 54%, 18 critical complaints',
+   target:'Chief Secretary + Health Secretary', dept:'Health & Family Welfare',
+   directive:'Direct CDHO Dahod to submit 48-hour action plan. Depute state monitoring team. Review drug supply chain and medical officer availability urgently.',
+   impact:'18 critical complaints. SLA 54%. Citizen satisfaction at state low. 3 consecutive months of decline.', priority:'CRITICAL', tags:['Dahod','Health','CSAT Crisis']},
+  {type:'critical', title:'Water supply emergency — Banaskantha, Tapi, Dang, Narmada all below SLA 65%',
+   target:'Water Supply Secretary + 4 District Collectors',dept:'Water Supply & Sanitation',
+   directive:'GWSSB to conduct emergency infrastructure audit. Allocate emergency repair budget from contingency fund. Weekly progress report to CM office.',
+   impact:'4 districts. SLA avg 65%. 1,007 open complaints. Tribal areas disproportionately affected.', priority:'CRITICAL', tags:['Water Supply','Tribal','Infrastructure']},
+  {type:'critical', title:'Tribal belt CSAT crisis — Dahod, Dang, Chhota Udaipur, Narmada all below 3.2',
+   target:'Tribal Development Secretary + Health + Water Secretaries',dept:'Tribal Districts',
+   directive:'Launch Jan Seva Abhiyan in tribal belt. Dedicate mobile grievance officers. Special fund allocation. Weekly Collector video conference chaired by CM.',
+   impact:'4 districts. Average CSAT 3.05. 1,351 open complaints. Ground-level officer gap identified.', priority:'CRITICAL', tags:['Tribal','Multi-dept','Jan Seva']},
+  {type:'sla', title:'Revenue & Land Records — SLA 72%, rising backlog across South Gujarat',
+   target:'Revenue Secretary + Collector Conference',dept:'Revenue & Land Records',
+   directive:'Convene video conference of all Collectors. Mandate weekly SLA review. Enable e-hearing for pending mutations to reduce physical footfall and processing delays.',
+   impact:'3,120 open complaints. SLA 72% — 13 points below target. Fastest growing category.', priority:'HIGH', tags:['Revenue','South Gujarat','SLA']},
+  {type:'sla', title:'Food & Civil Supplies — 8 districts with PDS delivery complaints above threshold',
+   target:'Food Secretary + District Supply Officers',dept:'Food & Civil Supplies',
+   directive:'Immediate audit of fair price shop operations in flagged districts. Enable mobile PDS tracking. Penalise non-performing dealers within 15 days.',
+   impact:'1,420 open complaints. CSAT 3.3. SLA 74%. 8 districts flagged.', priority:'HIGH', tags:['Food Security','PDS','SLA']},
+  {type:'csat', title:'Surat district — CSAT dropped to 3.4, fastest decline in state (−18% in 3 months)',
+   target:'District Collector Surat + All Dept HoDs Surat',dept:'Multi-department',
+   directive:'Emergency meeting of all district department heads in Surat. Review top 3 complaint categories. Enable citizen feedback fast-track. Monthly CM office review.',
+   impact:'1,614 open complaints. SLA 62%. Fastest CSAT decline in state.', priority:'HIGH', tags:['Surat','CSAT','Multi-dept']},
+  {type:'csat', title:'Water Supply CSAT at 3.2 statewide — lowest among all departments',
+   target:'Water Supply Secretary + GWSSB MD',dept:'Water Supply & Sanitation',
+   directive:'Statewide infrastructure audit. Establish 24x7 complaint response cell for water issues. Monthly performance scorecard published publicly.',
+   impact:'2,210 open complaints. Statewide CSAT 3.2. 54 critical complaints unresolved.', priority:'HIGH', tags:['Water Supply','GWSSB','CSAT']}
+];
+
+// ── HELPERS ──────────────────────────────────────────────────────────────────
+function cc(v) { return v>=4.0?'var(--green)':v>=3.5?'var(--amber)':'var(--red)'; }
+function sc(v) { return v>=85?'var(--green)':v>=75?'var(--amber)':'var(--red)'; }
+function cb(v) { return v>=4.0?'bg':v>=3.5?'ba':'br'; }
+function sb(v) { return v>=85?'bg':v>=75?'ba':'br'; }
+function N(v) { return typeof v==='number'?v.toLocaleString():v; }
+
+var chartStore = {};
+function mkChart(id, cfg) {
+  if(chartStore[id]) { try { chartStore[id].destroy(); } catch(e){} }
+  var el = document.getElementById(id);
+  if(!el) return;
+  chartStore[id] = new Chart(el, cfg);
+}
+
+var co = {
+  responsive:true, maintainAspectRatio:false,
+  plugins:{ legend:{display:false} },
+  scales:{
+    x:{ticks:{color:'#6A6460',font:{size:9}},grid:{display:false}},
+    y:{ticks:{color:'#6A6460',font:{size:9}},grid:{color:'rgba(255,255,255,0.04)'}}
+  }
+};
+
+// ── NAVIGATION ───────────────────────────────────────────────────────────────
+var rendered = {};
+function SW(name) {
+  document.querySelectorAll('.view').forEach(function(v){ v.classList.remove('active'); });
+  document.querySelectorAll('.nav-item').forEach(function(n){ n.classList.remove('active'); });
+  var vEl = document.getElementById('view-'+name);
+  if(vEl) vEl.classList.add('active');
+  var nEl = document.getElementById('nav-'+name);
+  if(nEl) nEl.classList.add('active');
+  if(!rendered[name]) {
+    rendered[name] = true;
+    setTimeout(function(){
+      var fns = {departments:rDepts,districts:rDists,csat:rCsat,trends:rTrends,actions:rActions,critical:rCritical,breached:rBreached};
+      if(fns[name]) fns[name]();
+    }, 40);
+  }
+}
+
+// ── OVERVIEW ─────────────────────────────────────────────────────────────────
+function initOverview() {
+  // Dept snapshot
+  var html = '';
+  DEPTS.forEach(function(d) {
+    var st = d.sla>=85&&d.csat>=4.0?'Good':d.sla<75||d.csat<3.5?'Alert':'Watch';
+    var bc = st==='Good'?'bg':st==='Alert'?'br':'ba';
+    html += '<div class="dr"><div class="di" style="background:'+d.color+'22">'+d.icon+'</div>' +
+      '<div style="flex:1"><div class="dn">'+d.name+'</div><div class="ds">SLA: <span style="color:'+sc(d.sla)+'">'+d.sla+'%</span> · '+N(d.open)+' open</div></div>' +
+      '<div class="dsc" style="color:'+cc(d.csat)+'">'+d.csat.toFixed(1)+'</div>' +
+      '<span class="badge '+bc+'" style="margin-left:6px">'+st+'</span></div>';
+  });
+  document.getElementById('deptSnap').innerHTML = html;
+
+  // Category pie
+  var cats = [
+    {l:'Revenue',v:3120,c:'#F0A030'},{l:'Health',v:2847,c:'#3A8FE8'},
+    {l:'Water',v:2210,c:'#00B4B4'},{l:'Education',v:2341,c:'#28C880'},
+    {l:'Roads',v:1890,c:'#C9A84C'},{l:'Food/PDS',v:1420,c:'#E84040'},
+    {l:'Agriculture',v:1540,c:'#639922'},{l:'Others',v:3124,c:'#6A6460'}
+  ];
+  var total = cats.reduce(function(s,c){return s+c.v;},0);
+  mkChart('catPie',{
+    type:'doughnut',
+    data:{labels:cats.map(function(c){return c.l;}),datasets:[{data:cats.map(function(c){return c.v;}),backgroundColor:cats.map(function(c){return c.c;}),borderWidth:0}]},
+    options:{responsive:true,maintainAspectRatio:false,cutout:'65%',plugins:{legend:{display:false}}}
+  });
+  var legHtml = cats.map(function(c){
+    return '<div style="display:flex;align-items:center;gap:5px;font-size:10px;color:var(--t2);margin-bottom:3px">' +
+      '<span style="width:8px;height:8px;border-radius:50%;background:'+c.c+';flex-shrink:0;display:inline-block"></span>' +
+      c.l+'<span style="margin-left:auto;color:var(--t1);font-weight:500">'+Math.round(c.v/total*100)+'%</span></div>';
+  }).join('');
+  document.getElementById('catLeg').innerHTML = legHtml;
+
+  // Critical districts
+  var cd = DISTS.filter(function(d){return d.sla<70||d.csat<3.4;}).sort(function(a,b){return a.csat-b.csat;}).slice(0,8);
+  var rows = cd.map(function(d){
+    return '<tr class="'+(d.csat<3.3?'fr':'fa')+'">' +
+      '<td style="font-weight:500">'+d.name+'</td><td style="color:var(--t3)">'+d.div+'</td>' +
+      '<td style="color:'+cc(d.csat)+';font-weight:600">'+d.csat.toFixed(1)+'</td>' +
+      '<td><span class="badge '+(d.sla>=75?'ba':'br')+'">'+d.sla+'%</span></td>' +
+      '<td style="color:var(--red)">'+d.crit+'</td>' +
+      '<td><span class="badge '+(d.csat<3.3?'br':'ba')+'">'+(d.csat<3.3?'URGENT':'WATCH')+'</span></td></tr>';
+  }).join('');
+  document.getElementById('critDistTbl').innerHTML =
+    '<thead><tr><th>District</th><th>Division</th><th>CSAT</th><th>SLA</th><th>Critical</th><th>Flag</th></tr></thead><tbody>'+rows+'</tbody>';
+
+  // Trend
+  var totals = MN.map(function(_,i){return DEPTS.reduce(function(s,d){return s+d.trend[i];},0);});
+  mkChart('ovTrend',{
+    type:'line',
+    data:{labels:MN,datasets:[{data:totals,borderColor:'#C9A84C',backgroundColor:'rgba(201,168,76,0.08)',tension:0.4,borderWidth:2,pointRadius:3,pointBackgroundColor:'#C9A84C',fill:true}]},
+    options:Object.assign({},co,{plugins:{legend:{display:false}}})
+  });
+}
+
+// ── DEPARTMENTS ───────────────────────────────────────────────────────────────
+function rDepts() {
+  var labels = DEPTS.map(function(d){return d.name.split(' ').slice(0,2).join(' ');});
+  mkChart('dSlaBar',{
+    type:'bar',
+    data:{labels:labels,datasets:[{data:DEPTS.map(function(d){return d.sla;}),backgroundColor:DEPTS.map(function(d){return sc(d.sla);}),borderRadius:4,borderWidth:0}]},
+    options:Object.assign({},co,{scales:{x:{ticks:{color:'#6A6460',font:{size:9},maxRotation:45},grid:{display:false}},y:{min:0,max:100,ticks:{callback:function(v){return v+'%';},color:'#6A6460',font:{size:9}},grid:{color:'rgba(255,255,255,0.04)'}}}})
+  });
+  mkChart('dCsatBar',{
+    type:'bar',
+    data:{labels:labels,datasets:[{data:DEPTS.map(function(d){return d.csat;}),backgroundColor:DEPTS.map(function(d){return cc(d.csat);}),borderRadius:4,borderWidth:0}]},
+    options:Object.assign({},co,{scales:{x:{ticks:{color:'#6A6460',font:{size:9},maxRotation:45},grid:{display:false}},y:{min:0,max:5,ticks:{callback:function(v){return v.toFixed(1);},color:'#6A6460',font:{size:9}},grid:{color:'rgba(255,255,255,0.04)'}}}})
+  });
+
+  var rows = DEPTS.map(function(d){
+    var st = d.sla>=85&&d.csat>=4.0?'On Track':d.sla<75||d.csat<3.5?'Needs Action':'Monitor';
+    var bc = st==='On Track'?'bg':st==='Needs Action'?'br':'ba';
+    var rc = st==='Needs Action'?'fr':st==='Monitor'?'fa':'';
+    var tr = d.trend[11]>d.trend[0];
+    return '<tr class="'+rc+'"><td>'+d.icon+'</td><td style="font-weight:500">'+d.name+'</td>' +
+      '<td>'+N(d.open)+'</td><td style="color:var(--green)">'+N(d.resolved)+'</td>' +
+      '<td><span class="badge '+sb(d.sla)+'">'+d.sla+'%</span></td>' +
+      '<td style="font-weight:600;color:'+cc(d.csat)+'">'+d.csat.toFixed(1)+'</td>' +
+      '<td style="color:'+(d.critical>30?'var(--red)':'var(--t2)')+'">'+d.critical+'</td>' +
+      '<td style="color:'+(tr?'var(--red)':'var(--green)')+'">'+(tr?'▲ Rising':'▼ Easing')+'</td>' +
+      '<td><span class="badge '+bc+'">'+st+'</span></td></tr>';
+  }).join('');
+  document.getElementById('dScoreTbl').innerHTML =
+    '<thead><tr><th></th><th>Department</th><th>Open</th><th>Resolved</th><th>SLA</th><th>CSAT</th><th>Critical</th><th>Trend</th><th>Status</th></tr></thead><tbody>'+rows+'</tbody>';
+}
+
+// ── DISTRICTS ─────────────────────────────────────────────────────────────────
+function rDists() {
+  var csatSorted = DISTS.slice().sort(function(a,b){return a.csat-b.csat;});
+  var csatHtml = csatSorted.slice(0,15).map(function(d,i){
+    return '<div class="ri"><span class="rn">'+(i+1)+'</span>' +
+      '<span class="rname">'+d.name+'<br><span style="font-size:9px;color:var(--t3)">'+d.div+' Division</span></span>' +
+      '<div class="rbw"><div class="rb" style="width:'+(d.csat/5*100)+'%;background:'+cc(d.csat)+'"></div></div>' +
+      '<span class="rv" style="color:'+cc(d.csat)+'">'+d.csat.toFixed(1)+'</span>' +
+      '<span class="badge '+cb(d.csat)+'" style="margin-left:6px">'+(d.csat<3.3?'Critical':d.csat<3.7?'Watch':'OK')+'</span></div>';
+  }).join('');
+  document.getElementById('csatRankList').innerHTML = csatHtml;
+
+  var volSorted = DISTS.slice().sort(function(a,b){return b.open-a.open;});
+  var volHtml = volSorted.slice(0,15).map(function(d,i){
+    return '<div class="ri"><span class="rn">'+(i+1)+'</span>' +
+      '<span class="rname">'+d.name+'<br><span style="font-size:9px;color:var(--t3)">'+d.top+' · SLA '+d.sla+'%</span></span>' +
+      '<div class="rbw"><div class="rb" style="width:'+(d.open/1842*100)+'%;background:var(--blue)"></div></div>' +
+      '<span class="rv">'+N(d.open)+'</span></div>';
+  }).join('');
+  document.getElementById('volRankList').innerHTML = volHtml;
+
+  // Heatmap
+  var hDepts = ['Health','Edu','Revenue','PWD','Water','Agri','Food','Labour'];
+  var hDists = DISTS.slice(0,12);
+  var hmData = hDists.map(function(d){
+    return [Math.round(d.open*0.15),Math.round(d.open*0.12),Math.round(d.open*0.20),Math.round(d.open*0.08),
+            Math.round(d.open*0.18),Math.round(d.open*0.07),Math.round(d.open*0.12),Math.round(d.open*0.08)];
+  });
+  var maxV = Math.max.apply(null, hmData.map(function(r){return Math.max.apply(null,r);}));
+  function hmClr(v) {
+    var p = v/maxV;
+    if(p>0.75) return {bg:'#991b1b',fg:'#fca5a5'};
+    if(p>0.55) return {bg:'#dc2626',fg:'#fecaca'};
+    if(p>0.35) return {bg:'#d97706',fg:'#fde68a'};
+    if(p>0.15) return {bg:'#1a5f8a',fg:'#bae6fd'};
+    return {bg:'#1a3a6a',fg:'#93c5fd'};
+  }
+  var hmHtml = '<div style="display:grid;grid-template-columns:90px repeat('+hDepts.length+',1fr);gap:3px;min-width:600px">';
+  hmHtml += '<div></div>';
+  hDepts.forEach(function(d){ hmHtml += '<div style="font-size:9px;color:var(--t3);text-align:center;padding:3px">'+d+'</div>'; });
+  hDists.forEach(function(dist,di){
+    hmHtml += '<div style="font-size:9px;color:var(--t2);display:flex;align-items:center">'+dist.name+'</div>';
+    hmData[di].forEach(function(v){
+      var cl = hmClr(v);
+      hmHtml += '<div class="hm-cell" style="background:'+cl.bg+';color:'+cl.fg+'">'+v+'</div>';
+    });
+  });
+  hmHtml += '</div>';
+  document.getElementById('hmContainer').innerHTML = hmHtml;
+
+  // Full table
+  var distRows = DISTS.map(function(d){
+    var rc = d.csat<3.3?'fr':d.sla<70?'fa':'';
+    var act = d.csat<3.3||d.sla<65?'URGENT':d.sla<75||d.csat<3.5?'MONITOR':'OK';
+    var abc = act==='URGENT'?'br':act==='MONITOR'?'ba':'bg';
+    var tr = d.trend==='up'?'▲':d.trend==='down'?'▼':'—';
+    var tc = d.trend==='up'?'var(--green)':d.trend==='down'?'var(--red)':'var(--t3)';
+    return '<tr class="'+rc+'"><td style="font-weight:500">'+d.name+'</td><td style="color:var(--t3)">'+d.div+'</td>' +
+      '<td>'+N(d.open)+'</td><td style="color:'+(d.crit>15?'var(--red)':'var(--t2)')+'">'+d.crit+'</td>' +
+      '<td><span class="badge '+sb(d.sla)+'">'+d.sla+'%</span></td>' +
+      '<td style="font-weight:600;color:'+cc(d.csat)+'">'+d.csat.toFixed(1)+'</td>' +
+      '<td style="color:var(--t3);font-size:10px">'+d.top+'</td>' +
+      '<td style="color:'+tc+'">'+tr+'</td>' +
+      '<td><span class="badge '+abc+'">'+act+'</span></td></tr>';
+  }).join('');
+  document.getElementById('fullDistTbl').innerHTML =
+    '<thead><tr><th>District</th><th>Division</th><th>Open</th><th>Critical</th><th>SLA</th><th>CSAT</th><th>Top Category</th><th>Trend</th><th>Action</th></tr></thead><tbody>'+distRows+'</tbody>';
+}
+
+// ── CSAT ─────────────────────────────────────────────────────────────────────
+function rCsat() {
+  var ct = [3.9,3.8,3.8,3.7,3.6,3.5,3.6,3.5,3.5,3.6,3.6,3.6];
+  mkChart('csatTrendC',{
+    type:'line',
+    data:{labels:MN,datasets:[
+      {label:'CSAT',data:ct,borderColor:'#C9A84C',backgroundColor:'rgba(201,168,76,0.08)',tension:0.4,borderWidth:2,pointRadius:3,fill:true},
+      {label:'Target',data:MN.map(function(){return 4.0;}),borderColor:'#28C880',borderDash:[5,5],borderWidth:1,pointRadius:0,fill:false}
+    ]},
+    options:Object.assign({},co,{scales:{x:{ticks:{color:'#6A6460',font:{size:9}},grid:{display:false}},y:{min:2.5,max:4.5,ticks:{color:'#6A6460',font:{size:9}},grid:{color:'rgba(255,255,255,0.04)'}}}})
+  });
+
+  var buckets = [0,0,0,0,0,0];
+  DISTS.forEach(function(d){
+    if(d.csat<2.5) buckets[0]++;
+    else if(d.csat<3.0) buckets[1]++;
+    else if(d.csat<3.5) buckets[2]++;
+    else if(d.csat<4.0) buckets[3]++;
+    else if(d.csat<4.5) buckets[4]++;
+    else buckets[5]++;
+  });
+  mkChart('csatDistC',{
+    type:'bar',
+    data:{labels:['<2.5','2.5–3.0','3.0–3.5','3.5–4.0','4.0–4.5','>4.5'],
+      datasets:[{data:buckets,backgroundColor:['#991b1b','#E84040','#F0A030','#C9A84C','#28C880','#00B4B4'],borderRadius:4,borderWidth:0}]},
+    options:co
+  });
+
+  var issueMap = {'Health':'Staff absence, drug shortage','Water Supply':'Infrastructure failure','Revenue':'Mutation delays','Roads':'Monsoon damage backlog','Agriculture':'Compensation delays','Education':'Teacher transfers','Food/PDS':'FPS dealer issues'};
+  var bot = DISTS.slice().sort(function(a,b){return a.csat-b.csat;}).slice(0,15);
+  var rows = bot.map(function(d,i){
+    var gap = (4.0-d.csat).toFixed(1);
+    var iss = issueMap[d.top]||'Multi-dept coordination needed';
+    return '<tr class="'+(d.csat<3.0?'fr':'fa')+'">' +
+      '<td style="color:var(--t3)">'+(i+1)+'</td><td style="font-weight:500">'+d.name+'</td>' +
+      '<td style="color:var(--t3)">'+d.div+'</td><td style="font-weight:600;color:'+cc(d.csat)+'">'+d.csat.toFixed(1)+'</td>' +
+      '<td style="color:var(--red)">−'+gap+'</td>' +
+      '<td><span class="badge '+sb(d.sla)+'">'+d.sla+'%</span></td>' +
+      '<td>'+N(d.open)+'</td><td style="font-size:10px;color:var(--t3)">'+iss+'</td>' +
+      '<td><span class="badge '+(d.csat<3.2?'br':'ba')+'">'+(d.csat<3.2?'Urgent':'Monitor')+'</span></td></tr>';
+  }).join('');
+  document.getElementById('csatTbl').innerHTML =
+    '<thead><tr><th>#</th><th>District</th><th>Division</th><th>CSAT</th><th>Gap</th><th>SLA</th><th>Open</th><th>Primary Issue</th><th>Action</th></tr></thead><tbody>'+rows+'</tbody>';
+}
+
+// ── TRENDS ───────────────────────────────────────────────────────────────────
+function rTrends() {
+  mkChart('multiTrendC',{
+    type:'line',
+    data:{labels:MN,datasets:DEPTS.slice(0,5).map(function(d){
+      return {label:d.name.split(' ')[0],data:d.trend,borderColor:d.color,backgroundColor:'transparent',tension:0.4,borderWidth:1.5,pointRadius:0};
+    })},
+    options:{responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{display:true,labels:{color:'#A8A090',font:{size:9},boxWidth:10,padding:12}}},
+      scales:{x:{ticks:{color:'#6A6460',font:{size:9}},grid:{display:false}},y:{ticks:{color:'#6A6460',font:{size:9}},grid:{color:'rgba(255,255,255,0.04)'}}}}
+  });
+
+  var slaMo = [82,81,80,79,78,76,77,76,77,78,78,78];
+  mkChart('slaTrendC',{
+    type:'line',
+    data:{labels:MN,datasets:[
+      {label:'SLA',data:slaMo,borderColor:'#3A8FE8',backgroundColor:'rgba(58,143,232,0.08)',tension:0.4,borderWidth:2,fill:true,pointRadius:3},
+      {label:'Target',data:MN.map(function(){return 85;}),borderColor:'#28C880',borderDash:[5,5],borderWidth:1,pointRadius:0}
+    ]},
+    options:Object.assign({},co,{scales:{x:{ticks:{color:'#6A6460',font:{size:9}},grid:{display:false}},y:{min:70,max:95,ticks:{callback:function(v){return v+'%';},color:'#6A6460',font:{size:9}},grid:{color:'rgba(255,255,255,0.04)'}}}})
+  });
+
+  var intake = [14200,14800,15400,15900,16200,16800,17200,17600,17900,18100,18300,18492];
+  var resol  = intake.map(function(v){return Math.round(v*0.88);});
+  mkChart('resTrendC',{
+    type:'bar',
+    data:{labels:MN,datasets:[
+      {label:'Received',data:intake,backgroundColor:'rgba(232,64,64,0.6)',borderRadius:3,borderWidth:0},
+      {label:'Resolved',data:resol, backgroundColor:'rgba(40,200,128,0.7)',borderRadius:3,borderWidth:0}
+    ]},
+    options:{responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{display:true,labels:{color:'#A8A090',font:{size:9},boxWidth:8}}},
+      scales:{x:{ticks:{color:'#6A6460',font:{size:9}},grid:{display:false}},y:{ticks:{color:'#6A6460',font:{size:9}},grid:{color:'rgba(255,255,255,0.04)'}}}}
+  });
+
+  var seasonal = {
+    Health: [2100,2000,2200,2400,2600,2800,3000,2900,2700,2500,2400,2300],
+    Revenue:[2200,2400,2600,2800,2600,2400,2200,2300,2500,2700,2800,2900],
+    Water:  [1400,1500,1800,2200,2400,2600,2800,2700,2400,2100,1900,1700],
+    Education:[1800,1900,2000,1200,800,700,1800,2100,2200,2300,2200,2000],
+    Roads:  [1200,1100,1100,1200,1300,1400,1600,1900,2100,1800,1500,1300]
+  };
+  var sColors = ['#3A8FE8','#F0A030','#00B4B4','#28C880','#C9A84C'];
+  mkChart('seasonC',{
+    type:'line',
+    data:{labels:MN,datasets:Object.keys(seasonal).map(function(k,i){
+      return {label:k,data:seasonal[k],borderColor:sColors[i],backgroundColor:'transparent',tension:0.4,borderWidth:1.5,pointRadius:0};
+    })},
+    options:{responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{display:true,labels:{color:'#A8A090',font:{size:9},boxWidth:10,padding:10}}},
+      scales:{x:{ticks:{color:'#6A6460',font:{size:9}},grid:{display:false}},y:{ticks:{color:'#6A6460',font:{size:9}},grid:{color:'rgba(255,255,255,0.04)'}}}}
+  });
+}
+
+// ── ACTIONS ──────────────────────────────────────────────────────────────────
+function rActions() { AT('all', document.querySelector('.tb')); }
+
+function AT(filter, btn) {
+  document.querySelectorAll('.tb').forEach(function(b){b.classList.remove('active');});
+  if(btn) btn.classList.add('active');
+  var list = filter==='all' ? ACTIONS : ACTIONS.filter(function(a){return a.type===filter;});
+  var html = list.map(function(a){
+    var pc = a.priority==='CRITICAL'?'var(--red)':'var(--amber)';
+    var bc = a.priority==='CRITICAL'?'br':'ba';
+    var tags = a.tags.map(function(t){return '<span class="badge bgo">'+t+'</span>';}).join('');
+    return '<div class="ac"><div class="ac-pri" style="background:'+pc+'"></div>' +
+      '<div style="flex:1">' +
+        '<div style="display:flex;align-items:flex-start;justify-content:space-between;gap:8px">' +
+          '<div class="ac-title">'+a.title+'</div>' +
+          '<span class="badge '+bc+'" style="flex-shrink:0">'+a.priority+'</span></div>' +
+        '<div class="ac-tgt">→ Direct to: '+a.target+'</div>' +
+        '<div class="ac-desc">'+a.directive+'</div>' +
+        '<div style="margin-top:6px;font-size:10px;color:var(--t3);background:rgba(255,255,255,0.04);padding:6px 8px;border-radius:6px;border-left:2px solid '+pc+'">📊 Impact: '+a.impact+'</div>' +
+        '<div style="display:flex;gap:6px;margin-top:6px;flex-wrap:wrap;align-items:center">'+tags+
+          '<span style="margin-left:auto;font-size:10px;color:var(--teal);cursor:pointer">Draft CM Directive →</span></div>' +
+      '</div></div>';
+  }).join('');
+  document.getElementById('actionBoard').innerHTML = html;
+}
+
+// ── CRITICAL ─────────────────────────────────────────────────────────────────
+function rCritical() {
+  var items = [
+    {dept:'Health',dist:'Surendranagar',code:'HFWD-CDC-001',issue:'Dengue outbreak — 23 cases in 3 villages',age:8,lv:'L3'},
+    {dept:'Health',dist:'Kutch',code:'HFWD-HSP-003',issue:'Medical negligence death — inquiry pending',age:11,lv:'L3'},
+    {dept:'Water Supply',dist:'Dang',code:'GWSS-001',issue:'Acute water shortage — 6 tribal villages',age:7,lv:'L3'},
+    {dept:'Health',dist:'Dahod',code:'HFWD-MCH-002',issue:'No specialist doctor for 30 days',age:9,lv:'L3'},
+    {dept:'Revenue',dist:'Surat',code:'REV-021',issue:'250 mutations pending more than 90 days',age:14,lv:'L3'},
+    {dept:'Food/PDS',dist:'Banaskantha',code:'FCS-014',issue:'FPS dealer fraud — 340 families affected',age:6,lv:'L2'},
+    {dept:'Water Supply',dist:'Narmada',code:'GWSS-018',issue:'Pipeline collapse — tribal hamlet cut off',age:10,lv:'L3'},
+    {dept:'Health',dist:'Chhota Udaipur',code:'HFWD-PHC-002',issue:'14 essential medicines out of stock',age:5,lv:'L2'},
+    {dept:'Roads/PWD',dist:'Sabarkantha',code:'PWD-047',issue:'Bridge closure — 4 villages inaccessible',age:12,lv:'L3'},
+    {dept:'Agriculture',dist:'Patan',code:'AGRI-033',issue:'Crop compensation unpaid — 180 farmers',age:21,lv:'L2'}
+  ];
+  var rows = items.map(function(c){
+    return '<tr class="fr"><td>'+c.dept+'</td><td style="font-weight:500">'+c.dist+'</td>' +
+      '<td style="color:var(--blue);font-size:10px">'+c.code+'</td>' +
+      '<td style="font-size:11px">'+c.issue+'</td>' +
+      '<td style="color:'+(c.age>10?'var(--red)':'var(--amber)')+';font-weight:600">'+c.age+'d</td>' +
+      '<td><span class="badge '+(c.lv==='L3'?'br':'ba')+'">'+c.lv+'</span></td>' +
+      '<td><span class="badge br">OPEN</span></td></tr>';
+  }).join('');
+  document.getElementById('critTbl').innerHTML =
+    '<thead><tr><th>Department</th><th>District</th><th>Code</th><th>Issue</th><th>Age</th><th>Level</th><th>Status</th></tr></thead><tbody>'+rows+'</tbody>';
+}
+
+// ── BREACHED ─────────────────────────────────────────────────────────────────
+function rBreached() {
+  var bDepts = DEPTS.filter(function(d){return d.sla<75;});
+  document.getElementById('brcDepts').innerHTML = bDepts.map(function(d){
+    return '<div class="pr"><div class="prl"><span>'+d.icon+' '+d.name+'</span><span style="color:var(--red);font-weight:600">'+d.sla+'%</span></div>' +
+      '<div class="prt"><div class="prf" style="width:'+d.sla+'%;background:var(--red)"></div></div></div>';
+  }).join('');
+
+  var bDists = DISTS.filter(function(d){return d.sla<75;}).sort(function(a,b){return a.sla-b.sla;});
+  document.getElementById('brcDists').innerHTML = bDists.map(function(d){
+    var c = d.sla<65?'var(--red)':'var(--amber)';
+    return '<div class="pr"><div class="prl"><span>'+d.name+' <span style="font-size:9px;color:var(--t3)">('+d.div+')</span></span><span style="color:'+c+';font-weight:600">'+d.sla+'%</span></div>' +
+      '<div class="prt"><div class="prf" style="width:'+d.sla+'%;background:'+c+'"></div></div></div>';
+  }).join('');
+}
+
+// ── INIT ─────────────────────────────────────────────────────────────────────
+window.addEventListener('DOMContentLoaded', function() {
+  var now = new Date();
+  var ds = now.toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'});
+  var ts = now.toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'});
+  document.getElementById('topDate').textContent = ds;
+  document.getElementById('sideDate').textContent = ts + ' · ' + ds;
+  rendered['overview'] = true;
+  initOverview();
+});
+</script>
+</body>
+</html>

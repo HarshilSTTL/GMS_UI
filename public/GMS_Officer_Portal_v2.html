@@ -1,0 +1,1754 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GMS Officer Portal — Gujarat Grievance Management</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=Epilogue:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#F0F2F7;--sidebar:#0E1C2F;--sidebar2:#13243B;--sidebar3:#1A2E47;
+  --card:#FFFFFF;--border:#DDE3EE;--border2:#C8D0DE;
+  --ink:#0E1C2F;--t2:#3D5068;--t3:#7A8FA6;
+  --brand:#1A56C4;--brand-l:#EBF2FF;--brand-d:#0E3A8C;
+  --teal:#0891B2;--teal-l:#ECFEFF;
+  --amber:#D97706;--amber-l:#FFFBEB;
+  --red:#DC2626;--red-l:#FEF2F2;
+  --green:#16A34A;--green-l:#F0FDF4;
+  --violet:#7C3AED;--violet-l:#F5F3FF;
+  --orange:#EA580C;--orange-l:#FFF7ED;
+  --nodal:#0E3A8C;--nodal-l:#DBEAFE;
+  --clerk:#065F46;--clerk-l:#D1FAE5;
+  --shadow:0 1px 3px rgba(14,28,47,0.08),0 4px 16px rgba(14,28,47,0.06);
+  --shadow-md:0 4px 24px rgba(14,28,47,0.12);
+  --r:10px;--r-sm:7px;--r-lg:14px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;font-family:'Epilogue',sans-serif;background:var(--bg);color:var(--ink);overflow:hidden}
+.hidden{display:none!important}
+
+/* ── LAYOUT ── */
+.shell{display:flex;height:100vh;overflow:hidden}
+
+/* ── SIDEBAR ── */
+.sidebar{
+  width:220px;flex-shrink:0;background:var(--sidebar);
+  display:flex;flex-direction:column;overflow-y:auto;
+  border-right:1px solid rgba(255,255,255,0.05);
+}
+.sidebar::-webkit-scrollbar{width:3px}
+.sidebar::-webkit-scrollbar-thumb{background:rgba(255,255,255,0.1);border-radius:2px}
+
+.sb-top{padding:18px 16px 14px;border-bottom:1px solid rgba(255,255,255,0.06)}
+.sb-logo{display:flex;align-items:center;gap:9px;margin-bottom:14px}
+.sb-logo-mark{width:30px;height:30px;background:var(--brand);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0}
+.sb-logo-text{font-family:'Syne',sans-serif;font-size:14px;font-weight:700;color:white;letter-spacing:-0.2px}
+
+/* Role toggle */
+.role-toggle{background:rgba(255,255,255,0.06);border-radius:8px;padding:3px;display:flex;margin-bottom:0}
+.role-btn{flex:1;padding:7px 6px;border-radius:6px;font-size:11px;font-weight:700;text-align:center;cursor:pointer;transition:all 0.15s;color:rgba(255,255,255,0.4);border:none;background:none;font-family:'Epilogue',sans-serif}
+.role-btn.active-nodal{background:#1A56C4;color:white}
+.role-btn.active-clerk{background:#16A34A;color:white}
+
+.sb-user{padding:12px 16px;border-bottom:1px solid rgba(255,255,255,0.06)}
+.sb-avatar{width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;flex-shrink:0}
+.sb-user-row{display:flex;align-items:center;gap:9px}
+.sb-user-name{font-size:12px;font-weight:600;color:white}
+.sb-user-role{font-size:10px;font-weight:500;padding:1px 7px;border-radius:10px;margin-top:2px;display:inline-block}
+
+.sb-nav{padding:10px 10px;flex:1}
+.sb-section{font-size:9px;font-weight:700;color:rgba(255,255,255,0.25);letter-spacing:1.2px;text-transform:uppercase;padding:8px 6px 5px}
+.sb-item{
+  display:flex;align-items:center;gap:9px;padding:8px 10px;border-radius:8px;
+  cursor:pointer;font-size:12px;color:rgba(255,255,255,0.5);
+  transition:all 0.15s;margin-bottom:1px;border:none;background:none;
+  width:100%;text-align:left;font-family:'Epilogue',sans-serif;
+}
+.sb-item:hover{background:rgba(255,255,255,0.07);color:rgba(255,255,255,0.8)}
+.sb-item.active{background:rgba(26,86,196,0.25);color:white;border-left:2px solid var(--brand)}
+.sb-item-icon{font-size:14px;width:16px;text-align:center;flex-shrink:0}
+.sb-badge{margin-left:auto;font-size:9px;font-weight:700;padding:1px 6px;border-radius:10px}
+.sb-badge-red{background:var(--red);color:white}
+.sb-badge-amber{background:var(--amber);color:white}
+.sb-badge-blue{background:var(--brand);color:white}
+
+.sb-bottom{padding:12px 16px;border-top:1px solid rgba(255,255,255,0.06)}
+.sb-sla-indicator{background:rgba(255,255,255,0.05);border-radius:8px;padding:10px;margin-bottom:10px}
+.sb-sla-title{font-size:10px;font-weight:600;color:rgba(255,255,255,0.35);margin-bottom:6px;text-transform:uppercase;letter-spacing:0.5px}
+.sb-sla-bar-wrap{background:rgba(255,255,255,0.1);border-radius:3px;height:4px;overflow:hidden;margin-bottom:4px}
+.sb-sla-bar-fill{height:100%;border-radius:3px;background:linear-gradient(90deg,var(--green),var(--amber))}
+.sb-sla-meta{display:flex;justify-content:space-between;font-size:10px;color:rgba(255,255,255,0.35)}
+
+/* ── MAIN ── */
+.main{flex:1;display:flex;flex-direction:column;overflow:hidden}
+
+/* TOPBAR */
+.topbar{
+  background:var(--card);border-bottom:1px solid var(--border);
+  padding:10px 24px;display:flex;align-items:center;gap:12px;flex-shrink:0;
+}
+.topbar-title{font-family:'Syne',sans-serif;font-size:16px;font-weight:700;color:var(--ink);flex:1}
+.topbar-search{
+  display:flex;align-items:center;gap:8px;background:var(--bg);
+  border:1px solid var(--border);border-radius:8px;padding:7px 12px;
+  width:260px;
+}
+.topbar-search input{border:none;background:none;font-size:12px;font-family:'Epilogue',sans-serif;color:var(--ink);outline:none;flex:1}
+.topbar-search input::placeholder{color:var(--t3)}
+.topbar-icon-btn{
+  width:34px;height:34px;background:var(--bg);border:1px solid var(--border);
+  border-radius:8px;display:flex;align-items:center;justify-content:center;
+  font-size:15px;cursor:pointer;position:relative;transition:all 0.15s;
+}
+.topbar-icon-btn:hover{background:var(--border)}
+.notif-dot{
+  position:absolute;top:6px;right:6px;width:7px;height:7px;
+  border-radius:50%;background:var(--red);border:1.5px solid var(--card);
+}
+.role-pill{font-size:11px;font-weight:700;padding:5px 12px;border-radius:20px}
+
+/* CONTENT AREA */
+.content{flex:1;overflow-y:auto;padding:20px 24px}
+.content::-webkit-scrollbar{width:4px}
+.content::-webkit-scrollbar-thumb{background:var(--border2);border-radius:2px}
+
+/* ── VIEWS ── */
+.view{display:none}
+.view.active{display:block}
+
+/* ── KPI STRIP ── */
+.kpi-strip{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin-bottom:20px}
+.kpi{
+  background:var(--card);border:1px solid var(--border);border-radius:var(--r-lg);
+  padding:14px 16px;position:relative;overflow:hidden;
+}
+.kpi-accent{position:absolute;top:0;left:0;right:0;height:3px;border-radius:var(--r-lg) var(--r-lg) 0 0}
+.kpi-label{font-size:10px;font-weight:600;color:var(--t3);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:7px}
+.kpi-val{font-family:'Syne',sans-serif;font-size:26px;font-weight:700;color:var(--ink);line-height:1}
+.kpi-sub{font-size:10px;margin-top:5px}
+.kpi-up{color:var(--green)}.kpi-down{color:var(--red)}.kpi-warn{color:var(--amber)}
+
+/* ── COMPLAINT TABLE ── */
+.table-toolbar{
+  display:flex;align-items:center;gap:10px;margin-bottom:14px;flex-wrap:wrap;
+}
+.tt-title{font-family:'Syne',sans-serif;font-size:15px;font-weight:700;color:var(--ink);flex:1}
+.tt-filter{
+  display:flex;align-items:center;gap:6px;background:var(--card);
+  border:1px solid var(--border);border-radius:8px;padding:6px 10px;
+  font-size:11px;cursor:pointer;color:var(--t2);transition:all 0.15s;
+}
+.tt-filter:hover{border-color:var(--border2)}
+.tt-filter.active-filter{border-color:var(--brand);background:var(--brand-l);color:var(--brand)}
+.tt-btn{
+  display:flex;align-items:center;gap:6px;background:var(--brand);border:none;
+  border-radius:8px;padding:8px 14px;font-size:12px;font-weight:600;
+  color:white;cursor:pointer;font-family:'Epilogue',sans-serif;
+  box-shadow:0 2px 8px rgba(26,86,196,0.25);transition:all 0.15s;
+}
+.tt-btn:hover{background:var(--brand-d)}
+.tt-btn-ghost{background:var(--card);color:var(--t2);border:1px solid var(--border);box-shadow:none}
+.tt-btn-ghost:hover{background:var(--bg)}
+.tt-btn-orange{background:var(--orange);box-shadow:0 2px 8px rgba(234,88,12,0.25)}
+.tt-btn-orange:hover{background:#C2430A}
+.tt-btn-violet{background:var(--violet);box-shadow:0 2px 8px rgba(124,58,237,0.25)}
+.tt-btn-violet:hover{background:#6D28D9}
+.tt-select-count{font-size:12px;font-weight:600;color:var(--brand);background:var(--brand-l);padding:6px 12px;border-radius:8px;border:1px solid rgba(26,86,196,0.2)}
+
+/* TABLE */
+.table-wrap{background:var(--card);border:1px solid var(--border);border-radius:var(--r-lg);overflow:hidden;box-shadow:var(--shadow)}
+table{width:100%;border-collapse:collapse;font-size:12px}
+thead{background:#F8FAFD}
+th{padding:10px 12px;text-align:left;font-size:10px;font-weight:700;color:var(--t3);text-transform:uppercase;letter-spacing:0.6px;border-bottom:1px solid var(--border);white-space:nowrap}
+td{padding:11px 12px;border-bottom:1px solid var(--border);vertical-align:middle;color:var(--ink)}
+tr:last-child td{border-bottom:none}
+tr.selected-row td{background:#F0F5FF}
+tr:hover td{background:#FAFBFF;cursor:pointer}
+tr.grouped-child td:first-child{padding-left:28px}
+tr.group-header td{background:#FFF8F0;border-left:3px solid var(--orange)}
+
+.cb{
+  width:15px;height:15px;border:2px solid var(--border2);border-radius:4px;
+  cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center;
+  transition:all 0.15s;font-size:9px;color:white;
+}
+.cb.checked{background:var(--brand);border-color:var(--brand)}
+
+.complaint-id{font-family:'Syne',sans-serif;font-size:11px;font-weight:600;color:var(--brand)}
+.complaint-title{font-size:12px;font-weight:500;color:var(--ink);max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.complaint-meta{font-size:10px;color:var(--t3);margin-top:1px}
+
+.channel-badge{display:inline-flex;align-items:center;gap:4px;font-size:10px;font-weight:600;padding:2px 7px;border-radius:10px}
+.ch-web{background:#EBF2FF;color:#1E40AF}
+.ch-mob{background:#ECFEFF;color:#0E7490}
+.ch-wa{background:#DCFCE7;color:#166534}
+.ch-call{background:#FFF7ED;color:#9A3412}
+.ch-email{background:#F5F3FF;color:#5B21B6}
+.ch-walk{background:#FEF3C7;color:#92400E}
+
+.pri-badge{font-size:10px;font-weight:700;padding:2px 8px;border-radius:10px}
+.pri-critical{background:#FEE2E2;color:#991B1B}
+.pri-high{background:#FEF3C7;color:#92400E}
+.pri-medium{background:#DBEAFE;color:#1E40AF}
+.pri-low{background:#F1F5F9;color:#475569}
+
+.status-badge{font-size:10px;font-weight:600;padding:2px 8px;border-radius:10px}
+.st-open{background:#FEE2E2;color:#991B1B}
+.st-progress{background:#FEF3C7;color:#92400E}
+.st-review{background:#DBEAFE;color:#1E40AF}
+.st-resolved{background:#D1FAE5;color:#065F46}
+.st-escalated{background:#EDE9FE;color:#5B21B6}
+.st-grouped{background:#FFF7ED;color:#9A3412}
+
+.sla-pill{
+  display:flex;align-items:center;gap:4px;font-size:10px;font-weight:600;
+  padding:2px 7px;border-radius:10px;white-space:nowrap;
+}
+.sla-ok{background:#D1FAE5;color:#065F46}
+.sla-warn{background:#FEF3C7;color:#92400E}
+.sla-breach{background:#FEE2E2;color:#991B1B}
+
+.assign-chip{
+  display:inline-flex;align-items:center;gap:5px;font-size:11px;
+  color:var(--t2);
+}
+.assign-avatar{
+  width:20px;height:20px;border-radius:50%;font-size:9px;font-weight:700;
+  display:flex;align-items:center;justify-content:center;flex-shrink:0;
+}
+
+.action-btns{display:flex;gap:4px;opacity:0;transition:opacity 0.15s}
+tr:hover .action-btns{opacity:1}
+.action-btn{
+  width:26px;height:26px;border-radius:6px;border:1px solid var(--border);
+  background:var(--card);display:flex;align-items:center;justify-content:center;
+  font-size:12px;cursor:pointer;transition:all 0.15s;
+}
+.action-btn:hover{background:var(--bg);border-color:var(--border2)}
+
+/* GROUP BADGE */
+.group-indicator{
+  display:inline-flex;align-items:center;gap:4px;font-size:10px;font-weight:600;
+  color:var(--orange);background:var(--orange-l);padding:2px 7px;border-radius:10px;
+  border:1px solid rgba(234,88,12,0.2);
+}
+
+/* ── MODALS ── */
+.overlay{
+  position:fixed;inset:0;background:rgba(14,28,47,0.5);z-index:1000;
+  display:flex;align-items:center;justify-content:center;
+  animation:fadeOverlay 0.2s ease;
+}
+@keyframes fadeOverlay{from{opacity:0}to{opacity:1}}
+.modal{
+  background:var(--card);border-radius:var(--r-lg);box-shadow:var(--shadow-md);
+  animation:slideUp 0.25s cubic-bezier(0.2,0,0,1);
+  display:flex;flex-direction:column;max-height:90vh;overflow:hidden;
+}
+@keyframes slideUp{from{transform:translateY(24px);opacity:0}to{transform:translateY(0);opacity:1}}
+.modal-sm{width:460px}
+.modal-md{width:600px}
+.modal-lg{width:820px}
+.modal-xl{width:960px}
+.modal-head{padding:18px 22px 14px;border-bottom:1px solid var(--border);flex-shrink:0}
+.modal-title{font-family:'Syne',sans-serif;font-size:16px;font-weight:700;color:var(--ink)}
+.modal-sub{font-size:12px;color:var(--t3);margin-top:3px}
+.modal-body{padding:20px 22px;overflow-y:auto;flex:1}
+.modal-body::-webkit-scrollbar{width:4px}
+.modal-body::-webkit-scrollbar-thumb{background:var(--border2);border-radius:2px}
+.modal-foot{padding:14px 22px;border-top:1px solid var(--border);display:flex;justify-content:flex-end;gap:10px;flex-shrink:0}
+.modal-close{position:absolute;top:14px;right:18px;font-size:20px;cursor:pointer;color:var(--t3);background:none;border:none;font-size:22px}
+
+/* ── FORM ELEMENTS ── */
+.form-row{display:grid;gap:14px;margin-bottom:14px}
+.fr2{grid-template-columns:1fr 1fr}
+.fr3{grid-template-columns:1fr 1fr 1fr}
+.fld{}
+.fld label{font-size:11px;font-weight:700;color:var(--t2);display:block;margin-bottom:6px}
+.fld input,.fld select,.fld textarea{
+  width:100%;padding:9px 12px;border:1.5px solid var(--border);border-radius:var(--r-sm);
+  font-size:12px;font-family:'Epilogue',sans-serif;color:var(--ink);background:white;
+  outline:none;transition:border-color 0.15s;
+}
+.fld input:focus,.fld select:focus,.fld textarea:focus{border-color:var(--brand);box-shadow:0 0 0 3px rgba(26,86,196,0.1)}
+.fld textarea{resize:vertical;min-height:80px;line-height:1.5}
+.fld select{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%237A8FA6' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 10px center;padding-right:28px}
+
+.btn{padding:9px 18px;border-radius:var(--r-sm);font-size:12px;font-weight:600;cursor:pointer;font-family:'Epilogue',sans-serif;transition:all 0.15s;border:none}
+.btn-primary{background:var(--brand);color:white;box-shadow:0 2px 8px rgba(26,86,196,0.2)}
+.btn-primary:hover{background:var(--brand-d)}
+.btn-ghost{background:var(--card);color:var(--t2);border:1px solid var(--border)}
+.btn-ghost:hover{background:var(--bg)}
+.btn-orange{background:var(--orange);color:white}
+.btn-orange:hover{background:#C2430A}
+.btn-violet{background:var(--violet);color:white}
+.btn-violet:hover{background:#6D28D9}
+.btn-red{background:var(--red);color:white}
+.btn-red:hover{background:#B91C1C}
+.btn-green{background:var(--green);color:white}
+.btn-green:hover{background:#15803D}
+
+/* ── DETAIL PANEL ── */
+.detail-layout{display:grid;grid-template-columns:1fr 320px;gap:16px;align-items:start}
+.detail-main{display:flex;flex-direction:column;gap:14px}
+.detail-sidebar{display:flex;flex-direction:column;gap:14px}
+.detail-card{background:var(--card);border:1px solid var(--border);border-radius:var(--r-lg);overflow:hidden;box-shadow:var(--shadow)}
+.dc-head{padding:12px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
+.dc-title{font-size:12px;font-weight:700;color:var(--ink)}
+.dc-body{padding:14px 16px}
+
+/* TIMELINE */
+.timeline{display:flex;flex-direction:column;gap:0}
+.tl-item{display:flex;gap:12px;position:relative;padding-bottom:14px}
+.tl-item:last-child{padding-bottom:0}
+.tl-item::before{content:'';position:absolute;left:14px;top:26px;bottom:0;width:1px;background:var(--border)}
+.tl-item:last-child::before{display:none}
+.tl-dot{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;flex-shrink:0;z-index:1}
+.tl-content{flex:1;padding-top:4px}
+.tl-title{font-size:12px;font-weight:600;color:var(--ink)}
+.tl-meta{font-size:10px;color:var(--t3);margin-top:2px}
+.tl-desc{font-size:11px;color:var(--t2);margin-top:4px;line-height:1.5;background:var(--bg);padding:8px 10px;border-radius:6px;border-left:2px solid var(--border2)}
+
+/* GROUP PANEL */
+.group-map{display:flex;flex-direction:column;gap:8px}
+.group-item{
+  display:flex;align-items:flex-start;gap:10px;padding:10px 12px;
+  background:var(--bg);border-radius:8px;border:1px solid var(--border);cursor:pointer;
+  transition:all 0.15s;
+}
+.group-item:hover{border-color:var(--orange);background:var(--orange-l)}
+.group-item.primary-item{border-color:var(--orange);border-width:2px;background:var(--orange-l)}
+.gi-icon{font-size:16px;flex-shrink:0;margin-top:1px}
+.gi-id{font-family:'Syne',sans-serif;font-size:11px;font-weight:600;color:var(--brand)}
+.gi-title{font-size:12px;font-weight:500;color:var(--ink)}
+.gi-meta{font-size:10px;color:var(--t3);margin-top:2px}
+.gi-badge{margin-left:auto;font-size:9px;font-weight:700;padding:2px 6px;border-radius:8px;background:var(--orange-l);color:var(--orange);border:1px solid rgba(234,88,12,0.25);flex-shrink:0}
+
+/* REASSIGN PANEL */
+.dept-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.dept-item{
+  display:flex;align-items:center;gap:9px;padding:10px 12px;
+  background:var(--bg);border:1.5px solid var(--border);border-radius:8px;
+  cursor:pointer;transition:all 0.15s;
+}
+.dept-item:hover{border-color:var(--brand);background:var(--brand-l)}
+.dept-item.selected{border-color:var(--brand);background:var(--brand-l)}
+.di-icon{font-size:18px;flex-shrink:0}
+.di-name{font-size:12px;font-weight:600;color:var(--ink)}
+.di-code{font-size:10px;color:var(--t3)}
+
+/* OFFICER SELECTOR */
+.officer-list{display:flex;flex-direction:column;gap:6px;max-height:240px;overflow-y:auto}
+.officer-item{
+  display:flex;align-items:center;gap:10px;padding:10px 12px;
+  background:var(--bg);border:1.5px solid var(--border);border-radius:8px;
+  cursor:pointer;transition:all 0.15s;
+}
+.officer-item:hover{border-color:var(--green);background:var(--green-l)}
+.officer-item.selected{border-color:var(--green);background:var(--green-l)}
+.oi-avatar{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;flex-shrink:0}
+.oi-name{font-size:12px;font-weight:600;color:var(--ink)}
+.oi-role{font-size:10px;color:var(--t3)}
+.oi-load{margin-left:auto;font-size:10px;font-weight:600;padding:2px 7px;border-radius:10px}
+.oi-load-ok{background:var(--green-l);color:var(--green)}
+.oi-load-high{background:var(--amber-l);color:var(--amber)}
+.oi-load-full{background:var(--red-l);color:var(--red)}
+
+/* GROUP SELECT TABLE */
+.group-select-table{width:100%;border-collapse:collapse}
+.group-select-table th{font-size:10px;font-weight:700;color:var(--t3);text-transform:uppercase;padding:8px 10px;border-bottom:1px solid var(--border);text-align:left}
+.group-select-table td{padding:9px 10px;border-bottom:1px solid var(--border);font-size:11px;vertical-align:middle}
+.group-select-table tr:last-child td{border-bottom:none}
+.group-select-table tr:hover td{background:var(--bg)}
+.similarity-bar-wrap{width:80px;background:var(--border);border-radius:2px;height:4px;overflow:hidden;display:inline-block;vertical-align:middle;margin-left:6px}
+.similarity-bar{height:100%;border-radius:2px}
+
+/* AI SUGGESTION BOX */
+.ai-box{
+  background:linear-gradient(135deg,#EFF6FF,#F0FDF9);
+  border:1px solid #BFDBFE;border-radius:8px;padding:12px 14px;
+  display:flex;gap:10px;align-items:flex-start;
+}
+.ai-box-icon{font-size:16px;flex-shrink:0;margin-top:1px}
+.ai-text{font-size:11px;color:var(--t2);line-height:1.5}
+.ai-text strong{color:var(--ink)}
+
+/* WORK LOG */
+.worklog-item{display:flex;gap:10px;padding:10px 0;border-bottom:1px solid var(--border)}
+.worklog-item:last-child{border-bottom:none}
+.wl-avatar{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;flex-shrink:0;background:var(--brand-l);color:var(--brand)}
+.wl-content{flex:1}
+.wl-name{font-size:11px;font-weight:600;color:var(--ink)}
+.wl-action{font-size:11px;color:var(--t2);margin-top:1px}
+.wl-time{font-size:10px;color:var(--t3);margin-top:2px}
+.wl-note{font-size:11px;color:var(--t2);background:var(--bg);padding:7px 9px;border-radius:6px;margin-top:5px;border-left:2px solid var(--border2);line-height:1.4}
+
+/* NOTIFICATION PANEL */
+.notif-item{display:flex;gap:10px;padding:10px 16px;border-bottom:1px solid var(--border);cursor:pointer;transition:background 0.1s}
+.notif-item:hover{background:var(--bg)}
+.notif-item.unread{background:#F5F8FF}
+.notif-dot2{width:7px;height:7px;border-radius:50%;background:var(--brand);flex-shrink:0;margin-top:5px}
+.notif-dot-blank{width:7px;flex-shrink:0}
+.notif-text{font-size:12px;color:var(--ink);line-height:1.4}
+.notif-time{font-size:10px;color:var(--t3);margin-top:3px}
+
+/* PROGRESS STEPS */
+.progress-steps{display:flex;gap:0;margin-bottom:16px}
+.ps-item{flex:1;display:flex;flex-direction:column;align-items:center;position:relative}
+.ps-item::before{content:'';position:absolute;top:12px;left:50%;right:0;height:2px;background:var(--border);z-index:0}
+.ps-item:last-child::before{display:none}
+.ps-item.done::before{background:var(--green)}
+.ps-item.active::before{background:var(--border)}
+.ps-dot{width:24px;height:24px;border-radius:50%;border:2px solid var(--border);background:var(--card);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;z-index:1;color:var(--t3);transition:all 0.2s}
+.ps-item.done .ps-dot{background:var(--green);border-color:var(--green);color:white}
+.ps-item.active .ps-dot{background:var(--brand);border-color:var(--brand);color:white;box-shadow:0 0 0 4px rgba(26,86,196,0.15)}
+.ps-label{font-size:9px;font-weight:600;color:var(--t3);margin-top:5px;text-align:center}
+.ps-item.active .ps-label{color:var(--brand)}
+
+/* SECTION DIVIDER */
+.section-divider{font-size:11px;font-weight:700;color:var(--t3);text-transform:uppercase;letter-spacing:0.7px;margin:16px 0 10px;display:flex;align-items:center;gap:8px}
+.section-divider::after{content:'';flex:1;height:1px;background:var(--border)}
+
+/* TABS */
+.tab-strip{display:flex;gap:0;border-bottom:1px solid var(--border);margin-bottom:16px}
+.tab-item{font-size:12px;font-weight:600;padding:9px 16px;cursor:pointer;color:var(--t3);border-bottom:2px solid transparent;transition:all 0.15s;background:none;border-top:none;border-left:none;border-right:none;border-bottom:2px solid transparent;font-family:'Epilogue',sans-serif}
+.tab-item.active{color:var(--brand);border-bottom-color:var(--brand)}
+.tab-item:hover:not(.active){color:var(--t2)}
+.tab-content{display:none}
+.tab-content.active{display:block}
+
+/* CLERK WORK VIEW */
+.work-card{background:var(--card);border:1px solid var(--border);border-radius:var(--r-lg);overflow:hidden;box-shadow:var(--shadow);margin-bottom:16px}
+.wc-head{padding:14px 18px;border-bottom:1px solid var(--border);display:flex;align-items:flex-start;justify-content:space-between;gap:10px}
+.wc-id{font-family:'Syne',sans-serif;font-size:12px;font-weight:700;color:var(--brand);margin-bottom:3px}
+.wc-title{font-size:15px;font-weight:700;color:var(--ink);margin-bottom:4px}
+.wc-meta{font-size:11px;color:var(--t3)}
+.wc-body{padding:16px 18px}
+.wc-section{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.8px;color:var(--t3);margin-bottom:8px}
+.wc-desc{font-size:13px;color:var(--t2);line-height:1.6;background:var(--bg);padding:12px 14px;border-radius:8px;margin-bottom:14px}
+.evidence-row{display:flex;gap:8px;margin-bottom:14px}
+.evidence-thumb{width:64px;height:64px;border-radius:8px;background:#dde8f5;display:flex;align-items:center;justify-content:center;font-size:26px;cursor:pointer;border:1px solid var(--border);transition:transform 0.15s}
+.evidence-thumb:hover{transform:scale(1.05)}
+.action-area{padding:14px 18px;border-top:1px solid var(--border);display:flex;flex-direction:column;gap:10px}
+.action-row{display:flex;gap:10px;align-items:flex-start}
+.action-label{font-size:11px;font-weight:700;color:var(--t2);margin-bottom:6px;display:block}
+.action-textarea{width:100%;padding:10px 12px;border:1.5px solid var(--border);border-radius:8px;font-size:12px;font-family:'Epilogue',sans-serif;color:var(--ink);background:white;outline:none;resize:none;min-height:80px;line-height:1.5;transition:border-color 0.15s}
+.action-textarea:focus{border-color:var(--brand)}
+.action-btn-row{display:flex;gap:8px;flex-wrap:wrap}
+
+/* EMPTY STATE */
+.empty-state{text-align:center;padding:48px 24px}
+.empty-icon{font-size:48px;margin-bottom:12px}
+.empty-title{font-size:16px;font-weight:700;color:var(--ink);margin-bottom:6px}
+.empty-sub{font-size:13px;color:var(--t3)}
+
+/* ── MISC ── */
+.divider{height:1px;background:var(--border);margin:12px 0}
+.tag{font-size:10px;font-weight:600;padding:2px 8px;border-radius:10px}
+.flex-row{display:flex;align-items:center;gap:8px}
+.spacer{flex:1}
+.count-chip{font-size:10px;font-weight:700;padding:1px 6px;border-radius:8px;background:var(--red-l);color:var(--red)}
+/* ── COMMUNICATION LOG ── */
+.comm-log-item{display:flex;gap:12px;padding:12px 0;border-bottom:1px solid var(--border)}
+.comm-log-item:last-child{border-bottom:none;padding-bottom:0}
+.comm-log-icon{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0;margin-top:2px}
+.comm-log-content{flex:1}
+.comm-log-title{font-size:12px;font-weight:600;color:var(--ink);margin-bottom:4px}
+.comm-log-msg{font-size:11px;color:var(--t2);background:var(--bg);border-radius:7px;padding:8px 10px;border:1px solid var(--border);margin-bottom:6px;line-height:1.5;font-style:italic}
+.comm-log-meta{display:flex;align-items:center;gap:8px;flex-wrap:wrap;font-size:10px}
+.comm-channel-tag{font-size:10px;font-weight:600;padding:1px 8px;border-radius:10px}
+.sms-tag{background:#FEF3C7;color:#92400E}
+.email-tag{background:#EDE9FE;color:#5B21B6}
+.wa-tag{background:#DCFCE7;color:#166534}
+.comm-attachment{display:flex;align-items:center;gap:6px;font-size:10px;color:var(--brand);background:var(--brand-l);padding:3px 9px;border-radius:8px;border:1px solid rgba(26,86,196,0.2);margin-top:4px;display:inline-flex}
+
+/* ── RESOLVE MODAL ── */
+.resolve-checklist{display:flex;flex-direction:column;gap:8px;margin-bottom:14px}
+.resolve-check-item{display:flex;align-items:center;gap:9px;font-size:12px;color:var(--t2);cursor:pointer}
+.resolve-check-item input{accent-color:var(--green);width:14px;height:14px}
+
+/* ── ACKNOWLEDGE BADGE ── */
+.st-acknowledged{background:#FEF9C3;color:#78350F}
+</style>
+</head>
+<body>
+
+<div class="shell">
+
+<!-- ── SIDEBAR ── -->
+<div class="sidebar">
+  <div class="sb-top">
+    <div class="sb-logo">
+      <div class="sb-logo-mark">🏛</div>
+      <div class="sb-logo-text">GMS Officer</div>
+    </div>
+    <div class="role-toggle">
+      <button class="role-btn active-nodal" id="roleNodal" onclick="setRole('nodal')">Nodal Officer</button>
+      <button class="role-btn" id="roleClerk" onclick="setRole('clerk')">Clerk / Task</button>
+    </div>
+  </div>
+
+  <div class="sb-user">
+    <div class="sb-user-row">
+      <div class="sb-avatar" id="sbAvatar" style="background:#1A56C4;color:white">RV</div>
+      <div>
+        <div class="sb-user-name" id="sbName">Ravi Varma</div>
+        <div class="sb-user-role" id="sbRole" style="background:#DBEAFE;color:#1E40AF">Nodal Officer</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="sb-nav">
+    <div class="sb-section">Workspace</div>
+    <button class="sb-item active" onclick="showView('dashboard')" id="nav-dashboard">
+      <span class="sb-item-icon">⬡</span> Dashboard
+    </button>
+    <button class="sb-item" onclick="showView('complaints')" id="nav-complaints">
+      <span class="sb-item-icon">📋</span> All Complaints
+      <span class="sb-badge sb-badge-red">12</span>
+    </button>
+    <button class="sb-item" onclick="showView('mywork')" id="nav-mywork">
+      <span class="sb-item-icon">✅</span> My Work Queue
+      <span class="sb-badge sb-badge-amber">5</span>
+    </button>
+    <button class="sb-item" onclick="showView('grouped')" id="nav-grouped">
+      <span class="sb-item-icon">🔗</span> Grouped Cases
+      <span class="sb-badge sb-badge-blue">3</span>
+    </button>
+
+    <div class="sb-section" id="nodalSection">Nodal Tools</div>
+    <button class="sb-item" onclick="showView('reassign')" id="nav-reassign">
+      <span class="sb-item-icon">↗</span> Reassign / Route
+    </button>
+    <button class="sb-item" onclick="showView('team')" id="nav-team">
+      <span class="sb-item-icon">👥</span> My Team
+    </button>
+    <button class="sb-item" onclick="showView('escalations')" id="nav-escalations">
+      <span class="sb-item-icon">🚨</span> Escalations
+      <span class="sb-badge sb-badge-red">3</span>
+    </button>
+
+    <div class="sb-section">Reports</div>
+    <button class="sb-item" onclick="showView('reports')" id="nav-reports">
+      <span class="sb-item-icon">📊</span> SLA Reports
+    </button>
+  </div>
+
+  <div class="sb-bottom">
+    <div class="sb-sla-indicator">
+      <div class="sb-sla-title">My SLA Health</div>
+      <div class="sb-sla-bar-wrap"><div class="sb-sla-bar-fill" style="width:78%"></div></div>
+      <div class="sb-sla-meta"><span>78% on time</span><span>4 breach</span></div>
+    </div>
+    <button class="sb-item" style="margin-bottom:0;opacity:0.6">
+      <span class="sb-item-icon">⚙</span> Settings
+    </button>
+    <button class="sb-item" style="opacity:0.6">
+      <span class="sb-item-icon">🚪</span> Logout
+    </button>
+  </div>
+</div>
+
+<!-- ── MAIN ── -->
+<div class="main">
+
+  <!-- TOPBAR -->
+  <div class="topbar">
+    <div class="topbar-title" id="topbarTitle">Dashboard — Nodal Officer View</div>
+    <div class="topbar-search">
+      <span style="font-size:13px;color:var(--t3)">🔍</span>
+      <input placeholder="Search by token, citizen, keyword..." />
+    </div>
+    <div class="topbar-icon-btn" onclick="openNotifications()">
+      🔔
+      <div class="notif-dot"></div>
+    </div>
+    <div class="topbar-icon-btn">👤</div>
+    <div class="role-pill" id="topRolePill" style="background:#DBEAFE;color:#1E40AF">Nodal Officer — GWSSB</div>
+  </div>
+
+  <!-- CONTENT -->
+  <div class="content">
+
+    <!-- ═══ DASHBOARD ═══ -->
+    <div class="view active" id="view-dashboard">
+      <div class="kpi-strip">
+        <div class="kpi"><div class="kpi-accent" style="background:var(--brand)"></div><div class="kpi-label">Total assigned</div><div class="kpi-val">47</div><div class="kpi-sub kpi-down">▲ 5 since yesterday</div></div>
+        <div class="kpi"><div class="kpi-accent" style="background:var(--amber)"></div><div class="kpi-label">Pending action</div><div class="kpi-val">18</div><div class="kpi-sub kpi-warn">Needs attention</div></div>
+        <div class="kpi"><div class="kpi-accent" style="background:var(--red)"></div><div class="kpi-label">SLA breached</div><div class="kpi-val">4</div><div class="kpi-sub kpi-down">▲ 2 this week</div></div>
+        <div class="kpi"><div class="kpi-accent" style="background:var(--green)"></div><div class="kpi-label">Resolved today</div><div class="kpi-val">11</div><div class="kpi-sub kpi-up">▲ 40% vs avg</div></div>
+        <div class="kpi"><div class="kpi-accent" style="background:var(--orange)"></div><div class="kpi-label">Grouped clusters</div><div class="kpi-val">3</div><div class="kpi-sub" style="color:var(--orange)">21 complaints linked</div></div>
+      </div>
+
+      <div style="display:grid;grid-template-columns:2fr 1fr;gap:16px">
+        <div>
+          <div class="table-toolbar">
+            <span class="tt-title">Priority Queue — Today</span>
+            <div class="tt-filter active-filter">🔴 Critical first</div>
+            <button class="tt-btn" onclick="showView('complaints')">View all →</button>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>Token</th><th>Issue</th><th>Channel</th><th>Priority</th><th>SLA</th><th>Assigned</th><th>Actions</th></tr></thead>
+              <tbody>
+                <tr onclick="openDetail('GVM-2025-05341')">
+                  <td><div class="complaint-id">GVM-2025-05341</div></td>
+                  <td><div class="complaint-title">Water supply disruption — 3 days</div><div class="complaint-meta">Ward 7, Ahmedabad · Rajesh Patel</div></td>
+                  <td><span class="channel-badge ch-wa">📱 WhatsApp</span></td>
+                  <td><span class="pri-badge pri-high">HIGH</span></td>
+                  <td><span class="sla-pill sla-warn">⏱ 2d left</span></td>
+                  <td><div class="assign-chip"><div class="assign-avatar" style="background:#DBEAFE;color:#1E40AF">MK</div>M. Kumar</div></td>
+                  <td><div class="action-btns"><div class="action-btn" title="View" onclick="event.stopPropagation();openDetail('GVM-2025-05341')">👁</div><div class="action-btn" title="Reassign" onclick="event.stopPropagation();openReassign('GVM-2025-05341')">↗</div><div class="action-btn" title="Group" onclick="event.stopPropagation();openGroup('GVM-2025-05341')">🔗</div></div></td>
+                </tr>
+                <tr onclick="openDetail('GVM-2025-05298')">
+                  <td><div class="complaint-id">GVM-2025-05298</div></td>
+                  <td><div class="complaint-title">No water for 4 days — Laxmi Society</div><div class="complaint-meta">Ward 7, Ahmedabad · Priya Shah</div></td>
+                  <td><span class="channel-badge ch-web">🌐 Web</span></td>
+                  <td><span class="pri-badge pri-high">HIGH</span></td>
+                  <td><span class="sla-pill sla-breach">🔴 Breached</span></td>
+                  <td><div class="assign-chip"><div class="assign-avatar" style="background:#D1FAE5;color:#065F46">AN</div>A. Nair</div></td>
+                  <td><div class="action-btns"><div class="action-btn" onclick="event.stopPropagation();openDetail('GVM-2025-05298')">👁</div><div class="action-btn" onclick="event.stopPropagation();openReassign('GVM-2025-05298')">↗</div><div class="action-btn" onclick="event.stopPropagation();openGroup('GVM-2025-05298')">🔗</div></div></td>
+                </tr>
+                <tr class="group-header" onclick="openDetail('GVM-2025-05201')">
+                  <td><div class="complaint-id">GVM-2025-05201</div></td>
+                  <td>
+                    <div class="complaint-title">PHC closed — no doctor available</div>
+                    <div class="complaint-meta">Daskroi, Ahmedabad · Mohan Patel</div>
+                    <span class="group-indicator" style="margin-top:3px;display:inline-flex">🔗 Group of 4 complaints</span>
+                  </td>
+                  <td><span class="channel-badge ch-call">📞 Helpline</span></td>
+                  <td><span class="pri-badge pri-critical">CRITICAL</span></td>
+                  <td><span class="sla-pill sla-breach">🔴 Breached +2d</span></td>
+                  <td><div class="assign-chip"><div class="assign-avatar" style="background:#EDE9FE;color:#5B21B6">RP</div>R. Patel</div></td>
+                  <td><div class="action-btns"><div class="action-btn" onclick="event.stopPropagation();openDetail('GVM-2025-05201')">👁</div><div class="action-btn" onclick="event.stopPropagation();openReassign('GVM-2025-05201')">↗</div><div class="action-btn" onclick="event.stopPropagation();openGroupView('GVM-2025-05201')">🔗</div></div></td>
+                </tr>
+                <tr onclick="openDetail('GVM-2025-05387')">
+                  <td><div class="complaint-id">GVM-2025-05387</div></td>
+                  <td><div class="complaint-title">Pothole on main road — 2 weeks</div><div class="complaint-meta">SG Highway, Ahmedabad · Anita Mehta</div></td>
+                  <td><span class="channel-badge ch-mob">📱 Mobile App</span></td>
+                  <td><span class="pri-badge pri-medium">MEDIUM</span></td>
+                  <td><span class="sla-pill sla-ok">✓ 5d left</span></td>
+                  <td><div class="assign-chip"><div class="assign-avatar" style="background:#FEF3C7;color:#92400E">SD</div>S. Dave</div></td>
+                  <td><div class="action-btns"><div class="action-btn" onclick="event.stopPropagation();openDetail('GVM-2025-05387')">👁</div><div class="action-btn" onclick="event.stopPropagation();openReassign('GVM-2025-05387')">↗</div><div class="action-btn">🔗</div></div></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <div style="display:flex;flex-direction:column;gap:14px">
+          <div class="detail-card">
+            <div class="dc-head"><span class="dc-title">Recent activity</span></div>
+            <div style="padding:0">
+              <div class="worklog-item" style="padding:10px 14px">
+                <div class="wl-avatar">MK</div>
+                <div class="wl-content">
+                  <div class="wl-name">M. Kumar</div>
+                  <div class="wl-action">Updated GVM-2025-05341 — field visit scheduled</div>
+                  <div class="wl-time">10 min ago</div>
+                </div>
+              </div>
+              <div class="worklog-item" style="padding:10px 14px">
+                <div class="wl-avatar" style="background:#D1FAE5;color:#065F46">AN</div>
+                <div class="wl-content">
+                  <div class="wl-name">A. Nair</div>
+                  <div class="wl-action">Escalated GVM-2025-05298 — SLA breached</div>
+                  <div class="wl-time">25 min ago</div>
+                </div>
+              </div>
+              <div class="worklog-item" style="padding:10px 14px">
+                <div class="wl-avatar" style="background:var(--nodal-l);color:var(--nodal)">RV</div>
+                <div class="wl-content">
+                  <div class="wl-name">You (Ravi Varma)</div>
+                  <div class="wl-action">Grouped 4 complaints → GVM-2025-05201</div>
+                  <div class="wl-time">1 hour ago</div>
+                </div>
+              </div>
+              <div class="worklog-item" style="padding:10px 14px">
+                <div class="wl-avatar" style="background:#EDE9FE;color:#5B21B6">RP</div>
+                <div class="wl-content">
+                  <div class="wl-name">R. Patel</div>
+                  <div class="wl-action">Resolved GVM-2025-05180 — road repaired</div>
+                  <div class="wl-time">2 hours ago</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="detail-card">
+            <div class="dc-head"><span class="dc-title">AI duplicate detection</span></div>
+            <div class="dc-body">
+              <div class="ai-box">
+                <span class="ai-box-icon">🤖</span>
+                <div class="ai-text"><strong>3 similar complaints detected</strong> in Ward 7 today — all reporting water supply issues. Likely same root cause.<br><br><span style="color:var(--orange);font-weight:600;cursor:pointer" onclick="openGroupSuggest()">→ Review &amp; group them</span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══ ALL COMPLAINTS ═══ -->
+    <div class="view" id="view-complaints">
+      <div class="table-toolbar">
+        <span class="tt-title">All Complaints</span>
+        <div class="tt-filter" id="filterAll" onclick="setFilter('all')">All (47)</div>
+        <div class="tt-filter active-filter" id="filterOpen" onclick="setFilter('open')">Open (18)</div>
+        <div class="tt-filter" id="filterProgress" onclick="setFilter('progress')">In Progress (21)</div>
+        <div class="tt-filter" id="filterBreached" onclick="setFilter('breached')">SLA Breached (4)</div>
+        <span class="spacer"></span>
+        <div id="bulkActions" class="hidden flex-row" style="gap:8px">
+          <span class="tt-select-count" id="selectCount">0 selected</span>
+          <button class="tt-btn tt-btn-orange" onclick="openGroupMulti()">🔗 Group selected</button>
+          <button class="tt-btn" onclick="openBulkReassign()">↗ Bulk reassign</button>
+          <button class="tt-btn tt-btn-ghost" onclick="clearSelection()">✕ Clear</button>
+        </div>
+        <button class="tt-btn tt-btn-ghost" onclick="toggleSelectMode()">☐ Select</button>
+        <button class="tt-btn" onclick="openGroupSuggest()">🤖 AI Group Suggest</button>
+      </div>
+
+      <div class="table-wrap">
+        <table id="complaintsTable">
+          <thead><tr><th id="cbHeader" class="hidden">☐</th><th>Token</th><th>Citizen & Issue</th><th>Channel</th><th>Department</th><th>Priority</th><th>Status</th><th>SLA</th><th>Assigned To</th><th>Filed</th><th>Actions</th></tr></thead>
+          <tbody id="complaintsBody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ═══ MY WORK QUEUE (Clerk view) ═══ -->
+    <div class="view" id="view-mywork">
+      <div class="table-toolbar" style="margin-bottom:16px">
+        <span class="tt-title">My Work Queue</span>
+        <div class="tt-filter active-filter">All (5)</div>
+        <div class="tt-filter">Due today (2)</div>
+        <div class="tt-filter">Overdue (1)</div>
+      </div>
+
+      <div class="work-card">
+        <div class="wc-head">
+          <div>
+            <div class="wc-id">GVM-2025-05341 · Water Supply</div>
+            <div class="wc-title">Water supply disruption for 3 days — Ward 7</div>
+            <div class="wc-meta">📍 Ward 7, Ahmedabad South · Rajesh Patel · +91 98765 43210</div>
+          </div>
+          <div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px;flex-shrink:0">
+            <span class="pri-badge pri-high">HIGH</span>
+            <span class="sla-pill sla-warn">⏱ 2 days left</span>
+            <span class="status-badge st-progress">In Progress</span>
+          </div>
+        </div>
+        <div class="wc-body">
+          <div class="tab-strip">
+            <button class="tab-item active" onclick="switchTab('wc1',this)">Details</button>
+            <button class="tab-item" onclick="switchTab('wc1',this)">Timeline</button>
+            <button class="tab-item" onclick="switchTab('wc1',this)">Evidence</button>
+          </div>
+          <div class="wc-section">Citizen's description</div>
+          <div class="wc-desc">"Water supply has not been coming for 3 days in our area. Laxmi Society Block C, Ward 7. We complained to the local office but no response yet. The whole lane is affected — approximately 30-40 families."</div>
+          <div class="wc-section">Evidence attached</div>
+          <div class="evidence-row">
+            <div class="evidence-thumb">🏚</div>
+            <div class="evidence-thumb">💧</div>
+            <div style="font-size:11px;color:var(--t3);margin-left:4px;align-self:center">2 photos uploaded by citizen</div>
+          </div>
+          <div class="ai-box">
+            <span class="ai-box-icon">🤖</span>
+            <div class="ai-text"><strong>AI suggests:</strong> This is likely a pipeline blockage or valve closure issue in Zone 3 distribution network. Similar complaint was resolved 14 days ago in adjacent Ward 6 (GVM-2025-04901). Check GWSSB Zone 3 valve map before site visit.</div>
+          </div>
+        </div>
+        <div class="action-area">
+          <div>
+            <span class="action-label">Update action taken</span>
+            <textarea class="action-textarea" placeholder="Describe what action you have taken or are planning to take...">Field visit scheduled for tomorrow 10 AM. Zone 3 supervisor informed. Checking valve status remotely.</textarea>
+          </div>
+          <div class="action-btn-row">
+            <button class="btn btn-primary" onclick="openUpdateStatus()">✓ Update status</button>
+            <button class="btn btn-ghost">📷 Upload evidence</button>
+            <button class="btn btn-ghost" onclick="openEscalateModal()">🚨 Escalate up</button>
+            <button class="btn btn-ghost">📞 Call citizen</button>
+            <button class="btn btn-green" onclick="openResolveModal()">✅ Mark resolved</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="work-card" style="opacity:0.75">
+        <div class="wc-head">
+          <div>
+            <div class="wc-id">GVM-2025-05387 · Roads & PWD</div>
+            <div class="wc-title">Pothole on SG Highway near Exit 7</div>
+            <div class="wc-meta">📍 SG Highway, Ahmedabad · Anita Mehta · +91 87654 32109</div>
+          </div>
+          <div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px;flex-shrink:0">
+            <span class="pri-badge pri-medium">MEDIUM</span>
+            <span class="sla-pill sla-ok">✓ 5 days left</span>
+            <span class="status-badge st-open">Open</span>
+          </div>
+        </div>
+        <div class="wc-body">
+          <div class="wc-desc">"Large pothole near Exit 7 on SG Highway. Two-wheelers at risk. Been there for 2 weeks already."</div>
+          <div class="evidence-row"><div class="evidence-thumb">🛣</div></div>
+        </div>
+        <div class="action-area">
+          <div class="action-btn-row">
+            <button class="btn btn-primary" onclick="openUpdateStatus()">✓ Begin work</button>
+            <button class="btn btn-ghost">📷 Upload evidence</button>
+            <button class="btn btn-ghost">📞 Call citizen</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══ GROUPED CASES ═══ -->
+    <div class="view" id="view-grouped">
+      <div class="table-toolbar">
+        <span class="tt-title">Grouped Complaint Clusters</span>
+        <button class="tt-btn" onclick="openGroupSuggest()">🤖 AI suggestions</button>
+        <button class="tt-btn tt-btn-ghost" onclick="openGroupMulti()">+ Create new group</button>
+      </div>
+      <div style="display:grid;gap:14px">
+
+        <div class="detail-card">
+          <div class="dc-head" style="background:#FFF7ED;border-bottom-color:#FDDCAF">
+            <div>
+              <div style="display:flex;align-items:center;gap:8px;margin-bottom:3px">
+                <span style="font-family:Syne;font-size:13px;font-weight:700;color:var(--orange)">GROUP-001</span>
+                <span class="group-indicator">🔗 4 complaints</span>
+                <span class="pri-badge pri-critical">CRITICAL</span>
+                <span class="status-badge st-escalated">Escalated</span>
+              </div>
+              <div style="font-size:14px;font-weight:700;color:var(--ink)">PHC Closed — No Doctor at Daskroi PHC</div>
+              <div style="font-size:11px;color:var(--t3);margin-top:2px">4 separate complaints from 4 channels · Same root cause · Grouped by Nodal Officer</div>
+            </div>
+            <div style="display:flex;gap:8px">
+              <button class="btn btn-orange" onclick="openGroupView('GVM-2025-05201')">Manage group</button>
+              <button class="btn btn-ghost">View all</button>
+            </div>
+          </div>
+          <div class="dc-body">
+            <div class="group-map">
+              <div class="group-item primary-item">
+                <span class="gi-icon">📌</span>
+                <div style="flex:1">
+                  <div class="gi-id">GVM-2025-05201</div>
+                  <div class="gi-title">PHC closed — no doctor available (Helpline)</div>
+                  <div class="gi-meta">Mohan Patel · 3 days ago · SLA Breached</div>
+                </div>
+                <span class="gi-badge">Primary</span>
+              </div>
+              <div class="group-item">
+                <span class="gi-icon">🌐</span>
+                <div style="flex:1">
+                  <div class="gi-id">GVM-2025-05207</div>
+                  <div class="gi-title">Doctor absent at Daskroi PHC for 2nd day (Web)</div>
+                  <div class="gi-meta">Fatima Shaikh · 3 days ago</div>
+                </div>
+                <span class="gi-badge">Linked</span>
+              </div>
+              <div class="group-item">
+                <span class="gi-icon">📱</span>
+                <div style="flex:1">
+                  <div class="gi-id">GVM-2025-05214</div>
+                  <div class="gi-title">No staff at PHC, patients turned away (WhatsApp)</div>
+                  <div class="gi-meta">Rakesh Sharma · 2 days ago</div>
+                </div>
+                <span class="gi-badge">Linked</span>
+              </div>
+              <div class="group-item">
+                <span class="gi-icon">📧</span>
+                <div style="flex:1">
+                  <div class="gi-id">GVM-2025-05229</div>
+                  <div class="gi-title">PHC non-functional — complaint email (Email)</div>
+                  <div class="gi-meta">Suman Patel · 2 days ago</div>
+                </div>
+                <span class="gi-badge">Linked</span>
+              </div>
+            </div>
+            <div class="ai-box" style="margin-top:12px">
+              <span class="ai-box-icon">🤖</span>
+              <div class="ai-text">All 4 complaints geo-match Daskroi PHC. AI confidence: <strong>97% same root cause</strong>. Recommended action: Single resolution by DHO will close all 4 automatically. Citizen notifications will be sent to all 4.</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="detail-card">
+          <div class="dc-head">
+            <div>
+              <div style="display:flex;align-items:center;gap:8px;margin-bottom:3px">
+                <span style="font-family:Syne;font-size:13px;font-weight:700;color:var(--orange)">GROUP-002</span>
+                <span class="group-indicator">🔗 9 complaints</span>
+                <span class="pri-badge pri-high">HIGH</span>
+                <span class="status-badge st-progress">In Progress</span>
+              </div>
+              <div style="font-size:14px;font-weight:700;color:var(--ink)">Water Supply Disruption — Ward 7 Ahmedabad</div>
+              <div style="font-size:11px;color:var(--t3);margin-top:2px">9 complaints from different citizens on same lane · AI detected · Auto-grouped</div>
+            </div>
+            <div style="display:flex;gap:8px">
+              <button class="btn btn-orange" onclick="openGroupView('GRP-002')">Manage group</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="detail-card">
+          <div class="dc-head">
+            <div>
+              <div style="display:flex;align-items:center;gap:8px;margin-bottom:3px">
+                <span style="font-family:Syne;font-size:13px;font-weight:700;color:var(--orange)">GROUP-003</span>
+                <span class="group-indicator">🔗 8 complaints</span>
+                <span class="pri-badge pri-medium">MEDIUM</span>
+                <span class="status-badge st-progress">In Progress</span>
+              </div>
+              <div style="font-size:14px;font-weight:700;color:var(--ink)">Road Damage — SG Highway Exit 5 to Exit 8</div>
+              <div style="font-size:11px;color:var(--t3);margin-top:2px">8 pothole complaints along 3km stretch · AI grouped by geo-proximity</div>
+            </div>
+            <button class="btn btn-ghost">Manage</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══ REASSIGN VIEW ═══ -->
+    <div class="view" id="view-reassign">
+      <div class="table-toolbar">
+        <span class="tt-title">Reassign / Route Complaints</span>
+      </div>
+      <div class="detail-layout" style="align-items:start">
+        <div>
+          <div class="detail-card">
+            <div class="dc-head"><span class="dc-title">Select complaints to reassign</span></div>
+            <div style="padding:12px">
+              <div class="table-wrap" style="box-shadow:none;border-radius:8px">
+                <table><thead><tr><th>☐</th><th>Token</th><th>Issue</th><th>Current dept</th><th>SLA</th></tr></thead>
+                <tbody>
+                  <tr><td><div class="cb checked" onclick="toggleCb(this)">✓</div></td><td><div class="complaint-id">GVM-2025-05341</div></td><td><div class="complaint-title">Water supply disruption</div><div class="complaint-meta">Ward 7, Ahmedabad</div></td><td><span class="tag" style="background:var(--teal-l);color:var(--teal)">GWSSB</span></td><td><span class="sla-pill sla-warn">2d left</span></td></tr>
+                  <tr><td><div class="cb" onclick="toggleCb(this)"></div></td><td><div class="complaint-id">GVM-2025-05298</div></td><td><div class="complaint-title">No water — Laxmi Society</div><div class="complaint-meta">Ward 7, Ahmedabad</div></td><td><span class="tag" style="background:var(--teal-l);color:var(--teal)">GWSSB</span></td><td><span class="sla-pill sla-breach">Breached</span></td></tr>
+                  <tr><td><div class="cb" onclick="toggleCb(this)"></div></td><td><div class="complaint-id">GVM-2025-05387</div></td><td><div class="complaint-title">Pothole SG Highway</div><div class="complaint-meta">Ahmedabad South</div></td><td><span class="tag" style="background:var(--brand-l);color:var(--brand)">PWD</span></td><td><span class="sla-pill sla-ok">5d left</span></td></tr>
+                </tbody></table>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:14px">
+          <div class="detail-card">
+            <div class="dc-head"><span class="dc-title">Reassign to department</span></div>
+            <div class="dc-body">
+              <div class="dept-grid">
+                <div class="dept-item selected" onclick="selectDept(this)"><span class="di-icon">💧</span><div><div class="di-name">GWSSB</div><div class="di-code">Water Supply</div></div></div>
+                <div class="dept-item" onclick="selectDept(this)"><span class="di-icon">🏥</span><div><div class="di-name">CDHO</div><div class="di-code">Health Services</div></div></div>
+                <div class="dept-item" onclick="selectDept(this)"><span class="di-icon">🛣</span><div><div class="di-name">PWD Zone</div><div class="di-code">Roads & Buildings</div></div></div>
+                <div class="dept-item" onclick="selectDept(this)"><span class="di-icon">🏛</span><div><div class="di-name">Revenue</div><div class="di-code">Land Records</div></div></div>
+                <div class="dept-item" onclick="selectDept(this)"><span class="di-icon">📚</span><div><div class="di-name">DEO</div><div class="di-code">Education</div></div></div>
+                <div class="dept-item" onclick="selectDept(this)"><span class="di-icon">🌾</span><div><div class="di-name">Agriculture</div><div class="di-code">District Office</div></div></div>
+              </div>
+            </div>
+          </div>
+          <div class="detail-card">
+            <div class="dc-head"><span class="dc-title">Assign to officer</span></div>
+            <div class="dc-body" style="padding:12px">
+              <div class="officer-list">
+                <div class="officer-item selected" onclick="selectOfficer(this)">
+                  <div class="oi-avatar" style="background:#DBEAFE;color:#1E40AF">MK</div>
+                  <div><div class="oi-name">M. Kumar</div><div class="oi-role">Sr. Engineer · GWSSB Zone 3</div></div>
+                  <span class="oi-load oi-load-ok">6 cases</span>
+                </div>
+                <div class="officer-item" onclick="selectOfficer(this)">
+                  <div class="oi-avatar" style="background:#D1FAE5;color:#065F46">AN</div>
+                  <div><div class="oi-name">A. Nair</div><div class="oi-role">Engineer · GWSSB Zone 1</div></div>
+                  <span class="oi-load oi-load-high">11 cases</span>
+                </div>
+                <div class="officer-item" onclick="selectOfficer(this)">
+                  <div class="oi-avatar" style="background:#FEF3C7;color:#92400E">SD</div>
+                  <div><div class="oi-name">S. Dave</div><div class="oi-role">JE · GWSSB Zone 2</div></div>
+                  <span class="oi-load oi-load-ok">3 cases</span>
+                </div>
+                <div class="officer-item" onclick="selectOfficer(this)">
+                  <div class="oi-avatar" style="background:#FEE2E2;color:#991B1B">VJ</div>
+                  <div><div class="oi-name">V. Joshi</div><div class="oi-role">AE · GWSSB Zone 4</div></div>
+                  <span class="oi-load oi-load-full">16 cases</span>
+                </div>
+              </div>
+            </div>
+          </div>
+          <button class="btn btn-orange" style="width:100%;padding:12px" onclick="showToast('Complaint reassigned successfully')">↗ Confirm Reassignment</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══ TEAM VIEW ═══ -->
+    <div class="view" id="view-team">
+      <div class="table-toolbar"><span class="tt-title">My Team — Workload Overview</span></div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Officer</th><th>Role</th><th>Assigned</th><th>In Progress</th><th>Overdue</th><th>Resolved (7d)</th><th>SLA %</th><th>Status</th></tr></thead>
+          <tbody>
+            <tr><td><div class="assign-chip" style="gap:8px"><div class="oi-avatar" style="width:28px;height:28px;background:#DBEAFE;color:#1E40AF;font-size:10px;font-weight:700;border-radius:50%;display:flex;align-items:center;justify-content:center">MK</div><div><div style="font-size:12px;font-weight:600">M. Kumar</div><div style="font-size:10px;color:var(--t3)">Sr. Engineer</div></div></div></td><td><span class="tag" style="background:var(--brand-l);color:var(--brand)">Clerk</span></td><td style="font-weight:600">11</td><td>6</td><td style="color:var(--red);font-weight:600">2</td><td>23</td><td><span class="sla-pill sla-warn">81%</span></td><td><span class="status-badge st-progress">Active</span></td></tr>
+            <tr><td><div class="assign-chip" style="gap:8px"><div class="oi-avatar" style="width:28px;height:28px;background:#D1FAE5;color:#065F46;font-size:10px;font-weight:700;border-radius:50%;display:flex;align-items:center;justify-content:center">AN</div><div><div style="font-size:12px;font-weight:600">A. Nair</div><div style="font-size:10px;color:var(--t3)">Engineer</div></div></div></td><td><span class="tag" style="background:var(--brand-l);color:var(--brand)">Clerk</span></td><td style="font-weight:600">13</td><td>8</td><td style="color:var(--red);font-weight:600">1</td><td>19</td><td><span class="sla-pill sla-breach">74%</span></td><td><span class="status-badge st-progress">Active</span></td></tr>
+            <tr><td><div class="assign-chip" style="gap:8px"><div class="oi-avatar" style="width:28px;height:28px;background:#FEF3C7;color:#92400E;font-size:10px;font-weight:700;border-radius:50%;display:flex;align-items:center;justify-content:center">SD</div><div><div style="font-size:12px;font-weight:600">S. Dave</div><div style="font-size:10px;color:var(--t3)">JE</div></div></div></td><td><span class="tag" style="background:var(--brand-l);color:var(--brand)">Clerk</span></td><td style="font-weight:600">7</td><td>4</td><td style="color:var(--t3)">0</td><td>17</td><td><span class="sla-pill sla-ok">91%</span></td><td><span class="status-badge st-progress">Active</span></td></tr>
+            <tr><td><div class="assign-chip" style="gap:8px"><div class="oi-avatar" style="width:28px;height:28px;background:#EDE9FE;color:#5B21B6;font-size:10px;font-weight:700;border-radius:50%;display:flex;align-items:center;justify-content:center">RP</div><div><div style="font-size:12px;font-weight:600">R. Patel</div><div style="font-size:10px;color:var(--t3)">AE</div></div></div></td><td><span class="tag" style="background:var(--brand-l);color:var(--brand)">Clerk</span></td><td style="font-weight:600">9</td><td>5</td><td style="color:var(--t3)">1</td><td>21</td><td><span class="sla-pill sla-ok">87%</span></td><td><span class="status-badge st-progress">Active</span></td></tr>
+            <tr><td><div class="assign-chip" style="gap:8px"><div class="oi-avatar" style="width:28px;height:28px;background:#FEE2E2;color:#991B1B;font-size:10px;font-weight:700;border-radius:50%;display:flex;align-items:center;justify-content:center">VJ</div><div><div style="font-size:12px;font-weight:600">V. Joshi</div><div style="font-size:10px;color:var(--t3)">AE</div></div></div></td><td><span class="tag" style="background:var(--brand-l);color:var(--brand)">Clerk</span></td><td style="font-weight:600;color:var(--red)">16</td><td>9</td><td style="color:var(--red);font-weight:600">1</td><td>14</td><td><span class="sla-pill sla-breach">72%</span></td><td><span class="status-badge st-escalated">Overloaded</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ═══ ESCALATIONS VIEW ═══ -->
+    <div class="view" id="view-escalations">
+      <div class="table-toolbar"><span class="tt-title">Escalations — Requiring Nodal Action</span></div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Token</th><th>Issue</th><th>Escalated by</th><th>Reason</th><th>Age</th><th>Priority</th><th>Action</th></tr></thead>
+          <tbody>
+            <tr class="flag-red"><td><div class="complaint-id">GVM-2025-05201</div></td><td><div class="complaint-title">PHC Closed — Daskroi</div><div class="complaint-meta">GROUP-001 · 4 complaints</div></td><td>R. Patel (Clerk)</td><td><span class="tag" style="background:var(--red-l);color:var(--red)">SLA Breach +2d</span></td><td style="color:var(--red);font-weight:600">5 days</td><td><span class="pri-badge pri-critical">CRITICAL</span></td><td><button class="btn btn-primary" onclick="openDetail('GVM-2025-05201')">Take action</button></td></tr>
+            <tr><td><div class="complaint-id">GVM-2025-05298</div></td><td><div class="complaint-title">Water supply — Laxmi Society</div></td><td>A. Nair (Clerk)</td><td><span class="tag" style="background:var(--amber-l);color:var(--amber)">SLA Breach</span></td><td style="color:var(--amber);font-weight:600">2 days</td><td><span class="pri-badge pri-high">HIGH</span></td><td><button class="btn btn-primary" onclick="openDetail('GVM-2025-05298')">Take action</button></td></tr>
+            <tr><td><div class="complaint-id">GVM-2025-04901</div></td><td><div class="complaint-title">Revenue mutation delayed 45 days</div></td><td>System Auto</td><td><span class="tag" style="background:var(--red-l);color:var(--red)">SLA Breach +10d</span></td><td style="color:var(--red);font-weight:600">12 days</td><td><span class="pri-badge pri-high">HIGH</span></td><td><button class="btn btn-orange" onclick="openReassign('GVM-2025-04901')">Reassign dept</button></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ═══ REPORTS ═══ -->
+    <div class="view" id="view-reports">
+      <div class="kpi-strip">
+        <div class="kpi"><div class="kpi-accent" style="background:var(--green)"></div><div class="kpi-label">SLA adherence</div><div class="kpi-val">81%</div><div class="kpi-sub kpi-warn">Target: 85%</div></div>
+        <div class="kpi"><div class="kpi-accent" style="background:var(--brand)"></div><div class="kpi-label">Avg resolution</div><div class="kpi-val">6.4d</div><div class="kpi-sub kpi-warn">vs 5d SLA target</div></div>
+        <div class="kpi"><div class="kpi-accent" style="background:var(--amber)"></div><div class="kpi-label">Reopened</div><div class="kpi-val">3</div><div class="kpi-sub neutral">This month</div></div>
+        <div class="kpi"><div class="kpi-accent" style="background:var(--violet)"></div><div class="kpi-label">Groups created</div><div class="kpi-val">8</div><div class="kpi-sub kpi-up">Saved 26 duplicates</div></div>
+        <div class="kpi"><div class="kpi-accent" style="background:var(--teal)"></div><div class="kpi-label">CSAT (my cases)</div><div class="kpi-val">4.1★</div><div class="kpi-sub kpi-up">↑ Above avg</div></div>
+      </div>
+      <div class="detail-card">
+        <div class="dc-head"><span class="dc-title">SLA performance by category</span></div>
+        <div class="dc-body" style="display:grid;gap:10px">
+          <div><div style="display:flex;justify-content:space-between;font-size:11px;margin-bottom:4px"><span style="color:var(--t2)">💧 Water Supply</span><span style="font-weight:700;color:var(--amber)">79%</span></div><div style="background:var(--border);border-radius:3px;height:6px;overflow:hidden"><div style="width:79%;height:100%;background:var(--amber);border-radius:3px"></div></div></div>
+          <div><div style="display:flex;justify-content:space-between;font-size:11px;margin-bottom:4px"><span style="color:var(--t2)">🏥 Health</span><span style="font-weight:700;color:var(--red)">71%</span></div><div style="background:var(--border);border-radius:3px;height:6px;overflow:hidden"><div style="width:71%;height:100%;background:var(--red);border-radius:3px"></div></div></div>
+          <div><div style="display:flex;justify-content:space-between;font-size:11px;margin-bottom:4px"><span style="color:var(--t2)">🛣 Roads</span><span style="font-weight:700;color:var(--green)">88%</span></div><div style="background:var(--border);border-radius:3px;height:6px;overflow:hidden"><div style="width:88%;height:100%;background:var(--green);border-radius:3px"></div></div></div>
+          <div><div style="display:flex;justify-content:space-between;font-size:11px;margin-bottom:4px"><span style="color:var(--t2)">🏛 Revenue</span><span style="font-weight:700;color:var(--amber)">76%</span></div><div style="background:var(--border);border-radius:3px;height:6px;overflow:hidden"><div style="width:76%;height:100%;background:var(--amber);border-radius:3px"></div></div></div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /content -->
+</div><!-- /main -->
+</div><!-- /shell -->
+
+<!-- ═══ MODALS ═══ -->
+
+<!-- Complaint Detail Modal -->
+<div class="overlay hidden" id="modal-detail" onclick="closeModal('modal-detail')">
+<div class="modal modal-xl" onclick="event.stopPropagation()" style="position:relative">
+  <button class="modal-close" onclick="closeModal('modal-detail')">×</button>
+  <div class="modal-head">
+    <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px">
+      <div>
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:4px">
+          <span class="complaint-id" style="font-size:14px" id="detailId">GVM-2025-05341</span>
+          <span class="pri-badge pri-high">HIGH</span>
+          <span class="status-badge st-progress" id="detailStatusBadge">In Progress</span>
+          <span class="group-indicator hidden" id="detailGroupBadge">🔗 GROUP-002</span>
+        </div>
+        <div class="modal-title" id="detailTitle">Water supply disruption — 3 days, Ward 7</div>
+        <div class="modal-sub">Filed via WhatsApp · Rajesh Patel · +91 98765 43210 · Ward 7, Ahmedabad South</div>
+      </div>
+      <div style="display:flex;gap:8px;flex-shrink:0">
+        <button class="btn btn-ghost" id="detailAckBtn" onclick="acknowledgeCase()" style="background:#FEF3C7;border-color:#F59E0B;color:#92400E">✋ Acknowledge Case</button>
+        <button class="btn btn-orange" onclick="closeModal('modal-detail');openReassign('GVM-2025-05341')">↗ Reassign</button>
+        <button class="btn btn-violet" onclick="closeModal('modal-detail');openGroup('GVM-2025-05341')">🔗 Group</button>
+        <button class="btn btn-ghost" onclick="openEscalateModal()">🚨 Escalate</button>
+        <button class="btn btn-green" onclick="openResolveModal()">✅ Resolve</button>
+      </div>
+    </div>
+  </div>
+  <div class="modal-body">
+    <div class="detail-layout">
+      <div class="detail-main">
+        <div class="detail-card">
+          <div class="dc-head"><span class="dc-title">Citizen description</span></div>
+          <div class="dc-body">
+            <div class="wc-desc">"Water supply has not been coming for 3 days in our area. Laxmi Society Block C, Ward 7. We complained to the local GWSSB office but no response yet. The whole lane is affected — approximately 30-40 families."</div>
+            <div class="flex-row" style="margin-top:10px;gap:8px">
+              <span class="channel-badge ch-wa">📱 WhatsApp</span>
+              <span style="font-size:11px;color:var(--t3)">Filed 2 days ago · Auto-classified by AI (94% confidence)</span>
+            </div>
+          </div>
+        </div>
+        <div class="detail-card">
+          <div class="dc-head"><span class="dc-title">Action timeline</span></div>
+          <div class="dc-body">
+            <div class="timeline">
+              <div class="tl-item">
+                <div class="tl-dot" style="background:var(--green-l);color:var(--green)">✓</div>
+                <div class="tl-content"><div class="tl-title">Complaint filed by citizen</div><div class="tl-meta">2 days ago · 9:41 AM · Via WhatsApp</div></div>
+              </div>
+              <div class="tl-item">
+                <div class="tl-dot" style="background:var(--green-l);color:var(--green)">✓</div>
+                <div class="tl-content"><div class="tl-title">AI classified & auto-assigned</div><div class="tl-meta">Instantly · GWSSB Zone 3 · SLA: 5 days</div></div>
+              </div>
+              <div class="tl-item">
+                <div class="tl-dot" style="background:var(--green-l);color:var(--green)">✓</div>
+                <div class="tl-content"><div class="tl-title">Assigned to M. Kumar</div><div class="tl-meta">1 day ago · By Nodal Officer Ravi Varma</div></div>
+              </div>
+              <div class="tl-item">
+                <div class="tl-dot" style="background:var(--brand-l);color:var(--brand)">⏳</div>
+                <div class="tl-content">
+                  <div class="tl-title">Field visit scheduled</div>
+                  <div class="tl-meta">Tomorrow 10 AM · M. Kumar</div>
+                  <div class="tl-desc">Zone 3 supervisor informed. Checking valve status remotely. Pipeline map for Ward 7 retrieved.</div>
+                </div>
+              </div>
+              <div class="tl-item">
+                <div class="tl-dot" style="background:var(--bg);border:2px solid var(--border2);color:var(--t3)">4</div>
+                <div class="tl-content"><div class="tl-title" style="color:var(--t3)">Resolution & closure</div><div class="tl-meta">Pending · SLA deadline in 2 days</div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="detail-card">
+          <div class="dc-head">
+            <span class="dc-title">Send Update to Citizen</span>
+            <span style="font-size:10px;color:var(--t3);background:var(--brand-l);color:var(--brand);padding:2px 8px;border-radius:10px;font-weight:600">SMS + Email triggered on submit</span>
+          </div>
+          <div class="dc-body">
+            <div style="margin-bottom:12px">
+              <label class="action-label">Remark / Update message to citizen</label>
+              <textarea class="action-textarea" id="detailRemark" placeholder="Type the update you want to share with the citizen (e.g. field visit completed, issue identified, expected resolution by...)"></textarea>
+            </div>
+            <div class="form-row fr3" style="margin-bottom:12px">
+              <div class="fld"><label>Update status to</label><select id="detailStatusSel"><option>In Progress</option><option>Site visit done</option><option>Pending material</option><option>Under Review</option><option>Resolved</option></select></div>
+              <div class="fld"><label>Notify citizen via</label><select id="detailNotifCh"><option>SMS + Email</option><option>SMS only</option><option>Email only</option><option>WhatsApp</option><option>No notification</option></select></div>
+              <div class="fld"><label>Attach file (optional)</label><input type="file" id="detailAttach" style="padding:6px 8px;font-size:11px;color:var(--t3)" /></div>
+            </div>
+            <div style="display:flex;gap:8px;align-items:center">
+              <button class="btn btn-primary" onclick="submitCitizenUpdate()">📤 Send Update & Notify Citizen</button>
+              <span style="font-size:10px;color:var(--t3)">Will be logged in communication history below</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Communication Log -->
+        <div class="detail-card">
+          <div class="dc-head"><span class="dc-title">Communication History (Citizen Notifications)</span></div>
+          <div class="dc-body" id="commLogBody">
+            <div class="comm-log-item">
+              <div class="comm-log-icon" style="background:#DBEAFE;color:#1E40AF">📤</div>
+              <div class="comm-log-content">
+                <div class="comm-log-title">Field visit scheduled — citizen informed</div>
+                <div class="comm-log-msg">"Your grievance GVM-2025-05341 is being actively worked on. Our engineer M. Kumar has scheduled a field visit for tomorrow 10 AM at your location. You will receive an update by end of day."</div>
+                <div class="comm-log-meta">
+                  <span class="comm-channel-tag sms-tag">✉ SMS Sent</span>
+                  <span class="comm-channel-tag email-tag">📧 Email Sent</span>
+                  <span style="color:var(--t3)">M. Kumar · Yesterday 3:42 PM</span>
+                </div>
+                <div class="comm-attachment-row hidden"></div>
+              </div>
+            </div>
+            <div class="comm-log-item">
+              <div class="comm-log-icon" style="background:#D1FAE5;color:#065F46">✋</div>
+              <div class="comm-log-content">
+                <div class="comm-log-title">Case acknowledged by officer</div>
+                <div class="comm-log-msg">"We have received your complaint regarding water supply disruption in Ward 7. Your case has been acknowledged and assigned to our engineer. Token number: GVM-2025-05341."</div>
+                <div class="comm-log-meta">
+                  <span class="comm-channel-tag sms-tag">✉ SMS Sent</span>
+                  <span style="color:var(--t3)">System Auto · 2 days ago 9:45 AM</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="detail-sidebar">
+        <div class="detail-card">
+          <div class="dc-head"><span class="dc-title">Assignment</span></div>
+          <div class="dc-body" style="display:flex;flex-direction:column;gap:8px">
+            <div class="flex-row" style="gap:10px">
+              <div class="oi-avatar" style="width:36px;height:36px;background:#DBEAFE;color:#1E40AF;font-size:13px;font-weight:700;border-radius:50%;display:flex;align-items:center;justify-content:center">MK</div>
+              <div><div style="font-size:13px;font-weight:600">M. Kumar</div><div style="font-size:11px;color:var(--t3)">Sr. Engineer · GWSSB Zone 3</div></div>
+            </div>
+            <div class="divider"></div>
+            <button class="btn btn-ghost" style="width:100%;font-size:11px" onclick="closeModal('modal-detail');openReassign('GVM-2025-05341')">↗ Reassign to different officer</button>
+            <button class="btn btn-orange" style="width:100%;font-size:11px" onclick="closeModal('modal-detail');openReassign('GVM-2025-05341')">↗ Reassign to different dept</button>
+          </div>
+        </div>
+        <div class="detail-card">
+          <div class="dc-head"><span class="dc-title">SLA tracking</span></div>
+          <div class="dc-body">
+            <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:8px"><span style="color:var(--t3)">Filed</span><span style="font-weight:600">2 days ago</span></div>
+            <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:8px"><span style="color:var(--t3)">SLA target</span><span style="font-weight:600">5 working days</span></div>
+            <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:10px"><span style="color:var(--t3)">Remaining</span><span style="font-weight:700;color:var(--amber)">2 days</span></div>
+            <div style="background:var(--border);border-radius:4px;height:7px;overflow:hidden;margin-bottom:6px"><div style="width:60%;height:100%;background:linear-gradient(90deg,var(--green),var(--amber));border-radius:4px"></div></div>
+            <div style="font-size:10px;color:var(--t3);text-align:center">60% of SLA elapsed</div>
+          </div>
+        </div>
+        <div class="detail-card">
+          <div class="dc-head"><span class="dc-title">Grouping</span></div>
+          <div class="dc-body">
+            <div class="ai-box" style="margin-bottom:10px">
+              <span class="ai-box-icon">🤖</span>
+              <div class="ai-text"><strong>3 similar complaints</strong> detected in same area.<br><span style="color:var(--orange);cursor:pointer;font-weight:600" onclick="closeModal('modal-detail');openGroup('GVM-2025-05341')">Review &amp; group →</span></div>
+            </div>
+            <button class="btn btn-violet" style="width:100%;font-size:11px" onclick="closeModal('modal-detail');openGroup('GVM-2025-05341')">🔗 Group with similar complaints</button>
+          </div>
+        </div>
+        <div class="detail-card">
+          <div class="dc-head"><span class="dc-title">Evidence (2)</span></div>
+          <div class="dc-body"><div style="display:flex;gap:8px"><div class="evidence-thumb" style="width:54px;height:54px">🏚</div><div class="evidence-thumb" style="width:54px;height:54px">💧</div></div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- Reassign Modal -->
+<div class="overlay hidden" id="modal-reassign" onclick="closeModal('modal-reassign')">
+<div class="modal modal-md" onclick="event.stopPropagation()" style="position:relative">
+  <button class="modal-close" onclick="closeModal('modal-reassign')">×</button>
+  <div class="modal-head">
+    <div class="modal-title">↗ Reassign Complaint</div>
+    <div class="modal-sub" id="reassignSub">GVM-2025-05341 · Water supply disruption, Ward 7</div>
+  </div>
+  <div class="modal-body">
+    <div class="section-divider">Reassign to department</div>
+    <div class="dept-grid" style="margin-bottom:16px">
+      <div class="dept-item selected" onclick="selectDept(this)"><span class="di-icon">💧</span><div><div class="di-name">GWSSB</div><div class="di-code">Water Supply</div></div></div>
+      <div class="dept-item" onclick="selectDept(this)"><span class="di-icon">🏥</span><div><div class="di-name">CDHO / Health</div><div class="di-code">Health Services</div></div></div>
+      <div class="dept-item" onclick="selectDept(this)"><span class="di-icon">🛣</span><div><div class="di-name">PWD</div><div class="di-code">Roads & Buildings</div></div></div>
+      <div class="dept-item" onclick="selectDept(this)"><span class="di-icon">🏛</span><div><div class="di-name">Revenue</div><div class="di-code">Land Records</div></div></div>
+      <div class="dept-item" onclick="selectDept(this)"><span class="di-icon">📚</span><div><div class="di-name">Education</div><div class="di-code">DEO</div></div></div>
+      <div class="dept-item" onclick="selectDept(this)"><span class="di-icon">⚙</span><div><div class="di-name">Electricity</div><div class="di-code">DGVCL / UGVCL</div></div></div>
+    </div>
+    <div class="section-divider">Assign to officer</div>
+    <div class="officer-list" style="margin-bottom:14px">
+      <div class="officer-item selected" onclick="selectOfficer(this)"><div class="oi-avatar" style="background:#DBEAFE;color:#1E40AF">MK</div><div><div class="oi-name">M. Kumar</div><div class="oi-role">Sr. Engineer · GWSSB Zone 3</div></div><span class="oi-load oi-load-ok">6 active</span></div>
+      <div class="officer-item" onclick="selectOfficer(this)"><div class="oi-avatar" style="background:#D1FAE5;color:#065F46">AN</div><div><div class="oi-name">A. Nair</div><div class="oi-role">Engineer · GWSSB Zone 1</div></div><span class="oi-load oi-load-high">11 active</span></div>
+      <div class="officer-item" onclick="selectOfficer(this)"><div class="oi-avatar" style="background:#FEF3C7;color:#92400E">SD</div><div><div class="oi-name">S. Dave</div><div class="oi-role">JE · GWSSB Zone 2</div></div><span class="oi-load oi-load-ok">3 active</span></div>
+    </div>
+    <div class="fld" style="margin-bottom:0">
+      <label>Reason for reassignment (shared with officer and audit log)</label>
+      <textarea placeholder="e.g. Route change — pipeline issue falls under Zone 3 jurisdiction...">Zone mismatch — Ward 7 falls under Zone 3 pipeline network managed by M. Kumar.</textarea>
+    </div>
+  </div>
+  <div class="modal-foot">
+    <button class="btn btn-ghost" onclick="closeModal('modal-reassign')">Cancel</button>
+    <button class="btn btn-orange" onclick="closeModal('modal-reassign');showToast('Reassigned to M. Kumar — GWSSB Zone 3')">↗ Confirm reassignment</button>
+  </div>
+</div>
+</div>
+
+<!-- Group Modal -->
+<div class="overlay hidden" id="modal-group" onclick="closeModal('modal-group')">
+<div class="modal modal-lg" onclick="event.stopPropagation()" style="position:relative">
+  <button class="modal-close" onclick="closeModal('modal-group')">×</button>
+  <div class="modal-head">
+    <div class="modal-title">🔗 Group Similar Complaints</div>
+    <div class="modal-sub">Select complaints to merge into a single case. All linked complaints will be resolved together.</div>
+  </div>
+  <div class="modal-body">
+    <div class="ai-box" style="margin-bottom:16px">
+      <span class="ai-box-icon">🤖</span>
+      <div class="ai-text"><strong>AI detected 3 similar complaints</strong> matching GVM-2025-05341 by location, category, and date. Suggested similarity scores shown below. Grouping saves resolution effort and prevents duplicate notifications.</div>
+    </div>
+
+    <div class="section-divider">Primary complaint (anchor)</div>
+    <div class="group-item primary-item" style="margin-bottom:14px">
+      <span class="gi-icon">📌</span>
+      <div style="flex:1">
+        <div class="gi-id">GVM-2025-05341</div>
+        <div class="gi-title">Water supply disruption — Ward 7, 3 days (WhatsApp)</div>
+        <div class="gi-meta">Rajesh Patel · Filed 2 days ago · HIGH</div>
+      </div>
+      <span class="gi-badge">Primary</span>
+    </div>
+
+    <div class="section-divider">Select complaints to link</div>
+    <table class="group-select-table">
+      <thead><tr><th>☐</th><th>Token</th><th>Issue</th><th>Citizen</th><th>Channel</th><th>AI Match</th></tr></thead>
+      <tbody>
+        <tr>
+          <td><div class="cb checked" onclick="toggleCb(this)">✓</div></td>
+          <td><div class="complaint-id" style="font-size:11px">GVM-2025-05298</div></td>
+          <td><div style="font-size:11px;font-weight:500">No water — Laxmi Society, Block B</div><div style="font-size:10px;color:var(--t3)">Ward 7, Ahmedabad · 3 days ago</div></td>
+          <td style="font-size:11px">Priya Shah</td>
+          <td><span class="channel-badge ch-web" style="font-size:9px">Web</span></td>
+          <td>
+            <span style="font-size:11px;font-weight:700;color:var(--green)">96%</span>
+            <div class="similarity-bar-wrap"><div class="similarity-bar" style="width:96%;background:var(--green)"></div></div>
+          </td>
+        </tr>
+        <tr>
+          <td><div class="cb checked" onclick="toggleCb(this)">✓</div></td>
+          <td><div class="complaint-id" style="font-size:11px">GVM-2025-05312</div></td>
+          <td><div style="font-size:11px;font-weight:500">Water not coming since Monday morning</div><div style="font-size:10px;color:var(--t3)">Ward 7 South, Ahmedabad · 2 days ago</div></td>
+          <td style="font-size:11px">Ramesh Joshi</td>
+          <td><span class="channel-badge ch-mob" style="font-size:9px">App</span></td>
+          <td>
+            <span style="font-size:11px;font-weight:700;color:var(--green)">91%</span>
+            <div class="similarity-bar-wrap"><div class="similarity-bar" style="width:91%;background:var(--green)"></div></div>
+          </td>
+        </tr>
+        <tr>
+          <td><div class="cb" onclick="toggleCb(this)"></div></td>
+          <td><div class="complaint-id" style="font-size:11px">GVM-2025-05356</div></td>
+          <td><div style="font-size:11px;font-weight:500">Dirty water from tap — possible contamination</div><div style="font-size:10px;color:var(--t3)">Ward 8, Ahmedabad · 1 day ago</div></td>
+          <td style="font-size:11px">Sunita Patel</td>
+          <td><span class="channel-badge ch-call" style="font-size:9px">Helpline</span></td>
+          <td>
+            <span style="font-size:11px;font-weight:700;color:var(--amber)">64%</span>
+            <div class="similarity-bar-wrap"><div class="similarity-bar" style="width:64%;background:var(--amber)"></div></div>
+          </td>
+        </tr>
+        <tr>
+          <td><div class="cb" onclick="toggleCb(this)"></div></td>
+          <td><div class="complaint-id" style="font-size:11px">GVM-2025-05401</div></td>
+          <td><div style="font-size:11px;font-weight:500">New water connection — application pending</div><div style="font-size:10px;color:var(--t3)">Ward 9, Ahmedabad · Today</div></td>
+          <td style="font-size:11px">Kartik Shah</td>
+          <td><span class="channel-badge ch-wa" style="font-size:9px">WhatsApp</span></td>
+          <td>
+            <span style="font-size:11px;font-weight:700;color:var(--t3)">22%</span>
+            <div class="similarity-bar-wrap"><div class="similarity-bar" style="width:22%;background:var(--border2)"></div></div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="section-divider" style="margin-top:16px">Group settings</div>
+    <div class="form-row fr2">
+      <div class="fld"><label>Group label / title</label><input value="Water supply disruption — Ward 7 cluster" /></div>
+      <div class="fld"><label>Resolution behaviour</label><select><option>Resolve primary → auto-close all linked</option><option>Resolve each independently</option><option>Notify all but resolve separately</option></select></div>
+    </div>
+    <div class="fld"><label>Grouping reason (audit log)</label><textarea style="min-height:56px">Same location (Ward 7), same category (water supply), same time period. AI similarity ≥90% for 2 complaints. Manually reviewed and confirmed.</textarea></div>
+  </div>
+  <div class="modal-foot">
+    <button class="btn btn-ghost" onclick="closeModal('modal-group')">Cancel</button>
+    <button class="btn btn-violet" onclick="closeModal('modal-group');showToast('Group created — GRP-004 with 3 complaints')">🔗 Create group (3 complaints)</button>
+  </div>
+</div>
+</div>
+
+<!-- Escalate Modal -->
+<div class="overlay hidden" id="modal-escalate" onclick="closeModal('modal-escalate')">
+<div class="modal modal-sm" onclick="event.stopPropagation()" style="position:relative">
+  <button class="modal-close" onclick="closeModal('modal-escalate')">×</button>
+  <div class="modal-head"><div class="modal-title">🚨 Escalate Complaint</div><div class="modal-sub">This will route the complaint to your senior officer with a priority flag.</div></div>
+  <div class="modal-body">
+    <div class="form-row" style="margin-bottom:12px">
+      <div class="fld"><label>Escalate to</label><select><option>Nodal Officer — Ravi Varma</option><option>CDHO — Dr. R. Shah</option><option>Director, Health Services</option></select></div>
+    </div>
+    <div class="form-row" style="margin-bottom:12px">
+      <div class="fld"><label>Reason for escalation</label><select><option>SLA breached</option><option>Unable to resolve at my level</option><option>Requires senior intervention</option><option>Cross-department issue</option><option>Citizen threatening legal action</option></select></div>
+    </div>
+    <div class="fld"><label>Additional notes</label><textarea placeholder="Describe what you have tried and why escalation is needed..."></textarea></div>
+  </div>
+  <div class="modal-foot">
+    <button class="btn btn-ghost" onclick="closeModal('modal-escalate')">Cancel</button>
+    <button class="btn btn-red" onclick="closeModal('modal-escalate');showToast('Complaint escalated to Nodal Officer')">🚨 Escalate now</button>
+  </div>
+</div>
+</div>
+
+<!-- Notifications Panel -->
+<div class="overlay hidden" id="modal-notif" onclick="closeModal('modal-notif')">
+<div class="modal modal-sm" onclick="event.stopPropagation()" style="position:absolute;top:60px;right:12px;border-radius:12px;max-height:480px">
+  <div class="modal-head" style="padding:14px 16px 10px"><div class="modal-title">Notifications</div></div>
+  <div style="overflow-y:auto;max-height:380px">
+    <div class="notif-item unread"><div class="notif-dot2"></div><div><div class="notif-text"><strong>SLA breach alert</strong> — GVM-2025-05298 overdue by 1 day</div><div class="notif-time">10 minutes ago</div></div></div>
+    <div class="notif-item unread"><div class="notif-dot2"></div><div><div class="notif-text"><strong>Escalation received</strong> — A. Nair escalated GVM-2025-05298</div><div class="notif-time">25 minutes ago</div></div></div>
+    <div class="notif-item unread"><div class="notif-dot2"></div><div><div class="notif-text"><strong>AI group suggestion</strong> — 3 similar water complaints in Ward 7</div><div class="notif-time">1 hour ago</div></div></div>
+    <div class="notif-item"><div class="notif-dot-blank"></div><div><div class="notif-text">M. Kumar updated GVM-2025-05341 — field visit scheduled</div><div class="notif-time">2 hours ago</div></div></div>
+    <div class="notif-item"><div class="notif-dot-blank"></div><div><div class="notif-text">GVM-2025-05180 resolved by R. Patel</div><div class="notif-time">3 hours ago</div></div></div>
+  </div>
+</div>
+</div>
+
+<!-- Resolve Modal -->
+<div class="overlay hidden" id="modal-resolve" onclick="closeModal('modal-resolve')">
+<div class="modal modal-md" onclick="event.stopPropagation()" style="position:relative">
+  <button class="modal-close" onclick="closeModal('modal-resolve')">×</button>
+  <div class="modal-head">
+    <div class="modal-title">✅ Resolve Complaint</div>
+    <div class="modal-sub" id="resolveSubtitle">GVM-2025-05341 · Water supply disruption, Ward 7</div>
+  </div>
+  <div class="modal-body">
+    <div class="resolve-checklist">
+      <label class="resolve-check-item"><input type="checkbox" checked /> Issue has been physically verified and addressed</label>
+      <label class="resolve-check-item"><input type="checkbox" checked /> Citizen has been informed of the resolution</label>
+      <label class="resolve-check-item"><input type="checkbox" /> Follow-up visit completed (if applicable)</label>
+    </div>
+
+    <div class="fld" style="margin-bottom:14px">
+      <label>Resolution Remarks <span style="color:var(--red)">*</span></label>
+      <textarea id="resolveRemarks" placeholder="Describe the resolution in detail — what was done, when, and outcome. This will be shared with the citizen." style="min-height:90px;border:1.5px solid var(--border);border-radius:var(--r-sm);width:100%;padding:9px 12px;font-size:12px;font-family:'Epilogue',sans-serif;outline:none;resize:vertical"></textarea>
+    </div>
+
+    <div class="form-row fr2" style="margin-bottom:14px">
+      <div class="fld">
+        <label>Notify citizen via</label>
+        <select id="resolveNotifCh">
+          <option>SMS + Email</option>
+          <option>SMS only</option>
+          <option>Email only</option>
+          <option>WhatsApp</option>
+        </select>
+      </div>
+      <div class="fld">
+        <label>Resolution date</label>
+        <input type="date" id="resolveDate" />
+      </div>
+    </div>
+
+    <div class="fld" style="margin-bottom:14px">
+      <label>Attach supporting document / photo (optional)</label>
+      <div style="border:2px dashed var(--border2);border-radius:var(--r-sm);padding:16px;text-align:center;cursor:pointer;transition:all 0.15s;background:var(--bg)" onclick="document.getElementById('resolveFile').click()" id="resolveDropZone">
+        <div style="font-size:20px;margin-bottom:4px">📎</div>
+        <div style="font-size:11px;color:var(--t3)">Click to upload or drag & drop</div>
+        <div style="font-size:10px;color:var(--t3);margin-top:2px">PDF, JPG, PNG — max 10MB</div>
+        <input type="file" id="resolveFile" style="display:none" onchange="handleResolveFile(this)" />
+      </div>
+      <div id="resolveFileName" style="font-size:11px;color:var(--brand);margin-top:6px;display:none"></div>
+    </div>
+
+    <div style="background:var(--green-l);border:1px solid rgba(22,163,74,0.25);border-radius:var(--r-sm);padding:10px 12px;font-size:11px;color:var(--green);display:flex;gap:8px;align-items:flex-start">
+      <span>✅</span>
+      <span>Resolving will close this case and automatically send a notification to the citizen with your remarks. The resolution will be logged for audit purposes.</span>
+    </div>
+  </div>
+  <div class="modal-foot">
+    <button class="btn btn-ghost" onclick="closeModal('modal-resolve')">Cancel</button>
+    <button class="btn btn-green" onclick="submitResolve()" style="padding:10px 22px">✅ Confirm Resolution & Notify Citizen</button>
+  </div>
+</div>
+</div>
+
+<!-- Toast -->
+<div id="toast" style="position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(80px);background:var(--ink);color:white;padding:11px 20px;border-radius:25px;font-size:13px;font-weight:500;z-index:9999;transition:transform 0.3s cubic-bezier(0.2,0,0,1);pointer-events:none;white-space:nowrap;box-shadow:0 8px 32px rgba(0,0,0,0.3)"></div>
+
+<script>
+var isNodal = true;
+var selectMode = false;
+var selectedRows = new Set();
+
+// ── ROLE TOGGLE ────────────────────────────────────────────────────────────
+function setRole(role) {
+  isNodal = role === 'nodal';
+  document.getElementById('roleNodal').className = 'role-btn' + (isNodal?' active-nodal':'');
+  document.getElementById('roleClerk').className = 'role-btn' + (!isNodal?' active-clerk':'');
+  if(isNodal) {
+    document.getElementById('sbName').textContent = 'Ravi Varma';
+    document.getElementById('sbRole').textContent = 'Nodal Officer';
+    document.getElementById('sbRole').style.background = '#DBEAFE';
+    document.getElementById('sbRole').style.color = '#1E40AF';
+    document.getElementById('sbAvatar').textContent = 'RV';
+    document.getElementById('sbAvatar').style.background = '#1A56C4';
+    document.getElementById('topRolePill').textContent = 'Nodal Officer — GWSSB';
+    document.getElementById('topRolePill').style.background = '#DBEAFE';
+    document.getElementById('topRolePill').style.color = '#1E40AF';
+    document.getElementById('nodalSection').style.display = '';
+    ['nav-reassign','nav-team','nav-escalations'].forEach(function(id){
+      document.getElementById(id).style.display = '';
+    });
+  } else {
+    document.getElementById('sbName').textContent = 'M. Kumar';
+    document.getElementById('sbRole').textContent = 'Clerk / Task Owner';
+    document.getElementById('sbRole').style.background = '#D1FAE5';
+    document.getElementById('sbRole').style.color = '#065F46';
+    document.getElementById('sbAvatar').textContent = 'MK';
+    document.getElementById('sbAvatar').style.background = '#16A34A';
+    document.getElementById('topRolePill').textContent = 'Clerk — GWSSB Zone 3';
+    document.getElementById('topRolePill').style.background = '#D1FAE5';
+    document.getElementById('topRolePill').style.color = '#065F46';
+    document.getElementById('nodalSection').style.display = 'none';
+    ['nav-reassign','nav-team','nav-escalations'].forEach(function(id){
+      document.getElementById(id).style.display = 'none';
+    });
+    showView('mywork');
+  }
+}
+
+// ── VIEW NAVIGATION ────────────────────────────────────────────────────────
+var viewTitles = {
+  dashboard:'Dashboard',complaints:'All Complaints',mywork:'My Work Queue',
+  grouped:'Grouped Cases',reassign:'Reassign / Route',team:'My Team',
+  escalations:'Escalations',reports:'SLA Reports'
+};
+function showView(name) {
+  document.querySelectorAll('.view').forEach(function(v){ v.classList.remove('active'); });
+  document.querySelectorAll('.sb-item').forEach(function(i){ i.classList.remove('active'); });
+  var v = document.getElementById('view-'+name);
+  if(v) v.classList.add('active');
+  var n = document.getElementById('nav-'+name);
+  if(n) n.classList.add('active');
+  var suffix = isNodal ? ' — Nodal Officer' : ' — Clerk View';
+  document.getElementById('topbarTitle').textContent = (viewTitles[name]||name) + suffix;
+  if(name==='complaints') renderComplaintsTable();
+  window.scrollTo(0,0);
+}
+
+// ── COMPLAINTS TABLE DATA ──────────────────────────────────────────────────
+var complaints = [
+  {id:'GVM-2025-05341',title:'Water supply disruption — 3 days',loc:'Ward 7, Ahmedabad',citizen:'Rajesh Patel',channel:'wa',dept:'GWSSB',pri:'high',status:'progress',sla:'warn',slaText:'2d left',assigned:'MK',assignedName:'M. Kumar',filed:'2d ago',grouped:false},
+  {id:'GVM-2025-05298',title:'No water — Laxmi Society',loc:'Ward 7, Ahmedabad',citizen:'Priya Shah',channel:'web',dept:'GWSSB',pri:'high',status:'open',sla:'breach',slaText:'Breached',assigned:'AN',assignedName:'A. Nair',filed:'3d ago',grouped:false},
+  {id:'GVM-2025-05201',title:'PHC closed — no doctor',loc:'Daskroi, Ahmedabad',citizen:'Mohan Patel',channel:'call',dept:'CDHO',pri:'critical',status:'escalated',sla:'breach',slaText:'Breach +2d',assigned:'RP',assignedName:'R. Patel',filed:'5d ago',grouped:'GROUP-001'},
+  {id:'GVM-2025-05387',title:'Pothole on SG Highway Exit 7',loc:'SG Highway, Ahmedabad',citizen:'Anita Mehta',channel:'mob',dept:'PWD',pri:'medium',status:'open',sla:'ok',slaText:'5d left',assigned:'SD',assignedName:'S. Dave',filed:'Today',grouped:false},
+  {id:'GVM-2025-05312',title:'Water not coming since Monday',loc:'Ward 7 South, Ahmedabad',citizen:'Ramesh Joshi',channel:'mob',dept:'GWSSB',pri:'high',status:'open',sla:'warn',slaText:'3d left',assigned:'MK',assignedName:'M. Kumar',filed:'2d ago',grouped:false},
+  {id:'GVM-2025-05419',title:'Revenue mutation pending 60 days',loc:'Vatva, Ahmedabad',citizen:'Suresh Patel',channel:'email',dept:'Revenue',pri:'medium',status:'review',sla:'breach',slaText:'Breach +10d',assigned:'VJ',assignedName:'V. Joshi',filed:'2m ago',grouped:false},
+  {id:'GVM-2025-05207',title:'Doctor absent at Daskroi PHC',loc:'Daskroi, Ahmedabad',citizen:'Fatima Shaikh',channel:'web',dept:'CDHO',pri:'critical',status:'escalated',sla:'breach',slaText:'Breach +2d',assigned:'RP',assignedName:'R. Patel',filed:'5d ago',grouped:'GROUP-001'},
+  {id:'GVM-2025-05188',title:'ASHA incentive not paid — 3 months',loc:'Sanand, Ahmedabad',citizen:'Gita Ben',channel:'wa',dept:'NHM',pri:'medium',status:'progress',sla:'warn',slaText:'2d left',assigned:'SD',assignedName:'S. Dave',filed:'4d ago',grouped:false},
+];
+
+var chLabels = {wa:'📱 WhatsApp',web:'🌐 Web',mob:'📱 App',call:'📞 Helpline',email:'✉ Email',walk:'🏛 Walk-in'};
+var chClass = {wa:'ch-wa',web:'ch-web',mob:'ch-mob',call:'ch-call',email:'ch-email',walk:'ch-walk'};
+var priClass = {critical:'pri-critical',high:'pri-high',medium:'pri-medium',low:'pri-low'};
+var stClass = {open:'st-open',progress:'st-progress',review:'st-review',resolved:'st-resolved',escalated:'st-escalated'};
+var stLabel = {open:'Open',progress:'In Progress',review:'Under Review',resolved:'Resolved',escalated:'Escalated'};
+var slaClass = {ok:'sla-ok',warn:'sla-warn',breach:'sla-breach'};
+var avatarBg = {MK:'#DBEAFE',AN:'#D1FAE5',RP:'#EDE9FE',SD:'#FEF3C7',VJ:'#FEE2E2'};
+var avatarFg = {MK:'#1E40AF',AN:'#065F46',RP:'#5B21B6',SD:'#92400E',VJ:'#991B1B'};
+
+var activeFilter = 'open';
+function setFilter(f) {
+  activeFilter = f;
+  ['filterAll','filterOpen','filterProgress','filterBreached'].forEach(function(id){
+    var el = document.getElementById(id);
+    if(el) el.classList.remove('active-filter');
+  });
+  var el = document.getElementById('filter'+f.charAt(0).toUpperCase()+f.slice(1));
+  if(el) el.classList.add('active-filter');
+  renderComplaintsTable();
+}
+
+function renderComplaintsTable() {
+  var filtered = complaints.filter(function(c){
+    if(activeFilter==='all') return true;
+    if(activeFilter==='open') return c.status==='open';
+    if(activeFilter==='progress') return c.status==='progress'||c.status==='review';
+    if(activeFilter==='breached') return c.sla==='breach';
+    return true;
+  });
+  var cbVisible = selectMode;
+  document.getElementById('cbHeader').className = cbVisible ? '' : 'hidden';
+  var tbody = document.getElementById('complaintsBody');
+  tbody.innerHTML = '';
+  filtered.forEach(function(c) {
+    var tr = document.createElement('tr');
+    if(selectedRows.has(c.id)) tr.className = 'selected-row';
+    if(c.grouped) tr.className += ' group-header';
+    var cbCell = cbVisible ? '<td><div class="cb'+(selectedRows.has(c.id)?' checked':'')+'" onclick="toggleRowSelect(\''+c.id+'\',this)">'+(selectedRows.has(c.id)?'✓':'')+'</div></td>' : '';
+    tr.innerHTML = cbCell +
+      '<td><div class="complaint-id">'+c.id+'</div></td>'+
+      '<td><div class="complaint-title">'+c.title+'</div><div class="complaint-meta">'+c.loc+' · '+c.citizen+'</div>'+
+        (c.grouped?'<span class="group-indicator" style="margin-top:3px;display:inline-flex;font-size:9px">🔗 '+c.grouped+'</span>':'')+
+      '</td>'+
+      '<td><span class="channel-badge '+chClass[c.channel]+'">'+chLabels[c.channel]+'</span></td>'+
+      '<td><span class="tag" style="background:var(--brand-l);color:var(--brand);font-size:10px;font-weight:600;padding:2px 8px;border-radius:10px">'+c.dept+'</span></td>'+
+      '<td><span class="pri-badge '+priClass[c.pri]+'">'+c.pri.toUpperCase()+'</span></td>'+
+      '<td><span class="status-badge '+stClass[c.status]+'">'+stLabel[c.status]+'</span></td>'+
+      '<td><span class="sla-pill '+slaClass[c.sla]+'">'+c.slaText+'</span></td>'+
+      '<td><div class="assign-chip"><div class="assign-avatar" style="background:'+avatarBg[c.assigned]+';color:'+avatarFg[c.assigned]+'">'+c.assigned+'</div>'+c.assignedName+'</div></td>'+
+      '<td style="color:var(--t3);font-size:11px">'+c.filed+'</td>'+
+      '<td><div class="action-btns"><div class="action-btn" title="View" onclick="event.stopPropagation();openDetail(\''+c.id+'\')">👁</div>'+(isNodal?'<div class="action-btn" title="Reassign" onclick="event.stopPropagation();openReassign(\''+c.id+'\')">↗</div><div class="action-btn" title="Group" onclick="event.stopPropagation();openGroup(\''+c.id+'\')">🔗</div>':'')+'</div></td>';
+    tr.onclick = function(){ openDetail(c.id); };
+    tbody.appendChild(tr);
+  });
+}
+
+function toggleRowSelect(id, el) {
+  event.stopPropagation();
+  if(selectedRows.has(id)) { selectedRows.delete(id); el.className='cb'; el.textContent=''; }
+  else { selectedRows.add(id); el.className='cb checked'; el.textContent='✓'; }
+  renderComplaintsTable();
+  var bulk = document.getElementById('bulkActions');
+  if(selectedRows.size>0) { bulk.classList.remove('hidden'); document.getElementById('selectCount').textContent=selectedRows.size+' selected'; }
+  else bulk.classList.add('hidden');
+}
+
+function toggleSelectMode() {
+  selectMode = !selectMode;
+  if(!selectMode) { selectedRows.clear(); document.getElementById('bulkActions').classList.add('hidden'); }
+  renderComplaintsTable();
+}
+
+function clearSelection() {
+  selectedRows.clear();
+  selectMode = false;
+  document.getElementById('bulkActions').classList.add('hidden');
+  renderComplaintsTable();
+}
+
+// ── MODALS ──────────────────────────────────────────────────────────────────
+function openModal(id) { document.getElementById(id).classList.remove('hidden'); }
+function closeModal(id) { document.getElementById(id).classList.add('hidden'); }
+
+function openDetail(id) {
+  var c = complaints.find(function(x){ return x.id===id; });
+  if(c) {
+    document.getElementById('detailId').textContent = id;
+    document.getElementById('detailTitle').textContent = c.title;
+    var gb = document.getElementById('detailGroupBadge');
+    if(c.grouped) { gb.textContent = '🔗 '+c.grouped; gb.classList.remove('hidden'); }
+    else gb.classList.add('hidden');
+
+    // Show/hide Acknowledge button — only for open/new complaints
+    var ackBtn = document.getElementById('detailAckBtn');
+    var sb = document.getElementById('detailStatusBadge');
+    if(ackBtn) {
+      if(c.status === 'open') {
+        ackBtn.style.display = '';
+        ackBtn.disabled = false;
+        ackBtn.textContent = '✋ Acknowledge Case';
+        ackBtn.style.background = '#FEF3C7'; ackBtn.style.borderColor = '#F59E0B'; ackBtn.style.color = '#92400E';
+      } else {
+        ackBtn.style.display = 'none';
+      }
+    }
+    if(sb) {
+      var cls = {open:'st-open',progress:'st-progress',review:'st-review',resolved:'st-resolved',escalated:'st-escalated'};
+      sb.textContent = stLabel[c.status] || c.status;
+      sb.className = 'status-badge ' + (cls[c.status]||'st-open');
+    }
+  }
+  openModal('modal-detail');
+}
+
+function openReassign(id) {
+  var c = complaints.find(function(x){ return x.id===id; });
+  if(c) document.getElementById('reassignSub').textContent = id+' · '+c.title;
+  openModal('modal-reassign');
+}
+
+function openGroup(id) { openModal('modal-group'); }
+function openGroupView(id) { openModal('modal-group'); }
+function openGroupSuggest() { openModal('modal-group'); }
+function openGroupMulti() { openModal('modal-group'); }
+function openBulkReassign() { openModal('modal-reassign'); }
+function openEscalateModal() { openModal('modal-escalate'); }
+function openNotifications() { openModal('modal-notif'); }
+function openUpdateStatus() { showToast('Status updated — citizen notified via SMS'); }
+
+// ── RESOLVE MODAL ─────────────────────────────────────────────────────────
+function openResolveModal() {
+  var id = document.getElementById('detailId') ? document.getElementById('detailId').textContent : 'GVM-2025-05341';
+  var title = document.getElementById('detailTitle') ? document.getElementById('detailTitle').textContent : '';
+  document.getElementById('resolveSubtitle').textContent = id + ' · ' + title;
+  // Set today as default date
+  var today = new Date().toISOString().split('T')[0];
+  document.getElementById('resolveDate').value = today;
+  document.getElementById('resolveRemarks').value = '';
+  document.getElementById('resolveFileName').style.display = 'none';
+  openModal('modal-resolve');
+}
+
+function handleResolveFile(input) {
+  if(input.files && input.files[0]) {
+    var fn = document.getElementById('resolveFileName');
+    fn.textContent = '📎 ' + input.files[0].name;
+    fn.style.display = 'block';
+    document.getElementById('resolveDropZone').style.borderColor = 'var(--green)';
+  }
+}
+
+function submitResolve() {
+  var remarks = document.getElementById('resolveRemarks').value.trim();
+  if(!remarks) { document.getElementById('resolveRemarks').focus(); document.getElementById('resolveRemarks').style.borderColor='var(--red)'; return; }
+  var ch = document.getElementById('resolveNotifCh').value;
+  closeModal('modal-resolve');
+  closeModal('modal-detail');
+
+  // Add to comm log (in-memory demo)
+  var now = new Date();
+  var timeStr = now.toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'});
+  addCommLogEntry('✅','#D1FAE5','#065F46','Complaint resolved — citizen notified','"'+remarks+'"','Resolved',ch,timeStr,true);
+
+  showToast('✅ Complaint resolved & citizen notified via '+ch);
+}
+
+// ── ACKNOWLEDGE CASE ─────────────────────────────────────────────────────
+function acknowledgeCase() {
+  var btn = document.getElementById('detailAckBtn');
+  if(btn) { btn.disabled = true; btn.textContent = '✓ Acknowledged'; btn.style.background='#D1FAE5'; btn.style.color='#065F46'; btn.style.borderColor='#16A34A'; }
+  var sb = document.getElementById('detailStatusBadge');
+  if(sb) { sb.textContent = 'Acknowledged'; sb.className = 'status-badge st-acknowledged'; }
+
+  var now = new Date();
+  var timeStr = now.toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'});
+  addCommLogEntry('✋','#D1FAE5','#065F46','Case acknowledged by officer',
+    '"Your grievance has been acknowledged by our officer. We are reviewing your complaint and will update you shortly. Token: GVM-2025-05341."',
+    'Acknowledged','SMS + Email',timeStr,false);
+
+  showToast('Case acknowledged — citizen notified via SMS + Email');
+}
+
+// ── CITIZEN UPDATE (SEND UPDATE) ─────────────────────────────────────────
+function submitCitizenUpdate() {
+  var remark = document.getElementById('detailRemark') ? document.getElementById('detailRemark').value.trim() : '';
+  if(!remark) { if(document.getElementById('detailRemark')) { document.getElementById('detailRemark').focus(); document.getElementById('detailRemark').style.borderColor='var(--red)'; } return; }
+  var ch = document.getElementById('detailNotifCh') ? document.getElementById('detailNotifCh').value : 'SMS + Email';
+  var status = document.getElementById('detailStatusSel') ? document.getElementById('detailStatusSel').value : 'In Progress';
+  var fileInput = document.getElementById('detailAttach');
+  var hasFile = fileInput && fileInput.files && fileInput.files.length > 0;
+  var fileName = hasFile ? fileInput.files[0].name : null;
+
+  var now = new Date();
+  var timeStr = 'Today ' + now.toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'});
+
+  addCommLogEntry('📤','#DBEAFE','#1E40AF','Update sent to citizen — '+status,'"'+remark+'"',status,ch,timeStr,hasFile,fileName);
+
+  if(document.getElementById('detailRemark')) document.getElementById('detailRemark').value = '';
+  showToast('Update sent & citizen notified via '+ch);
+}
+
+// ── ADD ENTRY TO COMM LOG ─────────────────────────────────────────────────
+function addCommLogEntry(icon, iconBg, iconFg, title, msg, status, ch, timeStr, hasFile, fileName) {
+  var body = document.getElementById('commLogBody');
+  if(!body) return;
+
+  var chTags = '';
+  if(ch.indexOf('SMS')>-1) chTags += '<span class="comm-channel-tag sms-tag">✉ SMS Sent</span>';
+  if(ch.indexOf('Email')>-1) chTags += '<span class="comm-channel-tag email-tag">📧 Email Sent</span>';
+  if(ch.indexOf('WhatsApp')>-1) chTags += '<span class="comm-channel-tag wa-tag">📱 WhatsApp Sent</span>';
+
+  var attachHtml = '';
+  if(hasFile && fileName) attachHtml = '<div style="margin-top:6px"><span class="comm-attachment">📎 '+fileName+'</span></div>';
+
+  var officerName = document.getElementById('sbName') ? document.getElementById('sbName').textContent : 'Officer';
+
+  var div = document.createElement('div');
+  div.className = 'comm-log-item';
+  div.innerHTML = '<div class="comm-log-icon" style="background:'+iconBg+';color:'+iconFg+'">'+icon+'</div>'+
+    '<div class="comm-log-content">'+
+    '<div class="comm-log-title">'+title+'</div>'+
+    '<div class="comm-log-msg">'+msg+'</div>'+
+    '<div class="comm-log-meta">'+chTags+'<span style="color:var(--t3)">'+officerName+' · '+timeStr+'</span></div>'+
+    attachHtml+
+    '</div>';
+  body.insertBefore(div, body.firstChild);
+}
+
+// ── INTERACTIONS ─────────────────────────────────────────────────────────────
+function toggleCb(el) {
+  el.classList.toggle('checked');
+  el.textContent = el.classList.contains('checked') ? '✓' : '';
+}
+function selectDept(el) {
+  el.closest('.dept-grid').querySelectorAll('.dept-item').forEach(function(d){ d.classList.remove('selected'); });
+  el.classList.add('selected');
+}
+function selectOfficer(el) {
+  el.closest('.officer-list').querySelectorAll('.officer-item').forEach(function(o){ o.classList.remove('selected'); });
+  el.classList.add('selected');
+}
+function switchTab(prefix, btn) {
+  btn.closest('.tab-strip').querySelectorAll('.tab-item').forEach(function(t){ t.classList.remove('active'); });
+  btn.classList.add('active');
+}
+
+// ── TOAST ─────────────────────────────────────────────────────────────────
+function showToast(msg) {
+  var t = document.getElementById('toast');
+  t.textContent = '✓  '+msg;
+  t.style.transform = 'translateX(-50%) translateY(0)';
+  setTimeout(function(){ t.style.transform = 'translateX(-50%) translateY(80px)'; }, 2800);
+}
+
+// ── INIT ──────────────────────────────────────────────────────────────────
+showView('dashboard');
+</script>
+</body>
+</html>

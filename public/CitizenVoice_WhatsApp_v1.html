@@ -1,0 +1,1037 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CitizenVoice — WhatsApp Grievance Flow</title>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,400&display=swap" rel="stylesheet">
+<style>
+/* ── RESET & ROOT ─────────────────────────────────────────────────────────── */
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+:root{
+  --wa-green:#25D366;--wa-dark:#128C7E;--wa-darker:#075E54;
+  --wa-teal:#34B7F1;--wa-bg:#ECE5DD;--wa-bubble-in:#FFFFFF;
+  --wa-bubble-out:#D9FDD3;--wa-header:#202C33;--wa-input:#F0F2F5;
+  --wa-tick:#53BDEB;--wa-time:#8696A0;--wa-border:#E9EDEF;
+  --wa-system:#F9F0E1;--wa-link:#027EB5;
+  --ink:#1A2533;--t2:#4A5568;--t3:#8696A0;
+  --saffron:#E8621A;--saff-l:#FFF3ED;
+  --brand:#1E4D8C;--brand-l:#EBF2FF;
+  --green:#16A34A;--green-l:#EDFAF3;
+  --red:#DC2626;--red-l:#FEF2F2;
+  --amber:#D97706;--amber-l:#FFFBEB;
+  --teal:#0891B2;--teal-l:#ECFEFF;
+}
+html,body{
+  font-family:'DM Sans',sans-serif;
+  background:#1a2744;
+  min-height:100vh;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  padding:24px 16px 60px;
+}
+
+/* ── PAGE WRAPPER ─────────────────────────────────────────────────────────── */
+.page-title{
+  text-align:center;color:white;margin-bottom:28px;
+}
+.page-title h1{
+  font-family:'Instrument Serif',serif;font-size:28px;font-weight:400;
+  letter-spacing:-0.3px;margin-bottom:6px;
+}
+.page-title p{font-size:13px;opacity:0.6;line-height:1.5;max-width:560px;margin:0 auto 16px}
+
+/* ── SCENARIO TABS ────────────────────────────────────────────────────────── */
+.scenario-bar{
+  display:flex;gap:6px;justify-content:center;flex-wrap:wrap;margin-bottom:28px;
+}
+.sc-tab{
+  font-size:12px;font-weight:500;padding:7px 16px;border-radius:20px;
+  cursor:pointer;border:1px solid rgba(255,255,255,0.18);
+  color:rgba(255,255,255,0.6);background:rgba(255,255,255,0.06);
+  transition:all 0.2s;font-family:'DM Sans',sans-serif;
+}
+.sc-tab:hover{background:rgba(255,255,255,0.12);color:white}
+.sc-tab.active{background:var(--wa-green);border-color:var(--wa-green);color:white;font-weight:600}
+
+/* ── LAYOUT: PHONE + NOTES SIDE BY SIDE ──────────────────────────────────── */
+.layout{
+  display:flex;gap:24px;align-items:flex-start;justify-content:center;
+  width:100%;max-width:900px;
+}
+
+/* ── PHONE SHELL ──────────────────────────────────────────────────────────── */
+.phone-wrap{flex-shrink:0;width:370px}
+.phone-frame{
+  background:#111;border-radius:46px;padding:12px;
+  box-shadow:0 32px 80px rgba(0,0,0,0.65),0 0 0 1px rgba(255,255,255,0.07);
+}
+.notch-bar{
+  width:110px;height:28px;background:#111;border-radius:0 0 18px 18px;
+  margin:0 auto 6px;display:flex;align-items:center;justify-content:center;gap:5px;
+}
+.notch-cam{width:9px;height:9px;border-radius:50%;background:#1e1e1e;border:1.5px solid #2a2a2a}
+.notch-sp{width:28px;height:5px;border-radius:3px;background:#1e1e1e}
+
+.wa-screen{
+  background:var(--wa-bg);border-radius:34px;overflow:hidden;
+  height:740px;display:flex;flex-direction:column;position:relative;
+}
+/* wallpaper pattern */
+.wa-screen::before{
+  content:'';position:absolute;inset:0;opacity:0.04;pointer-events:none;z-index:0;
+  background-image:url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23000000' fill-opacity='1'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+}
+
+/* STATUS BAR */
+.wa-status{
+  background:var(--wa-header);padding:10px 16px 4px;
+  display:flex;align-items:center;justify-content:space-between;
+  flex-shrink:0;position:relative;z-index:10;
+}
+.wa-status-time{font-size:13px;font-weight:600;color:white}
+.wa-status-icons{display:flex;gap:3px;align-items:center;font-size:12px;color:rgba(255,255,255,0.8)}
+
+/* CHAT HEADER */
+.wa-header{
+  background:var(--wa-header);padding:6px 8px 10px;
+  display:flex;align-items:center;gap:10px;
+  flex-shrink:0;position:relative;z-index:10;
+}
+.wa-back{font-size:20px;color:rgba(255,255,255,0.7);cursor:pointer;padding:4px 2px;flex-shrink:0}
+.wa-avatar{
+  width:38px;height:38px;border-radius:50%;
+  background:linear-gradient(135deg,var(--wa-green),var(--wa-dark));
+  display:flex;align-items:center;justify-content:center;
+  font-size:18px;flex-shrink:0;position:relative;
+}
+.wa-avatar-online{
+  position:absolute;bottom:1px;right:1px;width:9px;height:9px;
+  border-radius:50%;background:var(--wa-green);border:1.5px solid var(--wa-header);
+}
+.wa-header-info{flex:1}
+.wa-header-name{font-size:14px;font-weight:600;color:white;line-height:1.2}
+.wa-header-status{font-size:11px;color:rgba(255,255,255,0.55);margin-top:1px}
+.wa-header-icons{display:flex;gap:16px;color:rgba(255,255,255,0.7);font-size:18px}
+
+/* CHAT AREA */
+.wa-chat{
+  flex:1;overflow-y:auto;padding:8px 10px 6px;
+  display:flex;flex-direction:column;gap:3px;
+  position:relative;z-index:1;
+}
+.wa-chat::-webkit-scrollbar{width:3px}
+.wa-chat::-webkit-scrollbar-thumb{background:rgba(0,0,0,0.15);border-radius:2px}
+
+/* DATE CHIP */
+.wa-date-chip{
+  align-self:center;background:rgba(255,255,255,0.85);
+  padding:4px 12px;border-radius:10px;font-size:11px;
+  color:var(--t2);font-weight:500;margin:6px 0;
+  box-shadow:0 1px 3px rgba(0,0,0,0.1);
+}
+
+/* SYSTEM MSG */
+.wa-system-msg{
+  align-self:center;background:var(--wa-system);
+  padding:6px 14px;border-radius:8px;font-size:11px;
+  color:#705C3B;text-align:center;max-width:80%;line-height:1.4;
+  margin:4px 0;box-shadow:0 1px 2px rgba(0,0,0,0.08);
+}
+
+/* MESSAGE ROWS */
+.msg-row{display:flex;margin-bottom:2px;align-items:flex-end;gap:5px}
+.msg-row.in{flex-direction:row}
+.msg-row.out{flex-direction:row-reverse}
+.msg-row.in+.msg-row.out,.msg-row.out+.msg-row.in{margin-top:6px}
+
+/* BUBBLES */
+.bubble{
+  max-width:82%;padding:7px 10px 5px;border-radius:8px;
+  position:relative;word-break:break-word;
+  box-shadow:0 1px 2px rgba(0,0,0,0.12);
+}
+.msg-row.in .bubble{
+  background:var(--wa-bubble-in);
+  border-radius:0 8px 8px 8px;
+}
+.msg-row.out .bubble{
+  background:var(--wa-bubble-out);
+  border-radius:8px 8px 0 8px;
+}
+/* tail */
+.msg-row.in .bubble::before{
+  content:'';position:absolute;top:0;left:-7px;
+  border-right:8px solid var(--wa-bubble-in);
+  border-top:6px solid transparent;
+}
+.msg-row.out .bubble::after{
+  content:'';position:absolute;top:0;right:-7px;
+  border-left:8px solid var(--wa-bubble-out);
+  border-top:6px solid transparent;
+}
+
+.bubble-text{font-size:13.5px;color:var(--ink);line-height:1.45}
+.bubble-text strong{font-weight:600}
+.bubble-text em{font-style:italic;color:var(--t2)}
+.bubble-meta{
+  display:flex;align-items:center;justify-content:flex-end;gap:3px;
+  margin-top:3px;
+}
+.bubble-time{font-size:10.5px;color:var(--wa-time)}
+.bubble-ticks{font-size:13px;color:var(--wa-tick)}
+
+/* QUICK REPLY CHIPS */
+.qr-row{
+  display:flex;flex-wrap:wrap;gap:6px;
+  padding:4px 10px 8px;position:relative;z-index:1;
+}
+.qr-chip{
+  background:white;border:1.5px solid var(--wa-border);
+  border-radius:20px;padding:7px 14px;font-size:12px;
+  font-weight:500;color:var(--wa-link);cursor:pointer;
+  transition:all 0.15s;font-family:'DM Sans',sans-serif;
+  box-shadow:0 1px 3px rgba(0,0,0,0.06);
+}
+.qr-chip:hover{background:var(--wa-input);border-color:#c8d0d5}
+.qr-chip:active{transform:scale(0.97)}
+.qr-chip.selected{background:var(--wa-link);color:white;border-color:var(--wa-link)}
+
+/* LIST MESSAGE (WA template) */
+.list-msg{
+  background:var(--wa-bubble-in);border-radius:0 8px 8px 8px;
+  overflow:hidden;max-width:88%;
+  box-shadow:0 1px 2px rgba(0,0,0,0.12);
+  border-radius:0 8px 8px 8px;
+}
+.list-msg::before{
+  content:'';position:absolute;top:0;left:-7px;
+  border-right:8px solid var(--wa-bubble-in);
+  border-top:6px solid transparent;
+}
+.list-header{
+  background:linear-gradient(135deg,var(--wa-darker),var(--wa-dark));
+  padding:12px 14px;
+}
+.list-header-icon{font-size:22px;margin-bottom:4px}
+.list-header-title{font-size:14px;font-weight:700;color:white;line-height:1.3}
+.list-header-sub{font-size:11px;color:rgba(255,255,255,0.7);margin-top:2px}
+.list-body{padding:4px 0}
+.list-item{
+  display:flex;align-items:center;gap:10px;
+  padding:10px 14px;border-bottom:0.5px solid var(--wa-border);
+  cursor:pointer;transition:background 0.1s;
+}
+.list-item:last-child{border-bottom:none}
+.list-item:hover{background:var(--wa-input)}
+.list-item:active{background:#e8eaed}
+.list-item-icon{font-size:18px;flex-shrink:0;width:28px;text-align:center}
+.list-item-text{flex:1}
+.list-item-title{font-size:13px;font-weight:600;color:var(--ink);line-height:1.2}
+.list-item-sub{font-size:11px;color:var(--t3);margin-top:1px}
+.list-item-arrow{font-size:14px;color:var(--t3)}
+.list-footer{
+  padding:10px 14px;border-top:0.5px solid var(--wa-border);
+  display:flex;align-items:center;justify-content:center;gap:4px;
+  cursor:pointer;transition:background 0.1s;
+}
+.list-footer:hover{background:var(--wa-input)}
+.list-footer-text{font-size:12px;font-weight:600;color:var(--wa-link)}
+
+/* CARD / BUTTON MESSAGE (WA template) */
+.card-msg{
+  background:var(--wa-bubble-in);border-radius:0 8px 8px 8px;
+  overflow:hidden;max-width:88%;
+  box-shadow:0 1px 2px rgba(0,0,0,0.12);
+}
+.card-img{
+  width:100%;height:100px;
+  background:linear-gradient(135deg,var(--wa-dark) 0%,var(--wa-darker) 100%);
+  display:flex;align-items:center;justify-content:center;
+  font-size:36px;
+}
+.card-body{padding:10px 12px 8px}
+.card-title{font-size:14px;font-weight:700;color:var(--ink);margin-bottom:4px}
+.card-text{font-size:12.5px;color:var(--t2);line-height:1.45;margin-bottom:8px}
+.card-meta{
+  display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px;
+}
+.card-tag{
+  font-size:10px;font-weight:600;padding:3px 8px;border-radius:10px;
+}
+.card-tag-green{background:#d1fae5;color:#065f46}
+.card-tag-blue{background:#dbeafe;color:#1e40af}
+.card-tag-amber{background:#fef3c7;color:#92400e}
+.card-tag-red{background:#fee2e2;color:#991b1b}
+.card-buttons{border-top:0.5px solid var(--wa-border)}
+.card-btn{
+  display:flex;align-items:center;justify-content:center;gap:6px;
+  padding:11px;font-size:13px;font-weight:600;color:var(--wa-link);
+  cursor:pointer;border-bottom:0.5px solid var(--wa-border);
+  transition:background 0.1s;
+}
+.card-btn:last-child{border-bottom:none}
+.card-btn:hover{background:var(--wa-input)}
+.card-btn-icon{font-size:14px}
+
+/* OTP / TOKEN CARD */
+.otp-card{
+  background:var(--wa-bubble-in);border-radius:0 8px 8px 8px;
+  padding:14px;max-width:88%;
+  box-shadow:0 1px 2px rgba(0,0,0,0.12);
+}
+.otp-title{font-size:12px;font-weight:700;color:var(--t3);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px}
+.otp-number{
+  font-family:'Instrument Serif',serif;font-size:26px;font-weight:400;
+  color:var(--ink);letter-spacing:3px;text-align:center;
+  background:var(--wa-input);padding:10px;border-radius:8px;margin-bottom:8px;
+}
+.otp-hint{font-size:11px;color:var(--t3);text-align:center}
+
+/* MEDIA MSG (photo upload simulation) */
+.media-msg{
+  background:var(--wa-bubble-out);border-radius:8px 8px 0 8px;
+  overflow:hidden;max-width:70%;
+  box-shadow:0 1px 2px rgba(0,0,0,0.12);
+}
+.media-thumb{
+  width:100%;height:120px;
+  background:linear-gradient(160deg,#c0d8f0,#8eb8e0);
+  display:flex;align-items:center;justify-content:center;
+  font-size:40px;position:relative;
+}
+.media-overlay{
+  position:absolute;inset:0;background:rgba(0,0,0,0.06);
+  display:flex;align-items:flex-end;padding:8px;
+}
+.media-filename{font-size:10px;font-weight:600;color:white}
+.media-footer{padding:5px 8px 4px;display:flex;justify-content:flex-end;align-items:center;gap:3px}
+
+/* LOCATION MSG */
+.loc-msg{
+  background:var(--wa-bubble-in);border-radius:0 8px 8px 8px;
+  overflow:hidden;max-width:88%;
+  box-shadow:0 1px 2px rgba(0,0,0,0.12);
+}
+.loc-map{
+  width:100%;height:90px;
+  background:linear-gradient(160deg,#d4e4c8,#b8d4a0);
+  display:flex;align-items:center;justify-content:center;
+  font-size:28px;position:relative;
+}
+.loc-pin{position:absolute;font-size:28px;filter:drop-shadow(0 2px 4px rgba(0,0,0,0.3))}
+.loc-body{padding:8px 12px 8px}
+.loc-title{font-size:13px;font-weight:600;color:var(--ink)}
+.loc-sub{font-size:11px;color:var(--t3);margin-top:1px}
+
+/* TYPING INDICATOR */
+.typing-bubble{
+  background:var(--wa-bubble-in);border-radius:0 8px 8px 8px;
+  padding:10px 14px;display:flex;gap:4px;align-items:center;
+  box-shadow:0 1px 2px rgba(0,0,0,0.12);width:60px;
+}
+.t-dot{
+  width:7px;height:7px;border-radius:50%;background:var(--t3);
+  animation:tdot 1.2s ease-in-out infinite;
+}
+.t-dot:nth-child(2){animation-delay:0.2s}
+.t-dot:nth-child(3){animation-delay:0.4s}
+@keyframes tdot{0%,60%,100%{transform:translateY(0);opacity:0.4}30%{transform:translateY(-5px);opacity:1}}
+
+/* INPUT BAR */
+.wa-input-bar{
+  background:var(--wa-input);padding:8px 10px;
+  display:flex;align-items:center;gap:8px;
+  flex-shrink:0;position:relative;z-index:10;
+}
+.wa-attach{font-size:22px;color:var(--t3);cursor:pointer;padding:2px 4px}
+.wa-input-field{
+  flex:1;background:white;border-radius:22px;border:none;
+  padding:9px 14px;font-size:13.5px;font-family:'DM Sans',sans-serif;
+  color:var(--ink);outline:none;box-shadow:0 1px 2px rgba(0,0,0,0.06);
+}
+.wa-emoji{font-size:22px;color:var(--t3);cursor:pointer;padding:2px}
+.wa-mic{
+  width:42px;height:42px;background:var(--wa-green);border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  font-size:20px;cursor:pointer;border:none;flex-shrink:0;
+  box-shadow:0 2px 8px rgba(37,211,102,0.35);transition:transform 0.15s;
+}
+.wa-mic:active{transform:scale(0.93)}
+
+/* HOME BAR */
+.wa-home-bar{
+  background:var(--wa-bg);padding:6px 0 4px;display:flex;justify-content:center;
+}
+.wa-home-indicator{width:90px;height:4px;border-radius:2px;background:rgba(0,0,0,0.25)}
+
+/* ── RIGHT PANEL: FLOW NOTES ────────────────────────────────────────────────── */
+.notes-panel{
+  flex:1;max-width:340px;display:flex;flex-direction:column;gap:14px;
+}
+.notes-header{color:white;margin-bottom:4px}
+.notes-header h2{font-family:'Instrument Serif',serif;font-size:20px;font-weight:400;margin-bottom:4px}
+.notes-header p{font-size:12px;opacity:0.55;line-height:1.5}
+
+.flow-card{
+  background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);
+  border-radius:14px;padding:16px;
+}
+.flow-card-title{font-size:11px;font-weight:600;color:rgba(255,255,255,0.4);text-transform:uppercase;letter-spacing:0.8px;margin-bottom:10px}
+.flow-step{
+  display:flex;gap:10px;align-items:flex-start;padding:7px 0;
+  border-bottom:0.5px solid rgba(255,255,255,0.07);
+}
+.flow-step:last-child{border-bottom:none;padding-bottom:0}
+.flow-num{
+  width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;
+  font-size:10px;font-weight:700;flex-shrink:0;margin-top:1px;
+}
+.fs-done{background:var(--wa-green);color:white}
+.fs-active{background:var(--saffron);color:white;box-shadow:0 0 0 3px rgba(232,98,26,0.25)}
+.fs-pending{background:rgba(255,255,255,0.1);color:rgba(255,255,255,0.4)}
+.flow-step-text{flex:1}
+.fst-title{font-size:12px;font-weight:600;color:white}
+.fst-sub{font-size:11px;color:rgba(255,255,255,0.4);margin-top:2px;line-height:1.4}
+
+.spec-card{
+  background:rgba(37,211,102,0.07);border:1px solid rgba(37,211,102,0.2);
+  border-radius:14px;padding:16px;
+}
+.spec-title{font-size:11px;font-weight:700;color:var(--wa-green);text-transform:uppercase;letter-spacing:0.8px;margin-bottom:10px}
+.spec-item{display:flex;gap:8px;align-items:flex-start;margin-bottom:8px;font-size:12px;color:rgba(255,255,255,0.7);line-height:1.4}
+.spec-item:last-child{margin-bottom:0}
+.spec-dot{width:5px;height:5px;border-radius:50%;background:var(--wa-green);flex-shrink:0;margin-top:5px}
+
+.lang-card{
+  background:rgba(52,183,241,0.07);border:1px solid rgba(52,183,241,0.2);
+  border-radius:14px;padding:14px;
+}
+.lang-title{font-size:11px;font-weight:700;color:var(--wa-teal);text-transform:uppercase;letter-spacing:0.8px;margin-bottom:8px}
+.lang-chips{display:flex;gap:6px;flex-wrap:wrap}
+.lang-chip{font-size:11px;font-weight:600;padding:4px 10px;border-radius:10px;background:rgba(52,183,241,0.12);color:var(--wa-teal);border:1px solid rgba(52,183,241,0.25)}
+.lang-chip.primary{background:rgba(52,183,241,0.25);border-color:var(--wa-teal)}
+
+/* ── ANIMATIONS ───────────────────────────────────────────────────────────── */
+.bubble,.list-msg,.card-msg,.otp-card,.media-msg,.loc-msg{animation:fadeIn 0.3s ease}
+@keyframes fadeIn{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:translateY(0)}}
+
+/* ── SCENARIO PANELS ──────────────────────────────────────────────────────── */
+.scenario{display:none}
+.scenario.active{display:flex;flex-direction:column;height:100%}
+</style>
+</head>
+<body>
+
+<div class="page-title">
+  <h1>CitizenVoice — WhatsApp Grievance Bot</h1>
+  <p>Interactive message-based flow for Gujarat GMS · Tap any message or quick reply to simulate the conversation · Switch scenarios above</p>
+</div>
+
+<div class="scenario-bar">
+  <div class="sc-tab active" onclick="setScenario('new')">🆕 New Complaint</div>
+  <div class="sc-tab" onclick="setScenario('track')">🔍 Track Status</div>
+  <div class="sc-tab" onclick="setScenario('otp')">📱 OTP Registration</div>
+  <div class="sc-tab" onclick="setScenario('escalate')">🚨 Escalation Alert</div>
+  <div class="sc-tab" onclick="setScenario('resolved')">✅ Resolution + Feedback</div>
+</div>
+
+<div class="layout">
+
+  <!-- ── PHONE ─────────────────────────────────────────────────────────── -->
+  <div class="phone-wrap">
+    <div class="phone-frame">
+      <div class="notch-bar">
+        <div class="notch-cam"></div>
+        <div class="notch-sp"></div>
+        <div class="notch-cam"></div>
+      </div>
+
+      <div class="wa-screen">
+        <!-- STATUS BAR -->
+        <div class="wa-status">
+          <span class="wa-status-time">9:41</span>
+          <div class="wa-status-icons">
+            <span>📶</span><span style="font-size:10px">5G</span><span>🔋</span>
+          </div>
+        </div>
+
+        <!-- CHAT HEADER -->
+        <div class="wa-header">
+          <span class="wa-back">‹</span>
+          <div class="wa-avatar">
+            🏛
+            <div class="wa-avatar-online"></div>
+          </div>
+          <div class="wa-header-info">
+            <div class="wa-header-name">Seva — Gujarat GMS</div>
+            <div class="wa-header-status" id="headerStatus">Online · Responds instantly</div>
+          </div>
+          <div class="wa-header-icons">
+            <span>📞</span>
+            <span>⋮</span>
+          </div>
+        </div>
+
+        <!-- CHAT AREA -->
+        <div class="wa-chat" id="chatArea">
+          <!-- Messages rendered by JS -->
+        </div>
+
+        <!-- QUICK REPLIES -->
+        <div class="qr-row" id="qrRow"></div>
+
+        <!-- INPUT BAR -->
+        <div class="wa-input-bar">
+          <span class="wa-emoji">😊</span>
+          <input class="wa-input-field" placeholder="Type a message" id="inputField" />
+          <span class="wa-attach">📎</span>
+          <button class="wa-mic" id="sendBtn" onclick="handleSend()">🎤</button>
+        </div>
+
+        <div class="wa-home-bar"><div class="wa-home-indicator"></div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── NOTES PANEL ─────────────────────────────────────────────────── -->
+  <div class="notes-panel" id="notesPanel">
+    <!-- Rendered by JS per scenario -->
+  </div>
+
+</div>
+
+<script>
+// ── DATA ────────────────────────────────────────────────────────────────────
+
+var NOW = '9:41 AM';
+var scenarios = {
+
+  // ──────────────────────────────────────────────────────────────────────────
+  new: {
+    title: 'New Complaint Flow',
+    desc: 'Citizen types "Hi" → Bot guides through full complaint registration in 8 messages.',
+    steps: [
+      {label:'Greeting & language', done:true, sub:'Bot detects Gujarati/Hindi/English'},
+      {label:'Category selection', done:true, sub:'Interactive list message'},
+      {label:'Location auto-detect', done:true, sub:'GPS or manual entry'},
+      {label:'Issue description', done:false, sub:'Text or voice note', active:true},
+      {label:'Photo evidence', done:false, sub:'Optional media attachment'},
+      {label:'Review & confirm', done:false, sub:'Summary card with edit option'},
+      {label:'Token issued', done:false, sub:'Tracking number via message'},
+    ],
+    specs: [
+      'End-to-end in under 3 minutes',
+      'No app download needed',
+      'Works on 2G / slow networks',
+      'Auto-saves draft on exit',
+      'AI extracts location from text',
+    ],
+    messages: [
+      {type:'date', text:'Today'},
+      {type:'system', text:'🔒 Messages are end-to-end encrypted. Gujarat Government Official Channel.'},
+      {type:'in', text:'🙏 <strong>નમસ્તે! Welcome to Seva</strong> — Gujarat Government Grievance Service.\n\nI can help you:\n📝 File a complaint\n🔍 Track complaint status\n📞 Get contact of officers\n\nPlease reply in <em>Gujarati, Hindi or English</em> — I understand all three.', time:'9:38 AM'},
+      {type:'qr', chips:['File a complaint', 'Track my complaint', 'ગુજરાતીમાં', 'हिंदी में']},
+      {type:'out', text:'File a complaint', time:'9:39 AM', ticks:'✓✓'},
+      {type:'list',
+        header:{icon:'📋', title:'What is your complaint about?', sub:'Select the most relevant category'},
+        items:[
+          {icon:'💧', title:'Water Supply', sub:'Shortage, quality, pipeline'},
+          {icon:'🏥', title:'Health Services', sub:'PHC, hospital, medicines'},
+          {icon:'🛣', title:'Roads & Infrastructure', sub:'Potholes, streetlights'},
+          {icon:'🏛', title:'Revenue & Land', sub:'Mutation, records'},
+          {icon:'📚', title:'Education', sub:'Schools, teachers'},
+        ],
+        footer:'View all 15 departments →'
+      },
+      {type:'out', text:'💧 Water Supply', time:'9:39 AM', ticks:'✓✓'},
+      {type:'in', text:'Got it! 💧 <strong>Water Supply</strong> selected.\n\n📍 I detected your location as:\n<strong>Ward 7, Ahmedabad South — 380015</strong>\n\nIs this correct?', time:'9:40 AM'},
+      {type:'qr', chips:['✅ Yes, correct', '📍 Different location', '🗺 Share live location']},
+      {type:'out', text:'✅ Yes, correct', time:'9:40 AM', ticks:'✓✓'},
+      {type:'in', text:'Please describe your water supply issue in a few words. You can also:\n\n🎤 Send a <strong>voice note</strong>\n📷 Send a <strong>photo</strong> of the problem\n\nOr just type it — e.g. "no water for 3 days"', time:'9:40 AM'},
+      {type:'out', text:'Water has not been coming for 3 days in our entire lane. We already complained to the local GWSSB office but no response.', time:'9:41 AM', ticks:'✓'},
+    ],
+    qr: ['📷 Add photo', '🎤 Voice note', '✅ Skip & submit', '✏️ Edit location'],
+    inputPlaceholder: 'Describe your issue...',
+  },
+
+  // ──────────────────────────────────────────────────────────────────────────
+  track: {
+    title: 'Track Complaint Status',
+    desc: 'Citizen sends token number → Bot returns rich status card with timeline.',
+    steps: [
+      {label:'Send token number', done:true, sub:'e.g. GVM-2025-04872'},
+      {label:'Verify identity', done:true, sub:'Last 4 digits of mobile'},
+      {label:'Status displayed', done:true, sub:'Rich card with timeline', active:true},
+      {label:'Follow-up options', done:false, sub:'Escalate, add info, close'},
+    ],
+    specs: [
+      'Real-time sync with GMS database',
+      'SLA countdown displayed',
+      'Officer contact shared securely',
+      'One-tap escalation if delayed',
+      'History of all past complaints',
+    ],
+    messages: [
+      {type:'date', text:'Today'},
+      {type:'out', text:'GVM-2025-04872', time:'10:12 AM', ticks:'✓✓'},
+      {type:'in', text:'🔍 Looking up complaint <strong>GVM-2025-04872</strong>...\n\nFor security, please confirm the last 4 digits of your registered mobile number.', time:'10:12 AM'},
+      {type:'out', text:'3210', time:'10:12 AM', ticks:'✓✓'},
+      {type:'card',
+        img:'💧',
+        title:'GVM-2025-04872 · Water Supply',
+        text:'Ward 7, Ahmedabad South · Filed 2 days ago',
+        tags:[
+          {label:'In Progress', cls:'card-tag-amber'},
+          {label:'SLA: 3 days left', cls:'card-tag-blue'},
+          {label:'GWSSB Zone 3', cls:'card-tag-green'},
+        ],
+        progress:'60% resolved',
+        timeline:[
+          {icon:'✅', text:'Filed & classified', sub:'2 days ago · AI auto-routed'},
+          {icon:'✅', text:'Assigned to officer', sub:'Eng. Mukesh Sharma · GWSSB'},
+          {icon:'🔄', text:'Site visit scheduled', sub:'Tomorrow 10 AM · In progress'},
+          {icon:'⏳', text:'Resolution & closure', sub:'Within 3 more days'},
+        ],
+        buttons:[
+          {icon:'📞', text:'Call assigned officer'},
+          {icon:'🚨', text:'Escalate complaint'},
+          {icon:'💬', text:'Add more information'},
+        ]
+      },
+    ],
+    qr: ['📞 Call officer', '🚨 Escalate', '📝 Add info', '🏠 Main menu'],
+    inputPlaceholder: 'Enter your token number...',
+  },
+
+  // ──────────────────────────────────────────────────────────────────────────
+  otp: {
+    title: 'OTP Registration',
+    desc: 'First-time user links their WhatsApp to GMS account via OTP.',
+    steps: [
+      {label:'Link WhatsApp account', done:true, sub:'One-time setup'},
+      {label:'OTP sent & verified', done:true, sub:'6-digit code via SMS', active:true},
+      {label:'Profile confirmed', done:false, sub:'Name, district, language'},
+      {label:'Account ready', done:false, sub:'All future complaints tracked'},
+    ],
+    specs: [
+      'One-time registration, forever linked',
+      'Same OTP works for web & mobile',
+      'Privacy: number never shared publicly',
+      'Unlink anytime via settings',
+      'Supports Aadhaar-based eKYC',
+    ],
+    messages: [
+      {type:'date', text:'Today'},
+      {type:'system', text:'You clicked the link from Gujarat GMS website. Tap verify to link your WhatsApp.'},
+      {type:'in', text:'🔐 <strong>Link your WhatsApp to GMS</strong>\n\nThis will let you:\n• File complaints without typing your number\n• Get instant status updates here\n• Track all complaints in one place\n\nA 6-digit OTP has been sent to <strong>+91 98765 XXXXX</strong>', time:'11:22 AM'},
+      {type:'otp', title:'Your verification OTP', code:'4 7 2 9 – –', hint:'Valid for 10 minutes · Do not share with anyone'},
+      {type:'out', text:'472981', time:'11:23 AM', ticks:'✓✓'},
+      {type:'in', text:'✅ <strong>OTP verified successfully!</strong>\n\nYour WhatsApp is now linked to GMS.\n\n👤 Name: <strong>Rajesh Patel</strong>\n📍 District: <strong>Ahmedabad</strong>\n🌐 Language: <strong>English</strong>\n\nIs this correct?', time:'11:23 AM'},
+      {type:'qr', chips:['✅ Confirm & finish', '✏️ Edit my details', '🌐 Change language']},
+    ],
+    qr: ['✅ Confirm', '✏️ Edit', 'ગુજરાતી', 'हिंदी'],
+    inputPlaceholder: 'Enter 6-digit OTP...',
+  },
+
+  // ──────────────────────────────────────────────────────────────────────────
+  escalate: {
+    title: 'Escalation Alert',
+    desc: 'GMS auto-detects SLA breach → sends proactive escalation alert to citizen.',
+    steps: [
+      {label:'SLA countdown expired', done:true, sub:'System detects breach'},
+      {label:'Citizen notified', done:true, sub:'Proactive push message', active:true},
+      {label:'One-tap escalation', done:false, sub:'Routes to senior officer'},
+      {label:'L2 officer assigned', done:false, sub:'48-hour escalated SLA'},
+    ],
+    specs: [
+      'Proactive — citizen doesn\'t need to ask',
+      'Clear escalation path shown',
+      'One-tap to escalate (no form)',
+      'Routed to District Collector if L3',
+      'CM office alerted if >7 days',
+    ],
+    messages: [
+      {type:'date', text:'Today'},
+      {type:'system', text:'⚠ Automated GMS Alert — SLA Breach Detected'},
+      {type:'in', text:'⚠️ <strong>Your complaint has not been resolved on time.</strong>\n\n📋 GVM-2025-04401 · Roads & Buildings\n📍 S.G. Highway Exit 7, Ahmedabad\n\n<strong>Status:</strong> Assigned but no action in 7 days\n<strong>SLA was:</strong> 5 working days\n<strong>Overdue by:</strong> 2 days\n\nWould you like to escalate this to a senior officer?', time:'2:15 PM'},
+      {type:'card',
+        img:'🚨',
+        title:'Escalate — GVM-2025-04401',
+        text:'This will route your complaint to the District Engineer and CDHO.',
+        tags:[
+          {label:'Overdue 2 days', cls:'card-tag-red'},
+          {label:'Currently: THO level', cls:'card-tag-amber'},
+          {label:'Escalate to: CDHO', cls:'card-tag-blue'},
+        ],
+        buttons:[
+          {icon:'🚨', text:'Yes, escalate now'},
+          {icon:'⏳', text:'Give 2 more days'},
+          {icon:'❌', text:'Complaint resolved, close it'},
+        ]
+      },
+    ],
+    qr: ['🚨 Escalate now', '⏳ Wait 2 more days', '✅ Mark resolved', '📞 Call officer'],
+    inputPlaceholder: 'Reply or tap an option above...',
+  },
+
+  // ──────────────────────────────────────────────────────────────────────────
+  resolved: {
+    title: 'Resolution + Feedback',
+    desc: 'Complaint closed → Bot sends confirmation and collects CSAT rating.',
+    steps: [
+      {label:'Resolution confirmed', done:true, sub:'Officer closed the complaint'},
+      {label:'Citizen notified', done:true, sub:'Rich resolution card sent', active:true},
+      {label:'CSAT rating collected', done:false, sub:'1–5 star quick rating'},
+      {label:'Feedback to GMS', done:false, sub:'Feeds into district CSAT score'},
+    ],
+    specs: [
+      'CSAT collected within 24hr of closure',
+      'Photo evidence of resolution sent',
+      'Rating stored in GMS dashboard',
+      'Reopen option if unsatisfied',
+      'Feeds into CM/Secretary KPIs',
+    ],
+    messages: [
+      {type:'date', text:'Today'},
+      {type:'in', text:'🎉 <strong>Your complaint has been resolved!</strong>\n\n📋 GVM-2025-04401 · Roads & Buildings\n📍 S.G. Highway Exit 7, Ahmedabad\n\n<strong>Action taken:</strong> Pothole repaired with bituminous patch. Road surface restored.\n<strong>Resolved by:</strong> Eng. Priya Mehta, PWD Zone 2\n<strong>Closed on:</strong> Today, 1:30 PM', time:'1:45 PM'},
+      {type:'in', text:'📷 Photo of the repaired road has been attached to your complaint record. You can view it at any time.', time:'1:45 AM'},
+      {type:'in', text:'⭐ <strong>How satisfied are you with the resolution?</strong>\n\nYour feedback helps the Government of Gujarat improve public services and is shared with the District Collector.', time:'1:46 PM'},
+      {type:'qr', chips:['⭐⭐⭐⭐⭐ Excellent', '⭐⭐⭐⭐ Good', '⭐⭐⭐ Average', '⭐⭐ Poor', '⭐ Very poor']},
+      {type:'out', text:'⭐⭐⭐⭐ Good', time:'1:47 PM', ticks:'✓✓'},
+      {type:'in', text:'Thank you for your feedback, Rajesh! 🙏\n\nYour 4-star rating has been recorded.\n\n💡 <em>If the issue recurs within 30 days, reply "REOPEN" and we will restart the complaint automatically.</em>', time:'1:47 PM'},
+    ],
+    qr: ['📝 Leave comment', '↩ Reopen complaint', '🏠 Main menu', '📞 Contact helpline'],
+    inputPlaceholder: 'Share any feedback...',
+  },
+};
+
+// ── RENDER ENGINE ────────────────────────────────────────────────────────────
+
+var currentScenario = 'new';
+
+function renderTime(t){ return '<span class="bubble-time">'+t+'</span>'; }
+function renderTicks(t){ return t ? '<span class="bubble-ticks">'+t+'</span>' : ''; }
+
+function renderMsg(m) {
+  var el = document.createElement('div');
+
+  if(m.type === 'date') {
+    el.className = 'wa-date-chip';
+    el.textContent = m.text;
+
+  } else if(m.type === 'system') {
+    el.className = 'wa-system-msg';
+    el.innerHTML = m.text;
+
+  } else if(m.type === 'in') {
+    el.className = 'msg-row in';
+    el.innerHTML = '<div class="bubble"><div class="bubble-text">'+m.text.replace(/\n/g,'<br>')+'</div><div class="bubble-meta">'+renderTime(m.time)+'</div></div>';
+
+  } else if(m.type === 'out') {
+    el.className = 'msg-row out';
+    el.innerHTML = '<div class="bubble"><div class="bubble-text">'+m.text.replace(/\n/g,'<br>')+'</div><div class="bubble-meta">'+renderTime(m.time)+renderTicks(m.ticks)+'</div></div>';
+
+  } else if(m.type === 'qr') {
+    el.className = 'qr-row';
+    m.chips.forEach(function(c){
+      var chip = document.createElement('div');
+      chip.className = 'qr-chip';
+      chip.textContent = c;
+      chip.onclick = function(){ handleQR(c); };
+      el.appendChild(chip);
+    });
+
+  } else if(m.type === 'list') {
+    el.className = 'msg-row in';
+    var itemsHtml = m.items.map(function(it){
+      return '<div class="list-item" onclick="handleListItem(\''+it.title+'\')">'+
+        '<span class="list-item-icon">'+it.icon+'</span>'+
+        '<div class="list-item-text"><div class="list-item-title">'+it.title+'</div><div class="list-item-sub">'+it.sub+'</div></div>'+
+        '<span class="list-item-arrow">›</span></div>';
+    }).join('');
+    el.innerHTML = '<div class="list-msg" style="position:relative">'+
+      '<div class="list-header"><div class="list-header-icon">'+m.header.icon+'</div><div class="list-header-title">'+m.header.title+'</div><div class="list-header-sub">'+m.header.sub+'</div></div>'+
+      '<div class="list-body">'+itemsHtml+'</div>'+
+      '<div class="list-footer"><span class="list-footer-text">'+m.footer+'</span></div></div>';
+
+  } else if(m.type === 'card') {
+    el.className = 'msg-row in';
+    var tagsHtml = (m.tags||[]).map(function(t){ return '<span class="card-tag '+t.cls+'">'+t.label+'</span>'; }).join('');
+    var timelineHtml = '';
+    if(m.timeline) {
+      timelineHtml = '<div style="margin-top:8px;border-top:0.5px solid #eee;padding-top:8px">';
+      m.timeline.forEach(function(tl){
+        timelineHtml += '<div style="display:flex;gap:8px;align-items:flex-start;margin-bottom:6px">'+
+          '<span style="font-size:13px;flex-shrink:0;width:16px;text-align:center">'+tl.icon+'</span>'+
+          '<div><div style="font-size:12px;font-weight:600;color:'+( tl.icon==='✅'?'#16A34A':tl.icon==='🔄'?'#D97706':'#8696A0' )+'">'+tl.text+'</div>'+
+          '<div style="font-size:10px;color:#8696A0;margin-top:1px">'+tl.sub+'</div></div></div>';
+      });
+      timelineHtml += '</div>';
+    }
+    var btnsHtml = (m.buttons||[]).map(function(b){
+      return '<div class="card-btn" onclick="handleCardBtn(\''+b.text+'\')"><span class="card-btn-icon">'+b.icon+'</span>'+b.text+'</div>';
+    }).join('');
+    el.innerHTML = '<div class="card-msg">'+
+      '<div class="card-img">'+m.img+'</div>'+
+      '<div class="card-body"><div class="card-title">'+m.title+'</div><div class="card-text">'+m.text+'</div>'+
+      '<div class="card-meta">'+tagsHtml+'</div>'+timelineHtml+'</div>'+
+      (btnsHtml?'<div class="card-buttons">'+btnsHtml+'</div>':'')+
+      '</div>';
+
+  } else if(m.type === 'otp') {
+    el.className = 'msg-row in';
+    el.innerHTML = '<div class="otp-card"><div class="otp-title">'+m.title+'</div>'+
+      '<div class="otp-number">'+m.code+'</div>'+
+      '<div class="otp-hint">'+m.hint+'</div></div>';
+
+  } else if(m.type === 'media') {
+    el.className = 'msg-row out';
+    el.innerHTML = '<div class="media-msg">'+
+      '<div class="media-thumb"><span>📷</span><div class="media-overlay"><span class="media-filename">photo_evidence.jpg</span></div></div>'+
+      '<div class="media-footer"><span class="bubble-time">'+m.time+'</span><span class="bubble-ticks">✓✓</span></div></div>';
+
+  } else if(m.type === 'location') {
+    el.className = 'msg-row out';
+    el.innerHTML = '<div class="loc-msg">'+
+      '<div class="loc-map"><span class="loc-pin">📍</span></div>'+
+      '<div class="loc-body"><div class="loc-title">Ward 7, Ahmedabad South</div><div class="loc-sub">Shared live location · 380015</div></div>'+
+      '<div style="padding:4px 12px 8px;display:flex;justify-content:flex-end;gap:3px"><span class="bubble-time">'+m.time+'</span><span class="bubble-ticks">✓✓</span></div></div>';
+  }
+
+  return el;
+}
+
+function renderQR(chips) {
+  var row = document.getElementById('qrRow');
+  row.innerHTML = '';
+  (chips||[]).forEach(function(c){
+    var chip = document.createElement('div');
+    chip.className = 'qr-chip';
+    chip.textContent = c;
+    chip.onclick = function(){ handleQR(c); };
+    row.appendChild(chip);
+  });
+}
+
+function renderNotes(sc) {
+  var panel = document.getElementById('notesPanel');
+  var s = scenarios[sc];
+  var stepsHtml = s.steps.map(function(st){
+    var cls = st.active ? 'fs-active' : st.done ? 'fs-done' : 'fs-pending';
+    var num = st.done ? '✓' : (s.steps.indexOf(st)+1);
+    return '<div class="flow-step"><div class="flow-num '+cls+'">'+num+'</div>'+
+      '<div class="flow-step-text"><div class="fst-title">'+st.label+'</div><div class="fst-sub">'+st.sub+'</div></div></div>';
+  }).join('');
+  var specsHtml = s.specs.map(function(sp){
+    return '<div class="spec-item"><div class="spec-dot"></div><span>'+sp+'</span></div>';
+  }).join('');
+
+  panel.innerHTML = '<div class="notes-header"><h2>'+s.title+'</h2><p>'+s.desc+'</p></div>'+
+    '<div class="flow-card"><div class="flow-card-title">Flow steps</div>'+stepsHtml+'</div>'+
+    '<div class="spec-card"><div class="spec-title">Technical specs</div>'+specsHtml+'</div>'+
+    '<div class="lang-card"><div class="lang-title">Language support</div>'+
+    '<div class="lang-chips">'+
+    '<span class="lang-chip primary">ગુજરાતી</span>'+
+    '<span class="lang-chip primary">English</span>'+
+    '<span class="lang-chip">हिंदी</span>'+
+    '<span class="lang-chip">Hinglish</span>'+
+    '<span class="lang-chip">Roman Guj</span>'+
+    '</div></div>';
+}
+
+// ── SCENARIO LOADER ───────────────────────────────────────────────────────────
+
+var conversationStates = {};
+
+function setScenario(name) {
+  currentScenario = name;
+  document.querySelectorAll('.sc-tab').forEach(function(t){ t.classList.remove('active'); });
+  var tabs = document.querySelectorAll('.sc-tab');
+  var idx = ['new','track','otp','escalate','resolved'].indexOf(name);
+  if(idx>=0) tabs[idx].classList.add('active');
+
+  var s = scenarios[name];
+  var chat = document.getElementById('chatArea');
+  chat.innerHTML = '';
+
+  // Render all messages with staggered delay
+  var delay = 0;
+  s.messages.forEach(function(m){
+    (function(msg, d){
+      setTimeout(function(){
+        var el = renderMsg(msg);
+        chat.appendChild(el);
+        chat.scrollTop = chat.scrollHeight;
+      }, d);
+    })(m, delay);
+    delay += 180;
+  });
+
+  // Render quick replies
+  setTimeout(function(){ renderQR(s.qr); }, delay + 100);
+
+  // Update input placeholder
+  document.getElementById('inputField').placeholder = s.inputPlaceholder || 'Type a message';
+
+  renderNotes(name);
+}
+
+// ── INTERACTION HANDLERS ──────────────────────────────────────────────────────
+
+function handleQR(text) {
+  addUserMsg(text);
+  // Simulate bot response
+  setTimeout(function(){
+    addTyping();
+    setTimeout(function(){
+      removeTyping();
+      respondToQR(text);
+    }, 1200);
+  }, 400);
+}
+
+function handleListItem(text) {
+  addUserMsg(text);
+  setTimeout(function(){
+    addTyping();
+    setTimeout(function(){
+      removeTyping();
+      var chat = document.getElementById('chatArea');
+      var el = renderMsg({type:'in', text:'✅ <strong>'+text+'</strong> selected.\n\n📍 Auto-detecting your location...\n\nPlease wait a moment.', time: getTime()});
+      chat.appendChild(el);
+      chat.scrollTop = chat.scrollHeight;
+      setTimeout(function(){
+        var el2 = renderMsg({type:'in', text:'📍 Location detected: <strong>Ward 7, Ahmedabad South — 380015</strong>\n\nIs this correct?', time: getTime()});
+        chat.appendChild(el2);
+        chat.scrollTop = chat.scrollHeight;
+        renderQR(['✅ Yes, correct','📍 Different location','🗺 Share GPS location']);
+      }, 1000);
+    }, 1200);
+  }, 400);
+}
+
+function handleCardBtn(text) {
+  addUserMsg(text);
+  setTimeout(function(){
+    addTyping();
+    setTimeout(function(){
+      removeTyping();
+      respondToCardBtn(text);
+    }, 1400);
+  }, 400);
+}
+
+function handleSend() {
+  var input = document.getElementById('inputField');
+  var val = input.value.trim();
+  if(!val) return;
+  input.value = '';
+  addUserMsg(val);
+  setTimeout(function(){
+    addTyping();
+    setTimeout(function(){
+      removeTyping();
+      var chat = document.getElementById('chatArea');
+      var el = renderMsg({type:'in', text:'📝 Got it! I\'ve noted: <em>"'+val+'"</em>\n\nWould you like to add a photo or proceed to submit?', time: getTime()});
+      chat.appendChild(el);
+      chat.scrollTop = chat.scrollHeight;
+      renderQR(['📷 Add photo','✅ Submit now','✏️ Edit','🏠 Main menu']);
+    }, 1300);
+  }, 400);
+}
+
+function respondToQR(text) {
+  var chat = document.getElementById('chatArea');
+  var responses = {
+    'File a complaint': {type:'in', text:'What type of complaint would you like to file? 📋\n\nTap below to choose your department.', time:getTime()},
+    'Track my complaint': {type:'in', text:'Please send your <strong>complaint token number</strong>.\n\nExample: <em>GVM-2025-04872</em>', time:getTime()},
+    'ગુજરાતીમાં': {type:'in', text:'🙏 નમસ્તે! હવેથી ગુજરાતીમાં વાત કરીશું.\n\nઆপ શું ઇચ્છો છો?', time:getTime()},
+    'हिंदी में': {type:'in', text:'🙏 नमस्ते! अब हम हिंदी में बात करेंगे.\n\nआप क्या करना चाहते हैं?', time:getTime()},
+    '✅ Yes, correct': {type:'in', text:'Perfect! 📍 Location confirmed.\n\nPlease describe your issue in a few words, or send a photo.', time:getTime()},
+    '📍 Different location': {type:'in', text:'No problem! Please type your area or share your live location. 📍', time:getTime()},
+    '🗺 Share live location': {type:'location', time:getTime()},
+    '📷 Add photo': {type:'media', time:getTime()},
+    '📞 Call officer': {type:'in', text:'📞 Connecting you to the assigned officer...\n\n<strong>Eng. Mukesh Sharma</strong>\nGWSSB Zone 3, Ahmedabad\n\nTap to call: <strong>+91 79-XXXX-XXXX</strong>\n\n(Number valid for 30 minutes for privacy)', time:getTime()},
+    '🚨 Escalate': {type:'in', text:'🚨 Escalating your complaint to <strong>District Engineer & CDHO</strong>.\n\nYou will receive an update within <strong>48 hours</strong>.\n\nNew token: <strong>GVM-2025-04401-E1</strong>', time:getTime()},
+    '✅ Submit now': {type:'in', text:'✅ <strong>Complaint submitted!</strong>\n\nYour token number is:\n<strong>GVM-2025-05341</strong>\n\nSLA: 5 working days\nDept: GWSSB Ahmedabad\n\nSave this number to track your complaint.', time:getTime()},
+    '⭐⭐⭐⭐⭐ Excellent': {type:'in', text:'🎉 Thank you for the 5-star rating, Rajesh!\n\nYour feedback means a lot. The Government of Gujarat is committed to improving services for every citizen. 🙏', time:getTime()},
+    '⭐⭐⭐⭐ Good': {type:'in', text:'👍 Thank you for the 4-star rating!\n\nWe note there is room for improvement. Your feedback has been shared with the District Officer. 🙏', time:getTime()},
+    '⭐⭐⭐ Average': {type:'in', text:'Thank you for your honest feedback.\n\nCould you tell us what could have been better? This will help us improve. 💪', time:getTime()},
+    '↩ Reopen complaint': {type:'in', text:'↩ <strong>Complaint reopened</strong>.\n\nGVM-2025-04401 has been sent back to the assigned officer with your reopen reason.\n\nNew SLA: 3 working days.', time:getTime()},
+    '✅ Confirm & finish': {type:'in', text:'✅ <strong>Your WhatsApp is now linked to Gujarat GMS!</strong>\n\n🎉 You can now file complaints, track status, and get live updates right here.\n\nReply <strong>"Hi"</strong> anytime to start.', time:getTime()},
+    '🏠 Main menu': {type:'in', text:'🏛 <strong>Main Menu</strong>\n\nReply:\n1️⃣ File a complaint\n2️⃣ Track complaint\n3️⃣ My complaint history\n4️⃣ Talk to an officer\n5️⃣ Settings\n\nOr just tell me what you need!', time:getTime()},
+  };
+  var resp = responses[text];
+  if(!resp) resp = {type:'in', text:'Got it! How can I help you further?', time:getTime()};
+
+  if(resp.type === 'location') {
+    var el = renderMsg({type:'location', time:getTime()});
+    chat.appendChild(el);
+  } else {
+    var el = renderMsg(resp);
+    chat.appendChild(el);
+  }
+  chat.scrollTop = chat.scrollHeight;
+}
+
+function respondToCardBtn(text) {
+  var chat = document.getElementById('chatArea');
+  var el;
+  if(text.indexOf('escalat') > -1 || text.indexOf('Escalate') > -1) {
+    el = renderMsg({type:'in', text:'🚨 <strong>Complaint escalated!</strong>\n\nAssigned to: <strong>District Engineer, PWD</strong>\n\nYour new SLA is <strong>48 hours</strong>.\nNew reference: <strong>GVM-2025-04401-E1</strong>\n\nYou will be notified via WhatsApp.', time:getTime()});
+  } else if(text.indexOf('resolved') > -1 || text.indexOf('close') > -1) {
+    el = renderMsg({type:'in', text:'✅ <strong>Complaint marked as resolved.</strong>\n\nGVM-2025-04401 has been closed.\n\nPlease rate your experience:', time:getTime()});
+    chat.appendChild(el);
+    renderQR(['⭐⭐⭐⭐⭐ Excellent','⭐⭐⭐⭐ Good','⭐⭐⭐ Average','⭐⭐ Poor']);
+    chat.scrollTop = chat.scrollHeight;
+    return;
+  } else {
+    el = renderMsg({type:'in', text:'Got it! How can I help you further?', time:getTime()});
+  }
+  chat.appendChild(el);
+  chat.scrollTop = chat.scrollHeight;
+}
+
+function addUserMsg(text) {
+  var chat = document.getElementById('chatArea');
+  // Remove existing QR
+  var existing = document.querySelectorAll('#chatArea .qr-row');
+  existing.forEach(function(q){ q.style.opacity='0.5'; q.style.pointerEvents='none'; });
+  var el = renderMsg({type:'out', text:text, time:getTime(), ticks:'✓'});
+  chat.appendChild(el);
+  chat.scrollTop = chat.scrollHeight;
+}
+
+function addTyping() {
+  var chat = document.getElementById('chatArea');
+  var el = document.createElement('div');
+  el.id = 'typingRow';
+  el.className = 'msg-row in';
+  el.innerHTML = '<div class="typing-bubble"><div class="t-dot"></div><div class="t-dot"></div><div class="t-dot"></div></div>';
+  chat.appendChild(el);
+  chat.scrollTop = chat.scrollHeight;
+}
+
+function removeTyping() {
+  var el = document.getElementById('typingRow');
+  if(el) el.remove();
+}
+
+function getTime() {
+  var d = new Date();
+  var h = d.getHours(); var m = d.getMinutes();
+  return (h%12||12)+':'+(m<10?'0':'')+m+(h>=12?' PM':' AM');
+}
+
+// Enter key send
+document.getElementById('inputField').addEventListener('keydown', function(e){
+  if(e.key==='Enter') handleSend();
+});
+
+// ── INIT ───────────────────────────────────────────────────────────────────
+setScenario('new');
+</script>
+</body>
+</html>
