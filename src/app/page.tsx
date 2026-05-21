@@ -6,7 +6,7 @@ import { useAuthStore } from '@/stores';
 import { getDefaultPath } from '@/data';
 import {
   Shield, Users, FileText, MapPin, BarChart2, Clock, ChevronRight, Phone, Building2, CheckCircle,
-  Search, Zap, ArrowRight, Mail, Globe, Lock, Activity, Star, Smartphone, MessageCircle
+  Search, Zap, ArrowRight, Mail, Globe, Lock, Activity, Star, Smartphone, MessageCircle, Sparkles
 } from 'lucide-react';
 
 const services = [
@@ -59,12 +59,6 @@ export default function RootPage() {
             <a href="#track" className="text-[12px] font-medium text-[#7A8FA6] hover:text-[#0E1C2F] transition-colors">Track Complaint</a>
           </div>
           <div className="flex items-center gap-2">
-            <a href="/Swagat 3.0 Mobile - Merged (2).html" target="_blank" rel="noopener noreferrer" className="hidden md:inline-flex items-center gap-1.5 text-[12px] font-semibold text-[#0891B2] bg-blue-50 border border-[#0891B2] px-3 py-1.5 rounded-lg hover:bg-blue-100 transition-colors">
-              <Smartphone size={13} /> Mobile App
-            </a>
-            <a href="/CitizenVoice_WhatsApp_v1.html" target="_blank" rel="noopener noreferrer" className="hidden md:inline-flex items-center gap-1.5 text-[12px] font-semibold text-green-700 bg-green-50 border border-green-600 px-3 py-1.5 rounded-lg hover:bg-green-100 transition-colors">
-              <MessageCircle size={13} /> WhatsApp
-            </a>
             <Link href="/login" className="text-[12px] font-semibold text-[#3D5068] hover:text-[#0E1C2F] px-3 py-1.5 rounded-lg hover:bg-[#F0F2F7] transition-colors">
               Officer Login
             </Link>
@@ -105,6 +99,18 @@ export default function RootPage() {
                 </Link>
                 <Link href="/login" className="inline-flex items-center gap-2 bg-white/5 hover:bg-white/10 text-blue-200 rounded-lg px-6 py-3 text-[13px] font-semibold transition-colors border border-white/10">
                   <Building2 size={16} /> Officer Portal
+                </Link>
+              </div>
+              {/* Secondary Actions */}
+              <div className="flex flex-wrap gap-3">
+                <a href="/Swagat 3.0 Mobile - Merged (2).html" target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 bg-blue-600/20 hover:bg-blue-600/30 text-blue-200 rounded-lg px-5 py-2.5 text-[12px] font-semibold transition-colors border border-blue-400/30">
+                  <Smartphone size={15} /> Mobile App
+                </a>
+                <a href="/CitizenVoice_WhatsApp_v1.html" target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 bg-green-600/20 hover:bg-green-600/30 text-green-200 rounded-lg px-5 py-2.5 text-[12px] font-semibold transition-colors border border-green-400/30">
+                  <MessageCircle size={15} /> WhatsApp
+                </a>
+                <Link href="/citizen-login" className="inline-flex items-center gap-2 bg-purple-600/20 hover:bg-purple-600/30 text-purple-200 rounded-lg px-5 py-2.5 text-[12px] font-semibold transition-colors border border-purple-400/30">
+                  <Sparkles size={15} /> AI Assistance
                 </Link>
               </div>
               {/* Track Complaint Mini-Form */}
