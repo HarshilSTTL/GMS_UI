@@ -224,21 +224,10 @@ export default function FileComplaint() {
   }
 
   return (
-    <div className="min-h-screen bg-[#F4F2EE] py-6 px-4 sm:px-6">
-      <div className="max-w-2xl mx-auto space-y-6">
-        {/* Back Button & Page Title */}
-        <div className="flex items-start gap-4">
-          <button onClick={() => router.back()} className="text-[#FF8C42] hover:text-[#E67E22] mt-1">
-            <ChevronLeft size={20} />
-          </button>
-          <div>
-            <h1 className="text-[20px] font-bold text-[#0F1A2E]">Submit Grievance</h1>
-            <p className="text-[12px] text-[#FF8C42] mt-0.5">ફરિયાદ નોંધો — File a complaint</p>
-          </div>
-        </div>
-
-        {/* Mode Selector */}
-        <div className="bg-white rounded-[14px] border border-[#E5E7EB] p-4 flex items-center gap-3">
+    <div className="min-h-screen bg-[#F4F2EE]">
+      {/* Fixed Mode Selector Header */}
+      <div className="sticky top-0 z-40 bg-white border-b border-[#E5E7EB] shadow-sm">
+        <div className="max-w-2xl mx-auto px-4 sm:px-6 py-4 flex items-center gap-4">
           <span className="text-[12px] font-semibold text-[#0F1A2E]">Mode:</span>
           <button
             onClick={() => { setMode('detail'); setStep(1); setError(''); }}
@@ -263,6 +252,20 @@ export default function FileComplaint() {
             Quick Submit
           </button>
         </div>
+      </div>
+
+      <div className="min-h-screen bg-[#F4F2EE] py-6 px-4 sm:px-6">
+        <div className="max-w-2xl mx-auto space-y-6">
+          {/* Back Button & Page Title */}
+          <div className="flex items-start gap-4">
+            <button onClick={() => router.back()} className="text-[#FF8C42] hover:text-[#E67E22] mt-1 flex-shrink-0">
+              <ChevronLeft size={20} />
+            </button>
+            <div>
+              <h1 className="text-[20px] font-bold text-[#0F1A2E]">Submit Grievance</h1>
+              <p className="text-[12px] text-[#FF8C42] mt-0.5">ફરિયાદ નોંધો — File a complaint</p>
+            </div>
+          </div>
 
         {/* Step Indicator (Detail Mode Only) */}
         {mode === 'detail' && (
@@ -613,6 +616,7 @@ export default function FileComplaint() {
             </div>
           </div>
         )}
+        </div>
       </div>
     </div>
   );
