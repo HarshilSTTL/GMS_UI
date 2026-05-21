@@ -308,5 +308,15 @@
     "isRead": false,
     "type": "status_update",
     "grievanceId": "c29"
+  },
+  {
+    "id": "n32",
+    "userId": "u5",
+    "title": "Grievance Update",
+    "message": "Update on GJ-2026-63277: test 0505",
+    "timestamp": "2026-05-21T01:37:55.536Z",
+    "isRead": false,
+    "type": "status_update",
+    "grievanceId": "c32"
   }
 ]

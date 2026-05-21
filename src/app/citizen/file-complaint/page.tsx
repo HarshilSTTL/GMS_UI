@@ -26,6 +26,7 @@ interface FormData {
   description: string;
   location: string;
   phone: string;
+  attachments?: string[]; // Cloudinary URLs
 }
 
 const STEPS = ['Select Category', 'Complaint Details', 'Confirm & Submit'];
@@ -46,7 +47,10 @@ export default function FileComplaint() {
     description: '',
     location: '',
     phone: '',
+    attachments: [],
   });
+  const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
+  const [uploadingFiles, setUploadingFiles] = useState(false);
 
   useEffect(() => {
     fetchCategories();
@@ -96,6 +100,35 @@ export default function FileComplaint() {
     setError('');
     setLoading(true);
     try {
+      let attachmentUrls: string[] = [];
+
+      // Upload files to Cloudinary if any
+      if (selectedFiles.length > 0) {
+        setUploadingFiles(true);
+        for (const file of selectedFiles) {
+          const uploadForm = new FormData();
+          uploadForm.append('file', file);
+          uploadForm.append('grievanceId', 'pending'); // Will use actual ID after creation
+
+          const uploadRes = await fetch('/api/documents/upload', {
+            method: 'POST',
+            body: uploadForm,
+          });
+
+          if (!uploadRes.ok) {
+            const uploadErr = await uploadRes.json();
+            throw new Error(`File upload failed: ${uploadErr.error}`);
+          }
+
+          const uploadResult = await uploadRes.json();
+          if (uploadResult.success) {
+            attachmentUrls.push(uploadResult.data.url);
+          }
+        }
+        setUploadingFiles(false);
+      }
+
+      // Create grievance with attachment URLs
       const res = await fetch('/api/grievances', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -119,6 +152,7 @@ export default function FileComplaint() {
           assignedTo: null,
           groupId: null,
           isGroupPrimary: false,
+          attachments: attachmentUrls.length > 0 ? attachmentUrls : undefined,
         }),
       });
 
@@ -130,7 +164,7 @@ export default function FileComplaint() {
         setError('Failed to submit complaint. Please try again.');
       }
     } catch (err) {
-      setError('Network error. Please try again.');
+      setError(err instanceof Error ? err.message : 'Network error. Please try again.');
       console.error(err);
     } finally {
       setLoading(false);
@@ -312,6 +346,43 @@ export default function FileComplaint() {
               />
             </div>
 
+            {/* Document Upload */}
+            <div>
+              <label className="block text-[11px] font-bold text-[#0F1A2E] mb-1.5">
+                Attach Documents <span className="text-[#7A8FA6] font-normal">(Optional - Photos, PDFs, etc.)</span>
+              </label>
+              <div className="space-y-3">
+                <label className="flex items-center gap-3 p-4 border-2 border-dashed border-[#E5E7EB] rounded-lg cursor-pointer hover:border-[#FF8C42] hover:bg-[#FFF8F0]/50 transition-colors">
+                  <span className="text-[16px]">📎</span>
+                  <span className="text-[12px] text-[#7A8FA6]">Click to select files or drag and drop</span>
+                  <input
+                    type="file"
+                    multiple
+                    accept="image/*,.pdf,.doc,.docx"
+                    onChange={e => setSelectedFiles([...selectedFiles, ...(e.target.files ? Array.from(e.target.files) : [])])}
+                    className="hidden"
+                  />
+                </label>
+
+                {selectedFiles.length > 0 && (
+                  <div className="bg-[#F0F7FF] border border-[#B3E5FC] rounded-lg p-3 space-y-2">
+                    <p className="text-[11px] font-bold text-[#0277BD]">Selected Files ({selectedFiles.length}):</p>
+                    {selectedFiles.map((file, idx) => (
+                      <div key={idx} className="flex items-center justify-between bg-white p-2 rounded border border-[#B3E5FC]">
+                        <p className="text-[11px] text-[#0F1A2E] truncate">{file.name}</p>
+                        <button
+                          onClick={() => setSelectedFiles(selectedFiles.filter((_, i) => i !== idx))}
+                          className="text-[11px] text-[#FF8A80] hover:text-red-700 font-semibold"
+                        >
+                          Remove
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </div>
+
             {/* SMS Notice */}
             <div className="bg-[#F0F7FF] border border-[#B3E5FC] rounded-lg p-3">
               <p className="text-[11px] text-[#0277BD]">
@@ -366,6 +437,18 @@ export default function FileComplaint() {
                 <p className="text-[11px] font-bold text-[#7A8FA6] mb-1">Description</p>
                 <p className="text-[12px] text-[#0F1A2E] leading-relaxed">{form.description}</p>
               </div>
+              {selectedFiles.length > 0 && (
+                <div className="py-2">
+                  <p className="text-[11px] font-bold text-[#7A8FA6] mb-2">Attachments ({selectedFiles.length})</p>
+                  <div className="space-y-1">
+                    {selectedFiles.map((file, idx) => (
+                      <p key={idx} className="text-[11px] text-[#0F1A2E] flex items-center gap-2">
+                        📎 {file.name}
+                      </p>
+                    ))}
+                  </div>
+                </div>
+              )}
             </div>
 
             <div className="flex gap-3 pt-2">
