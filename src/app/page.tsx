@@ -60,10 +60,10 @@ export default function RootPage() {
           </div>
           <div className="flex items-center gap-2">
             <a href="/Swagat 3.0 Mobile - Merged (2).html" target="_blank" rel="noopener noreferrer" className="hidden md:inline-flex items-center gap-1.5 text-[12px] font-semibold text-[#0891B2] bg-blue-50 border border-[#0891B2] px-3 py-1.5 rounded-lg hover:bg-blue-100 transition-colors">
-              <Smartphone size={13} /> Swagat 3.0
+              <Smartphone size={13} /> Mobile App
             </a>
             <a href="/CitizenVoice_WhatsApp_v1.html" target="_blank" rel="noopener noreferrer" className="hidden md:inline-flex items-center gap-1.5 text-[12px] font-semibold text-green-700 bg-green-50 border border-green-600 px-3 py-1.5 rounded-lg hover:bg-green-100 transition-colors">
-              <MessageCircle size={13} /> CitizenVoice
+              <MessageCircle size={13} /> WhatsApp
             </a>
             <Link href="/login" className="text-[12px] font-semibold text-[#3D5068] hover:text-[#0E1C2F] px-3 py-1.5 rounded-lg hover:bg-[#F0F2F7] transition-colors">
               Officer Login
@@ -382,7 +382,7 @@ export default function RootPage() {
                 rel="noopener noreferrer"
                 className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-white/10 hover:bg-white/20 text-blue-200 hover:text-white text-[11px] font-medium transition-colors border border-white/10"
               >
-                📱 Swagat 3.0 Mobile
+                Mobile App
               </a>
               <a
                 href="/CitizenVoice_WhatsApp_v1.html"
@@ -390,7 +390,7 @@ export default function RootPage() {
                 rel="noopener noreferrer"
                 className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-white/10 hover:bg-white/20 text-blue-200 hover:text-white text-[11px] font-medium transition-colors border border-white/10"
               >
-                💬 CitizenVoice WhatsApp
+                WhatsApp
               </a>
             </div>
           </div>
