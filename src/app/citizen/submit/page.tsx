@@ -869,7 +869,8 @@ export default function SubmitGrievance() {
         </div>
       )}
 
-      <AIChatbot />
+        <AIChatbot />
+      </div>
     </div>
   );
 }
