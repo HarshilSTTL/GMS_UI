@@ -213,7 +213,7 @@ export default function CitizenGrievances() {
                 const pc = PRIORITY_CONFIG[g.priority] || PRIORITY_CONFIG.medium;
                 const slaColor = g.slaDaysLeft < 0 ? '#DC2626' : g.slaDaysLeft <= 2 ? '#D97706' : '#16A34A';
                 return (
-                  <tr key={g.id} onClick={() => router.push(`/citizen/grievances/${g.id}`)} className={`border-b border-[#F0F2F7] last:border-0 hover:bg-[#F8F9FB] transition-colors cursor-pointer ${g.status === 'document_requested' ? 'bg-amber-50' : ''}`}>
+                  <tr key={g.id} onClick={() => router.push(`/citizen/grievances/${g.id}`)} className={`border-b border-[#F0F2F7] last:border-0 hover:bg-[#E5E7EB] transition-colors cursor-pointer ${g.status === 'document_requested' ? 'bg-amber-50' : ''}`}>
                     <td className="px-4 py-3">
                       <p className="text-[12px] font-semibold text-[#0E1C2F]">{g.title}</p>
                       <p className="text-[10px] text-[#7A8FA6] font-mono">{g.token}</p>
