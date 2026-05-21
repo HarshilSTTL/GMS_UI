@@ -1,6 +1,6 @@
 'use client';
 import { useState, useEffect } from 'react';
-import { FileText, Search, Filter, Plus, ChevronUp, ChevronDown, ArrowUpDown } from 'lucide-react';
+import { FileText, Search, Filter, Plus, ChevronUp, ChevronDown, ArrowUpDown, RefreshCw } from 'lucide-react';
 import { getLocalGrievancesByUser } from '@/lib/local-store';
 import Link from 'next/link';
 import { useAuthStore } from '@/stores';
@@ -36,6 +36,7 @@ export default function CitizenGrievances() {
   const { user } = useAuthStore();
   const [grievances, setGrievances] = useState<Grievance[]>([]);
   const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
   const [filter, setFilter] = useState('all');
   const [search, setSearch] = useState('');
   const [sortKey, setSortKey] = useState<SortKey>('submittedDate');
@@ -63,18 +64,36 @@ export default function CitizenGrievances() {
 
     fetchFromServer(authUser.id)
       .catch(() => {
-        // Fallback to localStorage if server is unreachable
         setGrievances(getLocalGrievancesByUser(authUser.id));
       })
       .finally(() => setLoading(false));
 
     // Refresh when tab comes back into focus
     function onFocus() {
-      fetchFromServer(authUser.id).catch(() => {});
+      setRefreshing(true);
+      fetchFromServer(authUser.id).catch(() => {}).finally(() => setRefreshing(false));
     }
     window.addEventListener('focus', onFocus);
-    return () => window.removeEventListener('focus', onFocus);
+
+    // Auto-refresh every 20 seconds to catch officer updates
+    const refreshInterval = setInterval(() => {
+      fetchFromServer(authUser.id).catch(() => {});
+    }, 20000);
+
+    return () => {
+      window.removeEventListener('focus', onFocus);
+      clearInterval(refreshInterval);
+    };
   }, []);
+
+  function handleManualRefresh() {
+    const authUser = JSON.parse(localStorage.getItem('gms-auth') || '{}')?.state?.user;
+    if (!authUser?.id) return;
+    setRefreshing(true);
+    fetchFromServer(authUser.id)
+      .catch(() => {})
+      .finally(() => setRefreshing(false));
+  }
 
   const filtered = grievances
     .filter(g => {
@@ -121,9 +140,14 @@ export default function CitizenGrievances() {
           <h1 className="text-[16px] font-bold text-[#0E1C2F]">My Grievances</h1>
           <p className="text-[12px] text-[#7A8FA6]">{grievances.length} total grievances</p>
         </div>
-        <Link href="/citizen/submit" className="inline-flex items-center gap-2 bg-[#F4811F] hover:bg-[#E0721A] text-white rounded-lg px-4 py-2 text-[12px] font-semibold transition-colors">
-          <Plus size={14} /> File New
-        </Link>
+        <div className="flex items-center gap-2">
+          <button onClick={handleManualRefresh} disabled={refreshing} className="inline-flex items-center gap-2 bg-[#F0F2F7] hover:bg-[#DDE3EE] text-[#3D5068] rounded-lg px-3 py-2 text-[12px] font-semibold transition-colors disabled:opacity-50">
+            <RefreshCw size={14} className={refreshing ? 'animate-spin' : ''} /> Refresh
+          </button>
+          <Link href="/citizen/submit" className="inline-flex items-center gap-2 bg-[#F4811F] hover:bg-[#E0721A] text-white rounded-lg px-4 py-2 text-[12px] font-semibold transition-colors">
+            <Plus size={14} /> File New
+          </Link>
+        </div>
       </div>
 
       {/* Action Required Alert */}
