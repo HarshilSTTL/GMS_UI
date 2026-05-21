@@ -57,21 +57,29 @@ export default function GrievanceDetail({ params }: { params: Promise<{ id: stri
   const [resubmitting, setResubmitting] = useState(false);
   const [resubDone, setResubDone] = useState(false);
 
-  useEffect(() => {
-    fetch(`/api/grievances/${id}`)
+  function loadGrievance() {
+    return fetch(`/api/grievances/${id}`)
       .then(r => r.json())
       .then(d => {
         const data = d.data || d;
-        const mapped = {
+        if (!data?.id) return;
+        setG({
           ...data,
           submittedDate: data.createdAt || data.submittedDate,
           officer: data.assignedTo?.name || data.officer || 'Unassigned',
           officerDept: data.assignedTo?.department || data.officerDept || '',
           status: data.status === 'open' ? 'pending' : data.status,
-        };
-        setG(mapped);
-        setLoading(false);
+        });
       });
+  }
+
+  useEffect(() => {
+    loadGrievance().finally(() => setLoading(false));
+
+    // Re-fetch when tab regains focus so citizen sees officer's status changes
+    function onFocus() { loadGrievance().catch(() => {}); }
+    window.addEventListener('focus', onFocus);
+    return () => window.removeEventListener('focus', onFocus);
   }, [id]);
 
   async function handleAction() {

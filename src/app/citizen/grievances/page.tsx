@@ -41,34 +41,39 @@ export default function CitizenGrievances() {
   const [sortKey, setSortKey] = useState<SortKey>('submittedDate');
   const [sortDir, setSortDir] = useState<SortDir>('desc');
 
-  useEffect(() => {
-    const user = JSON.parse(localStorage.getItem('gms-auth') || '{}')?.state?.user;
-    if (!user?.id) { setLoading(false); return; }
-
-    // Local grievances are always shown immediately
-    const localItems = getLocalGrievancesByUser(user.id);
-    setGrievances(localItems);
-
-    // Merge with server data in background
-    fetch(`/api/grievances/citizen/${user.id}`)
+  function fetchFromServer(userId: string) {
+    return fetch(`/api/grievances/citizen/${userId}`)
       .then(r => r.json())
       .then(d => {
         const data = d.data || d;
-        const fromServer = Array.isArray(data) ? data.map((g: any) => ({
+        if (!Array.isArray(data)) return;
+        setGrievances(data.map((g: any) => ({
           ...g,
           submittedDate: g.createdAt || g.submittedDate,
           officer: g.assignedTo?.name || g.officer || 'Unassigned',
           officerDept: g.assignedTo?.department || g.officerDept || '',
           status: g.status === 'open' ? 'pending' : g.status,
-        })) : [];
-        // Merge: keep local items not in server, then server items
-        const serverIds = new Set(fromServer.map((g: any) => g.id));
-        const serverTokens = new Set(fromServer.map((g: any) => g.token));
-        const onlyLocal = localItems.filter(g => !serverIds.has(g.id) && !serverTokens.has(g.token));
-        setGrievances([...onlyLocal, ...fromServer]);
+        })));
+      });
+  }
+
+  useEffect(() => {
+    const authUser = JSON.parse(localStorage.getItem('gms-auth') || '{}')?.state?.user;
+    if (!authUser?.id) { setLoading(false); return; }
+
+    fetchFromServer(authUser.id)
+      .catch(() => {
+        // Fallback to localStorage if server is unreachable
+        setGrievances(getLocalGrievancesByUser(authUser.id));
       })
-      .catch(() => {})
       .finally(() => setLoading(false));
+
+    // Refresh when tab comes back into focus
+    function onFocus() {
+      fetchFromServer(authUser.id).catch(() => {});
+    }
+    window.addEventListener('focus', onFocus);
+    return () => window.removeEventListener('focus', onFocus);
   }, []);
 
   const filtered = grievances
