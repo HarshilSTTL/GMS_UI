@@ -1,7 +1,29 @@
 'use client';
 import Link from 'next/link';
+import { useState } from 'react';
 
 export default function NotFound() {
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
+
+  async function handleLogout() {
+    setIsLoggingOut(true);
+    try {
+      // Clear all session data
+      localStorage.removeItem('gms-auth');
+      localStorage.removeItem('authToken');
+      sessionStorage.clear();
+      document.cookie.split(";").forEach(c => {
+        document.cookie = c.replace(/^ +/, "").replace(/=.*/, `=;expires=${new Date().toUTCString()};path=/`);
+      });
+
+      // Redirect to home
+      window.location.href = '/';
+    } catch (error) {
+      console.error('Logout failed:', error);
+      setIsLoggingOut(false);
+    }
+  }
+
   return (
     <div className="min-h-screen bg-[#F0F2F7] flex items-center justify-center px-4">
       <div className="max-w-md w-full text-center">
@@ -26,10 +48,20 @@ export default function NotFound() {
             <Link href="/" className="flex-1 py-2.5 px-4 rounded-[10px] text-[13px] font-semibold bg-[#1A56C4] text-white hover:bg-[#0E3A8C] transition-colors text-center">
               Go to Home
             </Link>
-            <Link href="javascript:history.back()" onClick={(e) => { e.preventDefault(); if (typeof window !== 'undefined') window.history.back(); }}
+            <button onClick={() => { if (typeof window !== 'undefined') window.history.back(); }}
               className="flex-1 py-2.5 px-4 rounded-[10px] text-[13px] font-semibold border border-[#DDE3EE] text-[#3D5068] hover:bg-[#F0F2F7] transition-colors text-center">
               Go Back
-            </Link>
+            </button>
+          </div>
+
+          <div className="mt-4 pt-4 border-t border-[#DDE3EE]">
+            <button
+              onClick={handleLogout}
+              disabled={isLoggingOut}
+              className="w-full py-2.5 px-4 rounded-[10px] text-[13px] font-semibold bg-red-50 text-red-600 hover:bg-red-100 transition-colors disabled:opacity-60"
+            >
+              {isLoggingOut ? '🔄 Logging out...' : '🚪 Logout & Clear Session'}
+            </button>
           </div>
 
           <p className="text-[11px] text-[#7A8FA6] mt-5">
