@@ -70,6 +70,7 @@ export interface Complaint {
   createdAt: string;
   updatedAt: string;
   resolvedAt?: string | null;
+  resolution?: string | null;
   documentRequest?: {
     note: string;
     requestedBy: string;

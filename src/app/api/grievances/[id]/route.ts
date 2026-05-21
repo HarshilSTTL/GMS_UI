@@ -207,17 +207,22 @@ export async function PATCH(
 
       // ========== RESOLVE ==========
       case 'resolve': {
-        const { resolution } = rest;
+        const { resolution, resolutionNotes } = rest;
+        const resolutionText = resolution || resolutionNotes;
+        if (!resolutionText?.trim()) {
+          return NextResponse.json({ error: 'Resolution notes are required.' }, { status: 400 });
+        }
         if (['resolved', 'closed'].includes(complaint.status)) {
           return NextResponse.json({ error: 'Grievance is already resolved or closed.' }, { status: 400 });
         }
         complaint.status = 'resolved';
         complaint.resolvedAt = now;
+        complaint.resolution = resolutionText;
         complaint.slaStatus = 'ok';
         complaint.slaDaysLeft = 0;
-        addTimelineEntry(complaint, 'resolved', 'Grievance Resolved', actorName, actorRole, resolution || 'Grievance has been resolved.');
+        addTimelineEntry(complaint, 'resolved', 'Grievance Resolved', actorName, actorRole, `Resolution: ${resolutionText}`);
         createNotification(complaint.citizenId, 'Grievance Resolved', `Your grievance ${complaint.token} has been resolved. Please provide your feedback.`, id, 'resolution');
-        addAuditEntry('RESOLVE', actorId, `Grievance ${id} resolved`);
+        addAuditEntry('RESOLVE', actorId, `Grievance ${id} resolved with notes: ${resolutionText}`);
         logAction('RESOLVE grievance', actorId, `grievance: ${id}`);
         break;
       }
